@@ -35,8 +35,9 @@ Commits: <!-- hashes + mensagens -->
 
 ## Auditoria
 
-Contexto limpo (subagente): <!-- sim/self --> · Achados: <!-- nenhum | lista
-achado → acatado (score ajustado) ou refutado (justificativa) -->
+Contexto limpo (subagente): <!-- sim/self --> · Mutações dirigidas: <!-- N
+aplicadas, N sobreviventes --> · Achados: <!-- nenhum | lista achado →
+acatado (score ajustado) ou refutado (justificativa) -->
 
 ## Verdict
 

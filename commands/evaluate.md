@@ -37,12 +37,24 @@ Antes do ratchet, delegue a auditoria a um **subagente de contexto limpo**
 (no Claude Code, a ferramenta Task), entregando: a spec, as skills declaradas,
 a rubrica preenchida com evidências e os comandos de verificação (suíte,
 cobertura, `git log`, inspeção de imports). A instrução dele é **derrubar
-scores**: re-executar as evidências e procurar pontuação sem prova, violação
-não detectada ou anti-pattern ignorado. Ele **não reescreve a rubrica** — só
-reporta achados; você acata (ajusta o score) ou refuta com justificativa, e
-registra o resultado na linha "Auditoria" da rubrica. *Sem suporte a
-subagentes: re-execute você mesmo cada evidência numa passada separada antes
-do ratchet, e registre a auditoria como "self".* 
+scores**, em duas frentes:
+
+1. **Re-execução**: rodar de novo cada evidência e procurar pontuação sem
+   prova, violação não detectada ou anti-pattern ignorado.
+2. **Mutação dirigida** — cobertura de linha não prova asserção; mutação é o
+   teste do teste. Para cada criterio crítico da spec, mutar o elo
+   correspondente na produção e rodar a suíte: se nenhum teste quebra (mesmo
+   com cobertura 100%), o criterio está coberto sem estar assertado — achado.
+   Reverter a mutação após cada prova. Exemplos de mutação por criterio:
+   remover o registro de erro mantendo o 500; inverter uma regra de
+   autorização; trocar a comparação de fronteira de um intervalo; devolver
+   sucesso sem persistir.
+
+Ele **não reescreve a rubrica** — só reporta achados; você acata (ajusta o
+score) ou refuta com justificativa, e registra o resultado na linha
+"Auditoria" da rubrica (incluindo mutações aplicadas × sobreviventes). *Sem
+suporte a subagentes: execute você mesmo as duas frentes numa passada separada
+antes do ratchet, e registre a auditoria como "self".* 
 
 ## Passo 3 — Ratchet
 
