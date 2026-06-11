@@ -1,0 +1,81 @@
+schema_version: "1"
+library: catraca
+skills:
+  - id: "testing/tdd-minimal-step"
+    name: "tdd-minimal-step"
+    category: "testing"
+    path: "skills/testing/tdd-minimal-step/SKILL.md"
+    description: "Ciclo red-green-refactor por comportamento, implementação mínima sob suíte verde."
+    dependencies: []
+  - id: "testing/test-doubles"
+    name: "test-doubles"
+    category: "testing"
+    path: "skills/testing/test-doubles/SKILL.md"
+    description: "Spies, stubs e mocks de falha isolam a unidade; relógio fixo para datas."
+    dependencies: ["testing/test-setup-factories"]
+  - id: "testing/test-setup-factories"
+    name: "test-setup-factories"
+    category: "testing"
+    path: "skills/testing/test-setup-factories/SKILL.md"
+    description: "Factories de SUT e de dados centralizam o arranjo dos testes."
+    dependencies: []
+  - id: "testing/integration-tests"
+    name: "integration-tests"
+    category: "testing"
+    path: "skills/testing/integration-tests/SKILL.md"
+    description: "Rotas contra o app montado e repositórios contra banco efêmero, com limpeza por teste."
+    dependencies: ["testing/test-setup-factories"]
+  - id: "architecture/dependency-inversion-adapters"
+    name: "dependency-inversion-adapters"
+    category: "architecture"
+    path: "skills/architecture/dependency-inversion-adapters/SKILL.md"
+    description: "Protocolos na camada que consome, injeção por construtor, adapters isolam libs, composição num ponto único."
+    dependencies: []
+  - id: "architecture/controller-error-boundary"
+    name: "controller-error-boundary"
+    category: "architecture"
+    path: "skills/architecture/controller-error-boundary/SKILL.md"
+    description: "Exceção inesperada propaga até a borda e vira erro genérico; ausência de negócio vira resultado na camada de dados."
+    dependencies: ["architecture/dependency-inversion-adapters", "testing/test-doubles"]
+  - id: "architecture/error-observability"
+    name: "error-observability"
+    category: "architecture"
+    path: "skills/architecture/error-observability/SKILL.md"
+    description: "Nenhum 500 sem registro: erro completo logado na borda via decorator/middleware, destino atrás de adapter, payload limpo."
+    dependencies: ["architecture/controller-error-boundary", "architecture/dependency-inversion-adapters"]
+  - id: "foundational/input-validation"
+    name: "input-validation"
+    category: "foundational"
+    path: "skills/foundational/input-validation/SKILL.md"
+    description: "Cada regra de entrada é um objeto; agregador composto por factory; borda só chama validate."
+    dependencies: ["architecture/dependency-inversion-adapters"]
+  - id: "refactor/single-responsibility"
+    name: "single-responsibility"
+    category: "refactor"
+    path: "skills/refactor/single-responsibility/SKILL.md"
+    description: "Refactor em passos sob suíte verde; estrutura nova entra antes da antiga sair."
+    dependencies: ["testing/tdd-minimal-step", "architecture/dependency-inversion-adapters", "workflows/git-conventions"]
+  - id: "domain-conventions/layered-typing"
+    name: "layered-typing"
+    category: "domain-conventions"
+    path: "skills/domain-conventions/layered-typing/SKILL.md"
+    description: "Tipos de fronteira nascem na camada que os publica; infra não importa models do domínio."
+    dependencies: ["architecture/dependency-inversion-adapters"]
+  - id: "domain-conventions/project-structure"
+    name: "project-structure"
+    category: "domain-conventions"
+    path: "skills/domain-conventions/project-structure/SKILL.md"
+    description: "Fronteira arquitetural → unidade de domínio; testes em árvore espelhada; reorganização como refactor puro."
+    dependencies: []
+  - id: "workflows/git-conventions"
+    name: "git-conventions"
+    category: "workflows"
+    path: "skills/workflows/git-conventions/SKILL.md"
+    description: "Conventional commits validados por hook; cada commit deixa a árvore verde, sem teste órfão."
+    dependencies: []
+  - id: "workflows/quality-pipeline"
+    name: "quality-pipeline"
+    category: "workflows"
+    path: "skills/workflows/quality-pipeline/SKILL.md"
+    description: "Gates automáticos que reprovam commit/push; necessidades fixas, ferramentas escolhidas por stack na feature 000."
+    dependencies: ["testing/tdd-minimal-step"]
