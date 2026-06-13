@@ -57,6 +57,23 @@ controller e adapter são apenas exemplos da mesma forma.
    aqui.
 7. Só então avance para o próximo comportamento e repita.
 
+## Ramos de guarda: o compilador aponta o próximo red
+
+Ramo de guarda é o código que barra um caso ruim antes do trabalho de verdade
+(ex.: `if (payload === null) return null`). Ele costuma nascer torto: o
+compilador exige tratar o caso ("pode ser null"), a guarda é escrita para
+calar o erro de tipo, e o teste vem depois — sem nunca ter falhado.
+
+A regra: **quando o compilador exigir tratar um caso, pare — esse é o próximo
+comportamento.** Escreva primeiro o teste do caso ("token inválido devolve
+null"), veja-o falhar, e só então escreva a guarda. O erro de tipo não é um
+obstáculo a calar; é o compilador entregando o red de graça.
+
+Vale o mesmo para qualquer ramo defensivo de origem mecânica: lint exigindo
+default em switch, campo opcional forçando fallback. Ramo sem red próprio é
+comportamento sem prova — e é exatamente onde sabotagens (inverter ou remover
+a guarda) passam despercebidas pela suíte.
+
 ## Granularidade e saída do fake-it
 
 - "Um comportamento" é a menor regra observável. Se o passo natural exige mais
@@ -76,10 +93,14 @@ controller e adapter são apenas exemplos da mesma forma.
       generalizar.
 - [ ] Após refactor, a suíte continua verde sem alterar as asserções.
 - [ ] Nenhum valor fixo deliberado sobrou sem o teste que o generaliza.
+- [ ] Todo ramo de guarda (caso exigido por compilador/lint) tem red próprio
+      que foi visto falhar antes da guarda existir.
 
 ## Anti-Patterns
 
 - Escrever toda a produção e só depois os testes (test-after disfarçado).
+- Escrever uma guarda para calar o compilador/lint e testá-la depois — o ramo
+  nasceu sem red; o teste só confirma o que já existe.
 - Pular o red ou aceitar um red por erro de setup/import como se fosse o
   esperado.
 - Empilhar comportamentos distintos num teste só, perdendo a granularidade do
