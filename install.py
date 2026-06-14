@@ -27,7 +27,7 @@ from pathlib import Path
 FRAMEWORK_ROOT = Path(__file__).resolve().parent
 DEFAULT_SKILLS_SOURCE = FRAMEWORK_ROOT / "skills"
 
-COMMANDS = ["init", "plan", "implement", "evaluate", "status"]
+COMMANDS = ["init", "plan", "implement", "evaluate", "status", "reverse"]
 
 
 class Report:

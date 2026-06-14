@@ -49,6 +49,7 @@ O agente entra no fluxo:
 | Implementação TDD | `/catraca.implement` | código + testes, `tasks/NNN-*.md` |
 | Avaliação | `/catraca.evaluate` | `evaluation/NNN-*.md`, `ratchet.json` |
 | Situação | `/catraca.status` | próxima ação |
+| Engenharia reversa | `/catraca.reverse` | *seed* (produto + Gates A–D) a partir de projeto existente |
 
 **Modo guiado**: o agente para nos User Feedback Gates (objetivo, stack, rigor
 do TDD, Clean Architecture estrita ou leve, skills obrigatórias, commits,
