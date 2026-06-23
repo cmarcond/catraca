@@ -1,59 +1,58 @@
-# Specs — Como Escrever (e a Barreira Intenção/Solução)
+# Specs — How to Write Them (and the Intent/Solution Barrier)
 
-Uma spec por feature, nomeada `NNN-slug.md` (numeração sequencial do roadmap).
-Use `FEATURE-TEMPLATE.md` como base.
+One spec per feature, named `NNN-slug.md` (sequential numbering from the
+roadmap). Use `FEATURE-TEMPLATE.md` as the base.
 
-## A regra de ouro
+## The golden rule
 
-**Spec é intenção; skill é solução.** A spec descreve o que o sistema faz em
-linguagem de comportamento. O *como construir com qualidade* já está escrito
-nas skills — a spec apenas as referencia por id.
+**A spec is intent; a skill is the solution.** The spec describes what the
+system does in behavior language. The *how to build it with quality* is already
+written in the skills — the spec only references them by id.
 
-Proibido em specs:
+Forbidden in specs:
 
-- nomes de classes, arquivos, paths, funções ou assinaturas;
-- nomes de bibliotecas ou tecnologias (isso mora em `architecture.md`);
-- copiar o conteúdo de uma skill para dentro da spec.
+- names of classes, files, paths, functions, or signatures;
+- names of libraries or technologies (those live in `architecture.md`);
+- copying the content of a skill into the spec.
 
-Permitido e esperado:
+Allowed and expected:
 
-- comportamento observável em formato WHEN/THEN;
-- vocabulário do domínio (conta, enquete, resposta…);
-- códigos de status e formatos de resposta *do contrato externo* (ex.: "retorna
-  403"), pois são comportamento, não estrutura interna.
+- observable behavior in WHEN/THEN format;
+- domain vocabulary (account, poll, answer…);
+- status codes and response formats *of the external contract* (e.g. "returns
+  403"), since those are behavior, not internal structure.
 
-## Checklist de leakage (antes de fechar a spec)
+## Leakage checklist (before closing the spec)
 
-- [ ] Nenhuma frase desta spec menciona classe, arquivo, lib ou assinatura.
-- [ ] Cada criterio é verificável por um teste de comportamento.
-- [ ] O que for decisão técnica foi movido para `architecture.md`.
-- [ ] As skills referenciadas existem em `skills/index.yaml`.
+- [ ] No sentence in this spec mentions a class, file, library, or signature.
+- [ ] Each criterion is verifiable by a behavior test.
+- [ ] Anything that is a technical decision was moved to `architecture.md`.
+- [ ] The referenced skills exist in `skills/index.yaml`.
 
-## Checklist adversarial (revisão de contexto limpo, antes do G12)
+## Adversarial checklist (clean-context review, before G12)
 
-O revisor recebe só `product.md`, `architecture.md` e a spec — e tenta
-**refutar**:
+The reviewer receives only `product.md`, `architecture.md`, and the spec — and
+tries to **refute** it:
 
-- [ ] **Semântica de borda**: os status distinguem não-autenticado de
-      não-autorizado (tipicamente 401 vs 403)? Se não distinguem, é decisão
-      deliberada ou hábito?
-- [ ] **Testabilidade**: cada criterio WHEN/THEN é verificável por um teste de
-      comportamento, sem interpretação?
-- [ ] **Consistência de papéis**: as permissões batem com os perfis do
-      `product.md`? Há papel citado sem regra, ou regra sem papel?
-- [ ] **Casos negativos**: entrada inválida, ausência e falha interna têm
-      criterio próprio?
-- [ ] **Vazamento de solução**: algum termo é tecnologia/estrutura disfarçada
-      de comportamento?
-- [ ] **Contradições**: algum criterio conflita com outra spec ou com o
-      fora-de-escopo?
+- [ ] **Boundary semantics**: do the statuses distinguish unauthenticated from
+      unauthorized (typically 401 vs 403)? If they don't, is that a deliberate
+      decision or a habit?
+- [ ] **Testability**: is each WHEN/THEN criterion verifiable by a behavior
+      test, with no interpretation?
+- [ ] **Role consistency**: do the permissions match the roles in `product.md`?
+      Is there a role mentioned without a rule, or a rule without a role?
+- [ ] **Negative cases**: do invalid input, absence, and internal failure each
+      have their own criterion?
+- [ ] **Solution leakage**: is any term a technology/structure disguised as
+      behavior?
+- [ ] **Contradictions**: does any criterion conflict with another spec or with
+      the out-of-scope section?
 
-Achado não é ordem: o autor acata ou refuta com justificativa — mas por
-escrito, na spec.
+A finding is not an order: the author accepts it or refutes it with a
+justification — but in writing, in the spec.
 
-## De onde vêm os critérios técnicos?
+## Where do the technical criteria come from?
 
-Os acceptance criteria da spec são comportamentais. Os critérios *técnicos*
-(como testar, como estruturar) o agente deriva, na hora de implementar, das
-seções **Test Checklist** das skills referenciadas — exatamente como no Modo B
-do benchmark que validou este método.
+The spec's acceptance criteria are behavioral. The *technical* criteria (how to
+test, how to structure) are derived by the agent, at implementation time, from
+the **Test Checklist** sections of the referenced skills.

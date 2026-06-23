@@ -1,36 +1,34 @@
-# /catraca.status — Onde Estamos e Próxima Ação
+# /catraca.status — Where We Are and the Next Action
 
-Reconstrói o estado do projeto **somente a partir dos arquivos** (não de
-memória da conversa) e anuncia a próxima ação. Também reconcilia revisões de
-decisões.
+Reconstructs the project's state **from the files only** (not from conversation
+memory) and announces the next action. It also reconciles decision reviews.
 
-## Passo 1 — Ler o estado
+## Step 1 — Read the state
 
-| Verificação | Fonte |
+| Check | Source |
 |---|---|
-| Init feito? | `questions.md` (gates A–D respondidos?), `product.md`/`architecture.md`/`method.md` preenchidos? |
-| Plan feito? | `roadmap.md` tem features? Specs existem para todas? |
-| Feature em andamento? | Primeiro `tasks/NNN-*.md` com checkbox aberto |
-| Avaliações pendentes? | Features com "implementada" marcado e "avaliada" aberto no roadmap |
-| Regressões? | Alertas registrados nas rubricas + `ratchet.json` |
+| Init done? | `questions.md` (gates A–D answered?), `product.md`/`architecture.md`/`method.md` filled in? |
+| Plan done? | does `roadmap.md` have features? do specs exist for all of them? |
+| Feature in progress? | the first `tasks/NNN-*.md` with an open checkbox |
+| Pending evaluations? | features with "implemented" checked and "evaluated" open in the roadmap |
+| Regressions? | alerts recorded in the rubrics + `ratchet.json` |
 
-## Passo 2 — Reconciliar revisões
+## Step 2 — Reconcile reviews
 
-Se alguma linha de `questions.md` tem a coluna "Revisão" preenchida e ainda não
-aplicada:
+If any row of `questions.md` has the "Review" column filled in and not yet
+applied (gate → file mapping is the table in `init.md`):
 
-1. identifique os artefatos afetados (G2–G4 ⇒ `architecture.md`; G5–G8 ⇒
+1. identify the affected artifacts (G2–G4 ⇒ `architecture.md`; G5–G8 ⇒
    `method.md`; G9–G10 ⇒ `evaluation/` + `ratchet.json` `mode`);
-2. proponha as edições ao usuário (modo guiado) ou aplique e registre
-   (automático);
-3. marque a revisão como aplicada na própria tabela.
+2. propose the edits to the user (guided mode) or apply and record them (auto);
+3. mark the review as applied in the table itself.
 
-## Passo 3 — Reportar
+## Step 3 — Report
 
-Responda em poucas linhas:
+Answer in a few lines:
 
-- fase atual (init / plan / implement feature NNN / evaluate feature NNN /
-  roadmap completo);
-- pendências e alertas (rubricas abertas, regressões de ratchet, suposições
-  `[assumed]` ainda não revisadas — liste-as para o usuário validar);
-- **próxima ação concreta** (qual comando, qual feature).
+- the current phase (init / plan / implement feature NNN / evaluate feature NNN
+  / roadmap complete);
+- pending items and alerts (open rubrics, ratchet regressions, `[assumed]`
+  assumptions not yet reviewed — list them for the user to validate);
+- the **next concrete action** (which command, which feature).

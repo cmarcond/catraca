@@ -1,7 +1,7 @@
 ---
 name: single-responsibility
-title: Refactor incremental por responsabilidade
-description: Fatiar refactors em passos com a suíte sempre verde — divide casos de uso/repositórios pelo uso real, otimiza queries por projection quando a fonte suporta, e renomeia sem mudar o contrato observável pelos consumidores.
+title: Single Responsibility
+description: Refactors in steps under a green suite, with the new structure entering before the old one leaves. Use when a unit has grown more than one responsibility.
 category: refactor
 dependencies:
   - testing/tdd-minimal-step
@@ -9,100 +9,99 @@ dependencies:
   - workflows/git-conventions
 ---
 
-# Refactor incremental por responsabilidade
+# Single Responsibility
 
-Reestrutura código existente sem quebrar comportamento: a estrutura nova entra
-antes da antiga sair, e a suíte fica verde entre cada passo.
+Restructures existing code without breaking behavior: the new structure enters
+before the old one leaves, and the suite stays green between each step.
 
-**Contrato externo** = o boundary observável pelos consumidores existentes do
-que está sendo refatorado (assinaturas que eles chamam, valores que eles
-leem). Mover um método entre camadas pode mudar a forma interna sem mudar esse
-contrato; se um consumidor existente precisa ajustar a expectativa, o contrato
-mudou e isto deixa de ser refactor.
+**External contract** = the boundary observable by the existing consumers of
+what is being refactored (signatures they call, values they read). Moving a
+method between layers may change the internal shape without changing that
+contract; if an existing consumer needs to adjust its expectation, the contract
+changed and this stops being a refactor.
 
-**Pré-condição de arquitetura.** Os passos pressupõem camadas com inversão de
-dependência (consumidores dependem de uma abstração, não da implementação
-concreta) — é o que torna possível trocar a estrutura por trás sem tocar o
-consumidor. Sem essa separação, "adicionar o novo ao lado do antigo" pode não
-ser viável e o refactor exige outro plano.
+**Architecture precondition.** The steps assume layers with dependency
+inversion (consumers depend on an abstraction, not on the concrete
+implementation) — that is what makes it possible to swap the structure behind it
+without touching the consumer. Without that separation, "adding the new one
+alongside the old" may not be viable and the refactor requires another plan.
 
 ## When To Use
 
-- Um consumidor usa só parte do retorno → extraia uma operação dedicada para
-  essa necessidade (ex.: separar "verificar existência" de "carregar
-  completo").
-- Um método/operação/repositório acumula responsabilidades não relacionadas.
-- Uma query carrega a entidade inteira mas só alguns campos são usados →
-  considere projection ou um acesso específico (ver constraint abaixo).
-- Renome de um símbolo que atravessa camadas (abstração, implementação, dublês
-  de teste).
+- A consumer uses only part of the return → extract a dedicated operation for
+  that need (e.g., separate "check existence" from "load complete").
+- A method/operation/repository accumulates unrelated responsibilities.
+- A query loads the entire entity but only a few fields are used →
+  consider a projection or a specific accessor (see constraint below).
+- Renaming a symbol that crosses layers (abstraction, implementation, test
+  stubs).
 
-> Atualização de biblioteca grande "deixando os testes apontarem o que
-> quebrou" é migração de dependência, não refactor por responsabilidade —
-> fora do escopo desta skill.
+> A large library update "letting the tests point out what broke" is dependency
+> migration, not refactoring by responsibility — out of scope for this skill.
 
 ## When Not To Use
 
-- Primeiro teste de um comportamento novo → use `tdd-minimal-step`. Refactor
-  pressupõe comportamento já coberto.
-- Não há cobertura prévia dos pontos tocados → escreva os testes primeiro; sem
-  rede, não é refactor seguro.
-- Divisão "para o futuro" sem consumidor concreto pedindo → adiciona estrutura
-  que ninguém usa; espere o uso real.
+- First test of a new behavior → use `tdd-minimal-step`. Refactor assumes
+  behavior already covered.
+- There is no prior coverage of the touched points → write the tests first;
+  without a safety net, it is not a safe refactor.
+- Splitting "for the future" without a concrete consumer asking for it → adds
+  structure that nobody uses; wait for the real usage.
 
 ## Order Of Operations
 
-1. Confirme que os comportamentos afetados têm testes verdes. Se não, cubra
-   antes de tocar.
-2. Identifique a responsabilidade/uso concreto que motiva a mudança (quem
-   consome o quê).
-3. Adicione a estrutura nova ao lado da antiga: nova abstração, método,
-   operação ou query.
-4. Migre os consumidores um a um para o novo caminho; atualize mocks/dublês
-   junto com cada migração.
-5. Rode a suíte a cada passo — não acumule passos sem verde.
-6. Quando nenhum consumidor usar o caminho antigo, remova-o.
-7. Renome: aplique uma varredura mecânica e verificável (refactor automatizado
-   ou busca/substituição revisada) com a suíte garantindo a mecânica. Mantenha
-   a varredura separada de mudança de comportamento — ver `git-conventions`
-   para a granularidade de commit.
+1. Confirm that the affected behaviors have green tests. If not, cover them
+   before touching.
+2. Identify the concrete responsibility/usage that motivates the change (who
+   consumes what).
+3. Add the new structure alongside the old one: new abstraction, method,
+   operation, or query.
+4. Migrate the consumers one by one to the new path; update mocks/stubs
+   together with each migration.
+5. Run the suite at each step — do not accumulate steps without green.
+6. When no consumer uses the old path, remove it.
+7. Rename: apply a mechanical and verifiable sweep (automated refactor
+   or reviewed search/replace) with the suite guaranteeing the mechanics. Keep
+   the sweep separate from any behavior change — see `git-conventions`
+   for commit granularity.
 
-### Extrair método vs. extrair acesso dedicado
+### Extract method vs. extract dedicated accessor
 
-Quando o uso é parcial, decida pelo eixo da mudança: se a diferença é apenas
-de lógica/composição na mesma camada, extraia um método; se a diferença é de
-como os dados são obtidos (uma consulta/contrato de leitura distinto), extraia
-uma operação/repositório dedicado para que o consumidor dependa só do que
-precisa.
+When the usage is partial, decide by the axis of change: if the difference is
+only logic/composition in the same layer, extract a method; if the difference
+is how the data is obtained (a distinct read query/contract), extract a
+dedicated operation/repository so that the consumer depends only on what it
+needs.
 
-### Otimização por projection
+### Optimization via projection
 
-Projete apenas os campos usados **quando a fonte de dados suporta seleção de
-campos no servidor**. Se a fonte não suporta projeção (ex.: API que sempre
-devolve o objeto inteiro), filtrar/mapear na aplicação é a única opção
-disponível e não é anti-pattern. Em qualquer caso, lembre de ampliar a
-projeção quando novos campos passam a ser usados.
+Project only the fields used **when the data source supports field selection on
+the server**. If the source does not support projection (e.g., an API that
+always returns the entire object), filtering/mapping in the application is the
+only option available and is not an anti-pattern. In any case, remember to
+widen the projection when new fields start being used.
 
 ## Test Checklist
 
-- [ ] Suíte estava verde antes do primeiro passo.
-- [ ] Suíte ficou verde após cada passo intermediário, não só no fim.
-- [ ] Contrato externo permanece igual — nenhum teste de comportamento
-      precisou mudar de expectativa por causa do refactor.
-- [ ] Mocks e factories foram atualizados no mesmo passo da mudança que os
-      afeta.
-- [ ] Cada caminho antigo só foi removido depois de zerar consumidores.
-- [ ] Estrutura nova (operação/repositório/projection) é coberta pelo
-      consumidor que a usa.
-- [ ] Renome ficou separado de lógica nova.
+- [ ] Suite was green before the first step.
+- [ ] Suite stayed green after each intermediate step, not only at the end.
+- [ ] External contract remains the same — no behavior test needed to change its
+      expectation because of the refactor.
+- [ ] Mocks and factories were updated in the same step as the change that
+      affects them.
+- [ ] Each old path was removed only after zeroing out consumers.
+- [ ] New structure (operation/repository/projection) is covered by the
+      consumer that uses it.
+- [ ] Rename stayed separate from new logic.
 
 ## Anti-Patterns
 
-- Big-bang: trocar tudo de uma vez e só rodar a suíte no final.
-- Remover o caminho antigo antes de migrar todos os consumidores.
-- Misturar renome + nova feature no mesmo passo/commit (esconde a causa de uma
-  quebra).
-- Dividir por estética, sem um consumidor que use só parte do retorno.
-- Otimizar query por suposição em vez do uso real; ou projetar campos e
-  esquecer de ampliar a projeção quando novos campos passam a ser usados.
-- Refatorar com a suíte vermelha "que eu conserto depois".
+- Big-bang: swapping everything at once and only running the suite at the end.
+- Removing the old path before migrating all consumers.
+- Mixing rename + new feature in the same step/commit (hides the cause of a
+  break).
+- Splitting for aesthetics, without a consumer that uses only part of the
+  return.
+- Optimizing a query by assumption instead of real usage; or projecting fields
+  and forgetting to widen the projection when new fields start being used.
+- Refactoring with the suite red "that I'll fix later".

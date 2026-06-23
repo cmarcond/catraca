@@ -1,7 +1,7 @@
 ---
 name: layered-typing
-title: Tipagem por camada para desacoplar domínio e infraestrutura
-description: O tipo de fronteira nasce na camada que o publica e a dependência aponta para o domínio; cada caso de uso é dono do seu contrato de entrada/saída, com redução a booleano apenas quando o contrato do chamador é estável.
+title: Layered Typing
+description: Has boundary types born in the layer that publishes them and keeps infra from importing domain models. Use when defining a use case's input/output types.
 category: domain-conventions
 dependencies:
   - architecture/dependency-inversion-adapters
@@ -9,93 +9,94 @@ dependencies:
 
 # Layered Typing
 
-## Princípio (invariante)
+## Principle (invariant)
 
-Um **tipo de fronteira** — o contrato de entrada/saída que uma camada expõe
-para outra — nasce na camada que o publica, e a direção da dependência aponta
-para o domínio. O caso de uso é dono do seu contrato de entrada/saída; a
-camada de dados é dona dos tipos que sua infraestrutura consome. A infra
-depende de **protocolos/contratos** definidos no domínio, mas não de **models
-de dados concretos** do domínio.
+A **boundary type** — the input/output contract that one layer exposes to
+another — is born in the layer that publishes it, and the direction of the
+dependency points toward the domain. The use case owns its input/output
+contract; the data layer owns the types that its infrastructure consumes. The
+infra depends on **protocols/contracts** defined in the domain, but not on
+concrete domain **data models**.
 
-Isto vale em qualquer linguagem; a materialização varia (ver exemplo no fim).
+This holds in any language; the materialization varies (see the example at the
+end).
 
-### Tipo de fronteira vs tipo interno
+### Boundary type vs internal type
 
-Aplique a skill apenas a tipos que cruzam camada (domínio↔dados/infra) ou a
-tipos compartilhados por mais de uma camada. Tipo usado num único ponto
-interno não é fronteira — não force convenção sobre ele.
+Apply the skill only to types that cross a layer (domain↔data/infra) or to
+types shared by more than one layer. A type used at a single internal point is
+not a boundary — do not force the convention onto it.
 
 ## When To Use
 
-- Um tipo está prestes a cruzar fronteira de camada (domínio↔dados/infra).
-- Há sintoma de import circular, ou um adapter/repositório está prestes a
-  importar models do domínio.
-- O retorno de uma operação de escrita/verificação está mais rico do que o
-  chamador consome.
+- A type is about to cross a layer boundary (domain↔data/infra).
+- There is a symptom of a circular import, or an adapter/repository is about to
+  import domain models.
+- The return of a write/check operation is richer than what the caller
+  consumes.
 
 ## When Not To Use
 
-- Código de runtime puro sem decisão de tipo de fronteira.
-- Tipo interno usado num único ponto, sem cruzar camada.
+- Pure runtime code with no boundary type decision.
+- An internal type used at a single point, without crossing a layer.
 
 ## Order Of Operations
 
-1. Identifique a fronteira: quem publica o contrato e quem consome.
-2. Confirme a direção: a infra implementa protocolos do domínio; ela **não**
-   importa models de dados do domínio. Se um adapter precisa de um tipo de
-   entrada/saída, declare-o no protocolo da camada de dados.
-3. Pergunte o que o chamador usa do retorno (ver "Decidir reduzir a
-   booleano").
-4. Atualize mocks, dublês e testes no mesmo passo: mudança de contrato ou de
-   tipo espelhado quebra todos eles juntos.
+1. Identify the boundary: who publishes the contract and who consumes it.
+2. Confirm the direction: the infra implements domain protocols; it does **not**
+   import domain data models. If an adapter needs an input/output type, declare
+   it in the protocol of the data layer.
+3. Ask what the caller uses from the return (see "Deciding to reduce to a
+   boolean").
+4. Update mocks, stubs, and tests in the same step: a change to the contract or
+   to a mirrored type breaks them all together.
 
-## Decidir reduzir a booleano (passo obrigatório)
+## Deciding to reduce to a boolean (mandatory step)
 
-Antes de declarar um retorno como booleano (sucesso/existência):
+Before declaring a return as a boolean (success/existence):
 
-- Reduza **somente** quando o contrato do chamador estiver estável e nenhum
-  consumidor atual ou previsto usar o objeto retornado.
-- **Não** reduza se houver consumidor (atual ou plausível a curto prazo) do
-  identificador/entidade — manter o resultado rico evita uma segunda
-  consulta. Na dúvida, mantenha o objeto.
+- Reduce **only** when the caller's contract is stable and no current or
+  foreseen consumer uses the returned object.
+- Do **not** reduce if there is a consumer (current or plausible in the short
+  term) of the identifier/entity — keeping the rich result avoids a second
+  query. When in doubt, keep the object.
 
-## Decidir espelhar vs fundir tipos
+## Deciding to mirror vs merge types
 
-- **Espelhe** (mantenha tipos separados, ainda que iguais) quando pertencem a
-  camadas que devem evoluir independentemente.
-- **Funda** quando pertencem à mesma camada/contrato e a igualdade não é
-  coincidência — aí é duplicação acidental.
+- **Mirror** (keep separate types, even if identical) when they belong to
+  layers that must evolve independently.
+- **Merge** when they belong to the same layer/contract and the equality is not
+  a coincidence — that is accidental duplication.
 
 ## Test Checklist
 
-- [ ] Nenhum arquivo de infraestrutura importa **models de dados** do domínio
-      (importar protocolos do domínio é permitido).
-- [ ] Cada caso de uso expõe seu contrato de entrada/saída na camada que o
-      publica, usado pela implementação e pelos dublês.
-- [ ] Retornos de escrita/verificação foram reduzidos apenas após o passo
-      "Decidir reduzir a booleano".
-- [ ] Tipos espelhados entre camadas estão sincronizados, e o espelhamento
-      passou no teste espelhar-vs-fundir.
-- [ ] A verificação de tipos (quando a linguagem tem) passa e nenhum import
-      circular foi reintroduzido.
+- [ ] No infrastructure file imports domain **data models** (importing domain
+      protocols is allowed).
+- [ ] Each use case exposes its input/output contract in the layer that
+      publishes it, used by the implementation and by the stubs.
+- [ ] Write/check returns were reduced only after the "Deciding to reduce to a
+      boolean" step.
+- [ ] Mirrored types between layers are in sync, and the mirroring passed the
+      mirror-vs-merge test.
+- [ ] Type checking (when the language has it) passes and no circular import was
+      reintroduced.
 
 ## Anti-Patterns
 
-- Importar models de dados do domínio dentro de adapters/repositórios para
-  "reaproveitar" um tipo — inverte a direção da dependência.
-- Um arquivo central de models compartilhados que toda camada importa, criando
-  acoplamento e ciclos.
-- Retornar o objeto persistido inteiro quando o chamador comprovadamente só
-  precisa saber se deu certo (ou reduzir cedo demais, exigindo segunda
-  consulta).
-- Tratar tipos espelhados entre casos de uso parecidos como duplicação a ser
-  fundida sem aplicar o teste espelhar-vs-fundir.
+- Importing domain data models inside adapters/repositories to "reuse" a type —
+  inverts the direction of the dependency.
+- A central file of shared models that every layer imports, creating coupling
+  and cycles.
+- Returning the entire persisted object when the caller demonstrably only needs
+  to know whether it succeeded (or reducing too early, requiring a second
+  query).
+- Treating types mirrored across similar use cases as duplication to be merged
+  without applying the mirror-vs-merge test.
 
-## Exemplo de materialização (ilustrativo)
+## Materialization example (illustrative)
 
-Em linguagens com namespaces/módulos de tipos: para cada caso de uso, um
-namespace homônimo com `Params` e `Result`, referenciados pela implementação e
-pelos dublês. Em linguagens sem isso: tipos nomeados por convenção
-(`AddXParams`/`AddXResult`) co-localizados com o contrato; em linguagens
-dinâmicas, documente o contrato no próprio protocolo.
+In languages with type namespaces/modules: for each use case, a same-named
+namespace with `Params` and `Result`, referenced by the implementation and by
+the stubs. In languages without that: types named by convention
+(`AddXParams`/`AddXResult`) co-located with the contract; in dynamic languages,
+document the contract in the protocol itself.

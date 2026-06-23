@@ -1,7 +1,7 @@
 ---
 name: input-validation
-title: Validação de entrada composta em camada própria
-description: Modele cada regra de entrada como um objeto de validação combinável num agregador construído por factory, em camada própria, deixando a borda apenas chamar validate(input).
+title: Input Validation
+description: Models each input rule as an object, aggregates them with a composite built by a factory, and has the boundary only call validate. Use when validating shape at an entry boundary.
 category: foundational
 dependencies:
   - architecture/dependency-inversion-adapters
@@ -9,80 +9,82 @@ dependencies:
 
 # Input Validation
 
-Validação de **forma** da entrada (obrigatoriedade, formato, comparação entre
-campos), não regra de negócio. Cada regra é um objeto que expõe
-`validate(input)` e retorna **um erro** ou um **valor-vazio** (conforme a
-linguagem: `null`, `None`, `Optional` ausente) significando ausência de erro.
-Um **agregador** percorre a lista de regras; a borda de entrada recebe esse
-agregador por injeção e só faz `error = validation.validate(input)`.
+**Shape** validation of the input (required fields, format, comparison between
+fields), not business rules. Each rule is an object that exposes
+`validate(input)` and returns **an error** or an **empty value** (depending on
+the language: `null`, `None`, absent `Optional`) meaning no error.
+An **aggregator** walks the list of rules; the entry boundary receives that
+aggregator via injection and only does `error = validation.validate(input)`.
 
 ## When To Use
 
-- Uma **borda de entrada** (rota, comando de CLI, mensagem de fila, item de
-  batch) tem campos obrigatórios, formato fixo (ex.: e-mail) ou comparação
-  entre campos (ex.: senha × confirmação).
-- A intenção/spec define explicitamente os campos da entrada e suas restrições
-  de formato.
-- Você quer testar cada regra isoladamente e montar conjuntos diferentes por
-  borda sem duplicar lógica.
+- An **entry boundary** (route, CLI command, queue message, batch item)
+  has required fields, a fixed format (e.g., e-mail), or comparison between
+  fields (e.g., password vs. confirmation).
+- The intent/spec explicitly defines the input fields and their format
+  constraints.
+- You want to test each rule in isolation and assemble different sets per
+  boundary without duplicating logic.
 
 ## When Not To Use
 
-- A regra é de **domínio** (saldo suficiente, unicidade contra dados
-  existentes) → vai no caso de uso, não aqui.
-- A validação depende de **capacidade externa substituível** (banco, API) →
-  defina primeiro um protocolo de abstração (ver
-  `dependency-inversion-adapters`). Regras puras e locais (ex.: regex de
-  formato) **não** exigem abstração.
-- A checagem é apenas de tipo estático já garantido pelo compilador.
+- The rule is a **domain** rule (sufficient balance, uniqueness against
+  existing data) → it belongs in the use case, not here.
+- The validation depends on a **replaceable external capability** (database,
+  API) → first define an abstraction protocol (see
+  `dependency-inversion-adapters`). Pure, local rules (e.g., format regex) do
+  **not** require an abstraction.
+- The check is only a static type check already guaranteed by the compiler.
 
 ## Order Of Operations
 
-1. Defina o **contrato de validação**: `validate(input)` devolve um erro ou um
-   valor-vazio. Decida se o contrato é síncrono; se alguma regra precisar de
-   I/O, padronize o retorno assíncrono para todas.
-2. Implemente uma regra por arquivo (campo-obrigatório, formato, comparação).
-   Cada uma recebe via construtor só o que precisa (nome do campo, dependência
-   abstrata).
-3. Quando a regra depender de capacidade **externa substituível**, declare um
-   protocolo na camada de validação e injete o adapter. Regra pura local não
-   precisa disso.
-4. Implemente o **agregador** que percorre a lista de regras.
-5. Defina a **política de agregação conforme a intenção do spec**: parar no
-   **primeiro erro** ou **coletar todos os erros** (preferível em
-   formulários/APIs que reportam o conjunto). A ordem da lista na factory é a
-   ordem de avaliação.
-6. Crie uma **factory** que monta a lista de regras daquela borda e devolve o
-   agregador configurado.
-7. Injete o agregador na borda; ela apenas chama `validate` e converte erro em
-   resposta de borda (ver `controller-error-boundary`).
-8. Mantenha tudo numa **camada própria** de validação que **não depende de UI
-   nem do domínio** (ex.: uma pasta `validation/` paralela às demais camadas).
+1. Define the **validation contract**: `validate(input)` returns an error or an
+   empty value. Decide whether the contract is synchronous; if some rule needs
+   I/O, standardize an asynchronous return for all of them.
+2. Implement one rule per file (required-field, format, comparison). Each one
+   receives via the constructor only what it needs (field name, abstract
+   dependency).
+3. When the rule depends on a **replaceable external capability**, declare a
+   protocol in the validation layer and inject the adapter. A pure local rule
+   does not need this.
+4. Implement the **aggregator** that walks the list of rules.
+5. Define the **aggregation policy according to the spec's intent**: stop at the
+   **first error** or **collect all errors** (preferable in
+   forms/APIs that report the whole set). The order of the list in the factory
+   is the order of evaluation.
+6. Create a **factory** that assembles the list of rules for that boundary and
+   returns the configured aggregator.
+7. Inject the aggregator into the boundary; it only calls `validate` and
+   converts the error into a boundary response (see `controller-error-boundary`).
+8. Keep everything in a **dedicated validation layer** that **does not depend on
+   the UI nor on the domain** (e.g., a `validation/` folder parallel to the
+   other layers).
 
 ## Test Checklist
 
-- [ ] Cada regra tem teste unitário: caso de erro e caso de sucesso isolados.
-- [ ] Comparação entre campos testada com valores iguais e diferentes.
-- [ ] Agregador respeita a política escolhida: se primeiro-erro, prova de
-      ordenação; se todos-os-erros, prova de coleta completa.
-- [ ] Agregador retorna sucesso (valor-vazio) quando todas as regras passam.
-- [ ] Factory testada/garante que a lista contém as regras esperadas na ordem
-      certa.
-- [ ] Teste da borda usa uma regra dublê e verifica que `validate` foi chamado
-      com o input correto e que o erro propaga para a resposta.
-- [ ] Regra com dependência externa usa dublê do protocolo, sem tocar
-      infraestrutura real.
+- [ ] Each rule has a unit test: error case and success case in isolation.
+- [ ] Comparison between fields tested with equal and different values.
+- [ ] Aggregator respects the chosen policy: if first-error, proof of
+      ordering; if all-errors, proof of complete collection.
+- [ ] Aggregator returns success (empty value) when all rules pass.
+- [ ] Factory tested/guarantees that the list contains the expected rules in the
+      right order.
+- [ ] Boundary test uses a stub rule and verifies that `validate` was called
+      with the correct input and that the error propagates to the response.
+- [ ] Rule with an external dependency uses a stub of the protocol, without
+      touching real infrastructure.
 
 ## Anti-Patterns
 
-- Espalhar `if (!field) return badRequest(...)` dentro da borda em vez de
-  delegar ao agregador.
-- Misturar políticas de agregação sem que a intenção do spec defina qual usar
-  (primeiro-erro vs todos-os-erros é trade-off, não defeito — escolha
-  explicitamente).
-- Regra de validação importar de UI ou domínio, criando dependência cruzada
-  entre camadas.
-- Colocar regra de negócio dentro de uma regra de validação por conveniência.
-- Instanciar regras direto na borda em vez de construí-las por factory.
-- Validação que depende de capacidade externa substituível embutida sem
-  protocolo, acoplando a uma lib concreta.
+- Scattering `if (!field) return badRequest(...)` inside the boundary instead of
+  delegating to the aggregator.
+- Mixing aggregation policies without the spec's intent defining which to use
+  (first-error vs all-errors is a trade-off, not a defect — choose
+  explicitly).
+- A validation rule importing from the UI or the domain, creating a cross
+  dependency between layers.
+- Putting a business rule inside a validation rule for convenience.
+- Instantiating rules directly in the boundary instead of building them through
+  a factory.
+- Validation that depends on a replaceable external capability embedded without
+  a protocol, coupling to a concrete lib.

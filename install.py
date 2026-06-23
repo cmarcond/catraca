@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""Instalador do Catraca.
+"""Catraca installer.
 
-Copia templates, comandos e a biblioteca de skills para `.catraca/` em um
-projeto alvo. Idempotente: nunca destroi conteudo existente.
+Copies templates, commands, and the skills library into `.catraca/` in a target
+project. Idempotent: never destroys existing content.
 
-Regras por arquivo de destino:
-- nao existe            -> cria
-- existe, identico      -> pula
-- existe, diferente     -> preserva o existente e grava a versao nova como
-                           `<nome>.new` (com --force: move o existente para
-                           `<nome>.bak` e grava a versao nova no lugar)
+Rules per destination file:
+- does not exist       -> create
+- exists, identical     -> skip
+- exists, different     -> preserve the existing one and write the new version as
+                           `<name>.new` (with --force: move the existing one to
+                           `<name>.bak` and write the new version in its place)
 
-Uso:
-    python3 install.py /caminho/do/projeto-alvo [--force] [--no-claude]
+Usage:
+    python3 install.py /path/to/target-project [--force] [--no-claude]
                        [--skills-source DIR]
 """
 
@@ -39,15 +39,15 @@ class Report:
 
     def summary(self) -> str:
         lines = [
-            f"criados:    {len(self.created)}",
-            f"pulados (identicos): {len(self.skipped)}",
+            f"created:    {len(self.created)}",
+            f"skipped (identical): {len(self.skipped)}",
         ]
         if self.backed_up:
-            lines.append(f"sobrescritos com backup .bak: {len(self.backed_up)}")
+            lines.append(f"overwritten with .bak backup: {len(self.backed_up)}")
             lines.extend(f"  - {p}" for p in self.backed_up)
         if self.conflicted:
             lines.append(
-                f"conflitos (existente preservado, nova versao em .new): "
+                f"conflicts (existing preserved, new version in .new): "
                 f"{len(self.conflicted)}"
             )
             lines.extend(f"  - {p}" for p in self.conflicted)
@@ -83,22 +83,22 @@ def install_tree(src_dir: Path, dest_dir: Path, force: bool, report: Report) -> 
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Instala o Catraca em um projeto.")
-    parser.add_argument("target", type=Path, help="diretorio do projeto alvo")
+    parser = argparse.ArgumentParser(description="Install Catraca into a project.")
+    parser.add_argument("target", type=Path, help="target project directory")
     parser.add_argument("--force", action="store_true",
-                        help="sobrescreve divergentes (com backup .bak)")
+                        help="overwrite divergent files (with a .bak backup)")
     parser.add_argument("--no-claude", action="store_true",
-                        help="nao instalar atalhos em .claude/commands/catraca/")
+                        help="do not install shortcuts in .claude/commands/catraca/")
     parser.add_argument("--skills-source", type=Path, default=DEFAULT_SKILLS_SOURCE,
-                        help=f"biblioteca de skills (default: {DEFAULT_SKILLS_SOURCE})")
+                        help=f"skills library (default: {DEFAULT_SKILLS_SOURCE})")
     args = parser.parse_args(argv)
 
     target: Path = args.target.resolve()
     templates = FRAMEWORK_ROOT / "templates"
     commands = FRAMEWORK_ROOT / "commands"
     if not templates.is_dir() or not commands.is_dir():
-        print("erro: rode a partir de um checkout completo do catraca "
-              "(templates/ e commands/ nao encontrados)", file=sys.stderr)
+        print("error: run this from a complete catraca checkout "
+              "(templates/ and commands/ not found)", file=sys.stderr)
         return 2
     target.mkdir(parents=True, exist_ok=True)
 
@@ -117,17 +117,17 @@ def main(argv: list[str] | None = None) -> int:
             rel = skill_md.relative_to(skills_source)
             install_file(skill_md, catraca / "skills" / rel, args.force, report)
     else:
-        print(f"aviso: biblioteca de skills nao encontrada em {skills_source}; "
-              ".catraca/skills/ ficou vazio (use --skills-source)", file=sys.stderr)
+        print(f"warning: skills library not found at {skills_source}; "
+              ".catraca/skills/ was left empty (use --skills-source)", file=sys.stderr)
 
     if not args.no_claude:
         install_tree(commands, target / ".claude" / "commands" / "catraca",
                      args.force, report)
 
-    print(f"Catraca instalado em {catraca}")
+    print(f"Catraca installed in {catraca}")
     print(report.summary())
-    print("\nProximo passo: abra seu agente no projeto e cole o prompt inicial; "
-          "o fluxo comeca em .catraca/commands/init.md (/catraca.init).")
+    print("\nNext step: open your agent in the project and paste the initial "
+          "prompt; the flow starts at .catraca/commands/init.md (/catraca.init).")
     return 0
 
 

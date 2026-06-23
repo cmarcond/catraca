@@ -1,111 +1,112 @@
 ---
 name: tdd-minimal-step
-description: Dirija cada comportamento por um ciclo red-green-refactor, com implementação mínima sob suíte verde, repetindo por comportamento e não por arquivo.
+title: "TDD Minimal Step"
+description: "Drives each behavior through a red-green-refactor cycle with a minimal implementation under a green suite. Use when implementing a new observable behavior."
 category: testing
 dependencies: []
 ---
 
-# Ciclo TDD por comportamento
+# TDD Cycle Per Behavior
 
-Cada comportamento nasce de um teste que falha pelo motivo certo, passa com a
-implementação mínima e é seguido de refactor sob verde. O ciclo se repete por
-comportamento, não por arquivo.
+Each behavior is born from a test that fails for the right reason, passes with the
+minimal implementation, and is followed by refactor under green. The cycle repeats per
+behavior, not per file.
 
-As decisões não óbvias: garantir que o red falhe pela asserção do comportamento
-(e não por setup), nunca deixar um valor fixo sem o teste que o generaliza, e
-fechar o passo por comportamento em vez de "terminar o arquivo".
+The non-obvious decisions: ensure the red fails on the behavior's assertion
+(and not on setup), never leave a hardcoded value without the test that generalizes it, and
+close the step per behavior instead of "finishing the file".
 
 ## When To Use
 
-- Vai implementar um comportamento observável novo com critério de aceitação
-  verificável.
-- O próximo passo de implementação cabe num único teste isolado.
+- You are going to implement a new observable behavior with a verifiable
+  acceptance criterion.
+- The next implementation step fits in a single isolated test.
 
-Aplica-se a qualquer unidade que expõe comportamento observável; caso de uso,
-controller e adapter são apenas exemplos da mesma forma.
+It applies to any unit that exposes observable behavior; use case,
+controller, and adapter are just examples of the same shape.
 
 ## When Not To Use
 
-- Mudança puramente de organização de arquivos (mover, renomear, reagrupar).
-- Refactor sem alteração de comportamento (use a suíte existente como rede,
-  sem novo teste).
-- O comportamento alvo não tem critério observável; defina o critério antes de
-  começar.
+- A purely file-organization change (move, rename, regroup).
+- Refactor without behavior change (use the existing suite as a safety net,
+  with no new test).
+- The target behavior has no observable criterion; define the criterion before
+  starting.
 
 ## Preconditions
 
-- Feedback rápido: o subconjunto de testes relevante deve voltar em poucos
-  segundos. Se a suíte completa é lenta, rode só o subconjunto do
-  comportamento atual.
-- Determinismo: o teste do passo não pode depender de I/O real, relógio, rede
-  ou ordem. Substitua essas dependências por dublês antes de entrar no ciclo;
-  isole o que é lento ou não determinístico em suítes separadas que rodam fora
-  do micro-passo.
-- Se não dá para obter feedback rápido e determinístico no passo, resolva isso
-  primeiro: o ciclo perde sentido sem ele.
+- Fast feedback: the relevant subset of tests must come back in a few
+  seconds. If the full suite is slow, run only the subset of the
+  current behavior.
+- Determinism: the step's test cannot depend on real I/O, clock, network,
+  or order. Replace those dependencies with test doubles before entering the cycle;
+  isolate what is slow or non-deterministic into separate suites that run outside
+  the micro-step.
+- If you cannot get fast and deterministic feedback in the step, solve that
+  first: the cycle is meaningless without it.
 
 ## Order Of Operations
 
-1. Escolha um único comportamento, não um arquivo inteiro.
-2. Escreva o teste desse comportamento antes da produção.
-3. Rode a suíte e confirme a falha esperada (red), pela asserção do
-   comportamento e não por setup ou import.
-4. Implemente o mínimo que faz passar; valor fixo só é legítimo quando já
-   existe (ou virá no próximo passo) um teste que força a generalização.
-5. Rode a suíte até verde (green).
-6. Refatore produção e teste mantendo verde; não introduza comportamento novo
-   aqui.
-7. Só então avance para o próximo comportamento e repita.
+1. Choose a single behavior, not a whole file.
+2. Write the test for that behavior before the production code.
+3. Run the suite and confirm the expected failure (red), on the behavior's
+   assertion and not on setup or import.
+4. Implement the minimum that makes it pass; a hardcoded value is only legitimate when there already
+   exists (or will come in the next step) a test that forces generalization.
+5. Run the suite to green (green).
+6. Refactor production and test keeping green; do not introduce new behavior
+   here.
+7. Only then move on to the next behavior and repeat.
 
-## Ramos de guarda: o compilador aponta o próximo red
+## Guard Branches: The Compiler Points To The Next Red
 
-Ramo de guarda é o código que barra um caso ruim antes do trabalho de verdade
-(ex.: `if (payload === null) return null`). Ele costuma nascer torto: o
-compilador exige tratar o caso ("pode ser null"), a guarda é escrita para
-calar o erro de tipo, e o teste vem depois — sem nunca ter falhado.
+A guard branch is the code that blocks a bad case before the real work
+(e.g., `if (payload === null) return null`). It usually is born crooked: the
+compiler requires handling the case ("it can be null"), the guard is written to
+silence the type error, and the test comes afterward — without ever having failed.
 
-A regra: **quando o compilador exigir tratar um caso, pare — esse é o próximo
-comportamento.** Escreva primeiro o teste do caso ("token inválido devolve
-null"), veja-o falhar, e só então escreva a guarda. O erro de tipo não é um
-obstáculo a calar; é o compilador entregando o red de graça.
+The rule: **when the compiler requires handling a case, stop — that is the next
+behavior.** Write the test for the case first ("invalid token returns
+null"), watch it fail, and only then write the guard. The type error is not an
+obstacle to silence; it is the compiler delivering the red for free.
 
-Vale o mesmo para qualquer ramo defensivo de origem mecânica: lint exigindo
-default em switch, campo opcional forçando fallback. Ramo sem red próprio é
-comportamento sem prova — e é exatamente onde sabotagens (inverter ou remover
-a guarda) passam despercebidas pela suíte.
+The same holds for any defensive branch of mechanical origin: lint requiring a
+default in a switch, an optional field forcing a fallback. A branch without its own red is
+behavior without proof — and it is exactly where sabotage (inverting or removing
+the guard) goes unnoticed by the suite.
 
-## Granularidade e saída do fake-it
+## Granularity And Exiting Fake-It
 
-- "Um comportamento" é a menor regra observável. Se o passo natural exige mais
-  de uma asserção para descrever a mesma regra, mantenha-as no mesmo teste; se
-  as asserções descrevem regras distintas, quebre em testes/passos separados.
-- O fake-it (valor fixo) é ponte, não destino: pare de retornar valor fixo
-  assim que um segundo caso o contradiz. Se um único caso já basta para o
-  comportamento real, não use fake-it.
+- "One behavior" is the smallest observable rule. If the natural step requires more
+  than one assertion to describe the same rule, keep them in the same test; if
+  the assertions describe distinct rules, break them into separate tests/steps.
+- Fake-it (hardcoded value) is a bridge, not a destination: stop returning a hardcoded value
+  as soon as a second case contradicts it. If a single case already suffices for the real
+  behavior, do not use fake-it.
 
 ## Test Checklist
 
-- [ ] O teste falhou antes de existir a implementação, pela asserção do
-      comportamento.
-- [ ] Um comportamento por teste; o nome descreve o comportamento, não o
-      método.
-- [ ] A implementação mínima é coberta por uma asserção que a força a
-      generalizar.
-- [ ] Após refactor, a suíte continua verde sem alterar as asserções.
-- [ ] Nenhum valor fixo deliberado sobrou sem o teste que o generaliza.
-- [ ] Todo ramo de guarda (caso exigido por compilador/lint) tem red próprio
-      que foi visto falhar antes da guarda existir.
+- [ ] The test failed before the implementation existed, on the behavior's
+      assertion.
+- [ ] One behavior per test; the name describes the behavior, not the
+      method.
+- [ ] The minimal implementation is covered by an assertion that forces it to
+      generalize.
+- [ ] After refactor, the suite stays green without changing the assertions.
+- [ ] No deliberate hardcoded value was left without the test that generalizes it.
+- [ ] Every guard branch (a case required by compiler/lint) has its own red
+      that was seen failing before the guard existed.
 
 ## Anti-Patterns
 
-- Escrever toda a produção e só depois os testes (test-after disfarçado).
-- Escrever uma guarda para calar o compilador/lint e testá-la depois — o ramo
-  nasceu sem red; o teste só confirma o que já existe.
-- Pular o red ou aceitar um red por erro de setup/import como se fosse o
-  esperado.
-- Empilhar comportamentos distintos num teste só, perdendo a granularidade do
-  passo.
-- Misturar refactor com novo comportamento no mesmo passo verde.
-- Fechar o ciclo com valor fixo e não adicionar o teste que o obriga a
-  generalizar.
-- Dirigir o ciclo por arquivo ("terminar o spec") em vez de por comportamento.
+- Writing all the production code and only afterward the tests (disguised test-after).
+- Writing a guard to silence the compiler/lint and testing it afterward — the branch
+  was born without a red; the test only confirms what already exists.
+- Skipping the red or accepting a red from a setup/import error as if it were the
+  expected one.
+- Stacking distinct behaviors in a single test, losing the granularity of the
+  step.
+- Mixing refactor with new behavior in the same green step.
+- Closing the cycle with a hardcoded value and not adding the test that forces it to
+  generalize.
+- Driving the cycle per file ("finishing the spec") instead of per behavior.

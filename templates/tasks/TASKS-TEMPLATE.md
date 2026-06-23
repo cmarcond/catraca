@@ -1,31 +1,31 @@
-# Tasks — NNN Nome da Feature
+# Tasks — NNN Feature Name
 
-> Gerado a partir de `specs/NNN-slug.md`. Uma task por comportamento; cada task
-> com ciclo red/green/refactor explícito. Estado = checkboxes.
+> Generated from `specs/NNN-slug.md`. One task per behavior; each task with an
+> explicit red/green/refactor cycle. State = checkboxes.
 
-Spec: `../specs/NNN-slug.md` · Skills ativas: <!-- ids --> · Camadas tocadas: <!-- -->
+Spec: `../specs/NNN-slug.md` · Active skills: <!-- ids --> · Layers touched: <!-- -->
 
 ## Tasks
 
-### T1 — <comportamento em uma frase>
+### T1 — <behavior in one sentence>
 
-Criterio coberto: <!-- qual WHEN/THEN da spec -->
-Camada: <!-- domain | data | presentation | validation | infra | main -->
+Criterion covered: <!-- which WHEN/THEN of the spec -->
+Layer: <!-- domain | data | presentation | validation | infra | main -->
 
-- [ ] **red** — teste escrito e visto falhar pela asserção: <!-- qual asserção -->
-- [ ] **green** — implementação mínima; suite verde
-- [ ] **refactor** — estrutura melhorada sob verde (ou "n/a: nada a refatorar")
-- [ ] gates do `method.md` verificados · commit: <!-- hash/mensagem -->
+- [ ] **red** — test written and seen to fail on the assertion: <!-- which assertion -->
+- [ ] **green** — minimal implementation; suite green
+- [ ] **refactor** — structure improved under green (or "n/a: nothing to refactor")
+- [ ] `method.md` gates verified · commit: <!-- hash/message -->
 
 ### T2 — …
 
 - [ ] **red** —
 - [ ] **green** —
 - [ ] **refactor** —
-- [ ] gates verificados · commit:
+- [ ] gates verified · commit:
 
-### T-final — Avaliação da feature
+### T-final — Feature evaluation
 
-- [ ] cobertura conferida (alvo do perfil)
-- [ ] rubrica preenchida em `../evaluation/NNN-slug.md` com evidências
-- [ ] `ratchet.json` atualizado
+- [ ] coverage checked (the profile's target)
+- [ ] rubric filled in `../evaluation/NNN-slug.md` with evidence
+- [ ] `ratchet.json` updated

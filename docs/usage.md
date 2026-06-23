@@ -1,109 +1,117 @@
-# Catraca — Guia de Uso
+# Catraca — Usage Guide
 
-## 1. Instalar
+## 1. Install
 
 ```bash
-python3 catraca/install.py /caminho/do/projeto
+python3 catraca/install.py /path/to/project
 ```
 
-Cria `.catraca/` (templates, comandos, 13 skills) e, por default, os atalhos
-de slash command em `.claude/commands/catraca/`. Re-rodar é seguro: idêntico
-é pulado; divergente é preservado (nova versão em `*.new`; com `--force`,
-backup `*.bak` e sobrescrita).
+Creates `.catraca/` (templates, commands, 13 skills) and, by default, the slash
+command shortcuts in `.claude/commands/catraca/`. Re-running is safe: an
+identical file is skipped; a divergent one is preserved (the new version lands
+as `*.new`; with `--force`, a `*.bak` backup is made and the file is
+overwritten).
 
-## 2. Começar um projeto
+## 2. Start a project
 
-Abra o agente (Claude Code) na pasta do projeto e cole o prompt inicial —
-**só a ideia do produto**. Stack se decide no Gate B; TDD/Clean
-Architecture/SOLID são constitucionais (`manifesto.md`) e não precisam ser
-pedidos. Exemplo:
+Open the agent (Claude Code) in the project folder and paste the initial
+prompt — **just the product idea**. The stack is decided at Gate B; TDD / Clean
+Architecture / SOLID are constitutional (`manifesto.md`) and don't need to be
+requested. Example:
 
-> Quero criar uma API REST de enquetes. Siga `.catraca/CLAUDE.md` e rode
-> `/catraca.init` em modo guiado.
+> I want to build a REST API for polls. Follow `.catraca/CLAUDE.md` and run
+> `/catraca.init` in guided mode.
 
-Para modo automático, acrescente:
+For auto mode, add:
 
-> Use modo automático: assuma os defaults do método e registre as suposições.
+> Use auto mode: assume the method's defaults and record the assumptions.
 
-## 3. O fluxo
+## 3. The flow
 
 ```
-prompt inicial
-   └─ /catraca.init      perguntas (gates A–D) ou defaults → product.md,
+initial prompt
+   └─ /catraca.init      questions (gates A–D) or defaults → product.md,
                            architecture.md, method.md, questions.md
-   └─ /catraca.plan      roadmap.md (começa pela feature 000 — esteira de
-                           qualidade) + specs/NNN-*.md (gate E por feature)
-   └─ /catraca.implement feature 000 primeiro: gates mecânicos (type-check,
-                           lint, commit-msg, pre-commit staged-only, cobertura),
-                           cada um provado por reprovação; depois, por feature
-                           de produto: tasks red/green/refactor + código +
+   └─ /catraca.plan      roadmap.md (starts with feature 000 — the quality
+                           pipeline) + specs/NNN-*.md (gate E per feature)
+   └─ /catraca.implement feature 000 first: mechanical gates (type-check,
+                           lint, commit-msg, pre-commit staged-only, coverage),
+                           each proven by a deliberate rejection; then, per
+                           product feature: red/green/refactor tasks + code +
                            commits
-   └─ /catraca.evaluate  rubrica com evidências + ratchet.json
-   └─ (repete implement/evaluate por feature até o fim do roadmap)
+   └─ /catraca.evaluate  rubric with evidence + ratchet.json
+   └─ (repeat implement/evaluate per feature until the roadmap is done)
 
-/catraca.status          a qualquer momento: onde estamos, próxima ação,
-                           reconciliação de decisões revisadas
+/catraca.status          at any time: where we are, the next action, and
+                           reconciliation of reviewed decisions
 ```
 
-## 4. As perguntas que o agente fará (modo guiado)
+## 4. The questions the agent will ask (guided mode)
 
-- **Gate A**: objetivo real, usuários, o que o usuário consegue fazer quando
-  estiver pronto.
-- **Gate B**: plataforma e linguagem (server-side; client-side se houver;
-  banco); ambiente de desenvolvimento (local com infraestrutura efêmera —
-  default — ou containerizado desde o início); Clean Architecture estrita
-  (5 camadas) ou leve (3); que dependências isolar atrás de adapters. As
-  ferramentas de qualidade não são perguntadas aqui — a feature 000 as propõe
-  conforme a plataforma escolhida.
-- **Gate C**: rigor do TDD (estrito/pragmático); skills obrigatórias e
-  opcionais; commits pequenos exigidos ou recomendados.
-- **Gate D**: avaliação rígida, pedagógica ou pragmática; ratchet em regressão
-  alerta (`warn`), bloqueia (`block`) ou aciona reparo automático (`repair` —
-  tasks R na lista da feature + uma reavaliação; sem recuperar, devolve ao
-  usuário).
-- **Gate E** (por feature): confirmação do roadmap e dos acceptance criteria.
+- **Gate A**: the real objective, the users, what the user can do once it's
+  ready.
+- **Gate B**: platform and language (server-side; client-side if any;
+  database); development environment (local with ephemeral infrastructure —
+  the default — or containerized from the start); strict Clean Architecture
+  (5 layers) or light (3); which dependencies to isolate behind adapters. The
+  quality tools are not asked about here — feature 000 proposes them according
+  to the chosen platform.
+- **Gate C**: TDD rigor (strict/pragmatic); mandatory and optional skills;
+  small commits required or recommended.
+- **Gate D**: evaluation mode — strict, pedagogical, or pragmatic; ratchet on
+  regression — warn (`warn`), block (`block`), or trigger automatic repair
+  (`repair` — R tasks in the feature's list + one re-evaluation; if it doesn't
+  recover, it hands back to the user).
+- **Gate E** (per feature): confirmation of the roadmap and the acceptance
+  criteria.
 
-Sempre um gate por vez; respostas ficam em `.catraca/questions.md`.
+Always one gate at a time; answers go to `.catraca/questions.md`.
 
-## 5. Modo automático
+> **Gate naming.** The phases are named **Gate A–E**; their individual
+> sub-questions are numbered **G1–G12**. `questions.md` carries the mapping of
+> which sub-question writes which artifact.
 
-Sem perguntas. O agente assume o perfil canônico — TDD estrito, 5 camadas,
-toda lib via adapter, cobertura 100% bloqueante, conventional commits um por
-task, avaliação pedagógica, ratchet em alerta — e grava cada suposição como
-`[assumed AAAA-MM-DD]` em `questions.md`. Pausa apenas em HALT: ambiguidade
-irresolúvel, 3+ falhas consecutivas no mesmo teste, regressão de ratchet em
-modo bloqueio, dependência não prevista.
+## 5. Auto mode
 
-**Revisão posterior:** edite a coluna "Revisão" em `questions.md` e rode
-`/catraca.status` — o agente propaga a mudança aos artefatos afetados.
+No questions. The agent adopts the canonical profile — strict TDD, 5 layers,
+every library behind an adapter, 100% blocking coverage, conventional commits
+one per task, pedagogical evaluation, ratchet on warn — and records each
+assumption as `[assumed YYYY-MM-DD]` in `questions.md`. It pauses only on HALT:
+an unresolvable ambiguity, 3+ consecutive failures of the same test, a ratchet
+regression in block mode, or an unforeseen dependency.
 
-## 6. Como o método entra no workflow
+**Later review:** edit the "Review" column in `questions.md` and run
+`/catraca.status` — the agent propagates the change to the affected artifacts.
 
-As 13 skills (em `.catraca/skills/`) são a solução canônica:
+## 6. How the method enters the workflow
 
-- na **spec**, cada feature declara as skills aplicáveis (só referência);
-- na **implementação**, o agente deriva os critérios técnicos dos *Test
-  Checklists* das skills e segue sua *Order of Operations*;
-- na **avaliação**, cada skill declarada vira uma linha da rubrica, pontuada
-  pelo próprio Test Checklist e descontada pelos *Anti-Patterns*.
+The 13 skills (in `.catraca/skills/`) are the canonical solution. They are
+separate files, copied in by the installer, and referenced by id — never
+inlined into the templates:
 
-## 7. Como saber se a implementação seguiu o método
+- in the **spec**, each feature declares the applicable skills (reference only);
+- in the **implementation**, the agent derives the technical criteria from the
+  skills' *Test Checklists* and follows their *Order of Operations*;
+- in the **evaluation**, each declared skill becomes a rubric line, scored by
+  its own Test Checklist and discounted by its *Anti-Patterns*.
 
-1. **Rubrica por feature** (`.catraca/evaluation/NNN-*.md`): score 0–1 por
-   skill e pelas dimensões `test_first`, `layer_discipline`, `coverage`,
-   `commit_discipline` — cada linha com evidência (comando + saída, teste,
-   commit). Verdict: aderente / parcial / não aderente.
-2. **Ratchet** (`.catraca/ratchet.json`): guarda o melhor score por
-   feature/dimensão; re-execuções abaixo de `melhor − 0.05` geram alerta
-   (`warn`) ou param o trabalho (`block`).
+## 7. How to know whether the implementation followed the method
 
-## 8. Limitações conhecidas (MVP)
+1. **Per-feature rubric** (`.catraca/evaluation/NNN-*.md`): a 0–1 score per
+   skill and per the dimensions `test_first`, `layer_discipline`, `coverage`,
+   `commit_discipline` — each line with evidence (command + output, test,
+   commit). Verdict: adherent / partial / non-adherent.
+2. **Ratchet** (`.catraca/ratchet.json`): keeps the best score per
+   feature/dimension; re-runs below `best − 0.05` produce a warning (`warn`) or
+   stop the work (`block`).
 
-- Os comandos são roteiros em Markdown e dependem da disciplina do agente —
-  **exceto os gates de qualidade**: a feature 000 instala hooks que reprovam
-  mecanicamente commit/push (type-check, lint, mensagem de commit, testes do
-  staged, cobertura), independente do agente.
-- A avaliação é feita pelo mesmo agente que implementou (mitigada pela
-  exigência de evidência; avaliador independente é evolução natural).
-- Integração nativa apenas com Claude Code; outros agentes usam os mesmos
-  Markdown manualmente.
+## 8. Known limitations (MVP)
+
+- The commands are Markdown playbooks and rely on the agent's discipline —
+  **except for the quality gates**: feature 000 installs hooks that
+  mechanically reject commit/push (type-check, lint, commit message, staged
+  tests, coverage), independent of the agent.
+- The evaluation is done by the same agent that implemented (mitigated by the
+  evidence requirement; an independent evaluator is a natural evolution).
+- Native integration only with Claude Code; other agents use the same Markdown
+  manually.
