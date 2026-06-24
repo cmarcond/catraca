@@ -41,12 +41,19 @@ describes the **invariant principle** (language-independent); the
    not merely warns.
 2. **Pre-commit only over what changed.** The hook validates the staged set,
    not the entire repository — otherwise it gets slow and the team resorts to
-   `--no-verify`.
-3. **Coverage as a gate with an explicit baseline.** Record the percentage per
-   scope (e.g., unit, integration) of the last green commit as the baseline.
-   The push is rejected if any scope falls below the baseline (or the profile's
-   target in `method.md`). Update the baseline only when it goes up on its own
-   initiative.
+   `--no-verify`. When a tool auto-fixes files (formatter, lint `--fix`), it
+   must re-stage exactly what it fixed and operate on the staged content only,
+   so a partially-staged file is not silently committed whole. Mature runners
+   (e.g. lint-staged v10+) do this for you; a hand-rolled hook must handle it
+   explicitly or it corrupts partial stages.
+3. **Coverage as a ratchet against an explicit baseline.** Record the
+   percentage per scope (e.g., unit, integration) of the last green commit as
+   the baseline. The push is rejected if any scope falls below the baseline (or
+   the profile's target in `method.md`). The baseline only moves up — never edit
+   it down to make a red gate pass; that defeats the ratchet. Update it when
+   coverage rises on its own initiative. This is the "clean as you code" stance:
+   the gate protects against regression on what you touch, it does not demand
+   back-filling tests for untouched legacy in one go.
 4. **Updates in verified batches.** Update dependencies in small,
    atomically-reversible batches (one batch = one related functional area),
    running the suite before and after each batch, so that a break is
@@ -123,11 +130,18 @@ Dependency updates:
 ## Test Checklist
 
 - [ ] There is a gate that rejects the commit/push for every verifiable
-      convention of the project.
+      convention of the project (verifiable: a deliberate violation of each
+      convention is refused, not merely warned about).
 - [ ] `--no-verify` is not needed in the normal flow — if the temptation
       appears, the hook is slow or validating too many files.
-- [ ] Pre-commit runs against the stage area, not against the whole repository.
-- [ ] Coverage compared against the baseline/target, per scope; a drop rejects.
+- [ ] Pre-commit runs against the stage area, not against the whole repository
+      (an unstaged change elsewhere does not affect the result).
+- [ ] Auto-fixing tools re-stage only the files they touched; a partially-staged
+      file is not committed in full by the hook.
+- [ ] Coverage compared against the baseline/target, per scope; a drop rejects,
+      and the baseline is never edited downward to pass.
+- [ ] The test runner passes with zero tests at bootstrap, so the setup commits
+      clear the real hook without `--no-verify`.
 - [ ] Each update batch validated by the suite on its own and reversible by
       itself.
 - [ ] (If applicable) breakpoint stops at the correct line, with no prints left
@@ -139,6 +153,11 @@ Dependency updates:
   gate.
 - A slow pre-commit hook that processes the entire codebase, pushing the team
   toward `--no-verify`.
+- A hook that auto-fixes files but does not re-stage them, or that lints the
+  working tree instead of the staged content, so a partial stage is committed
+  whole.
+- Lowering the recorded baseline so a red coverage gate turns green — that
+  inverts the ratchet and lets regression through silently.
 - Chasing the coverage number with trivial tests; coverage is a gate against
   regression, not a numeric goal.
 - Updating many dependencies in a single batch: it mixes causes of breakage and
