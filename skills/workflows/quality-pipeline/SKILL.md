@@ -68,6 +68,15 @@ proposes the tools and the user confirms):
 | Tests per scope (unit, integration, ci) | separate scripts |
 | Coverage vs baseline/target | rejects at push/closure |
 
+**Type-only files and coverage.** Files that compile to no executable code (pure
+interfaces / type aliases) report as `0/0` — or red — in coverage tools such as
+v8/Vitest. This is expected and does **not** mean a real gap: with zero
+executable statements they don't lower the aggregate (a project can sit at 100%
+with several `0/0` files, as the worked example shows). Don't chase phantom
+coverage on them; only if a particular tool/version drags the **aggregate** down
+should you exclude type-only paths via the coverage config — never add a hollow
+test just to color a type file green.
+
 ## Order Of Operations
 
 ### Setup
