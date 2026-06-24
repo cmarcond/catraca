@@ -11,22 +11,24 @@ dependencies:
 
 ## Principle (invariant)
 
-A **boundary type** — the input/output contract that one layer exposes to
-another — is born in the layer that publishes it, and the direction of the
-dependency points toward the domain. The use case owns its input/output
-contract; the data layer owns the types that its infrastructure consumes. The
-infra depends on **protocols/contracts** defined in the domain, but not on
-concrete domain **data models**.
+A **boundary type** is the input/output contract one layer exposes to another.
+
+- **Born where published** — the dependency direction points toward the domain.
+- **Each layer owns its contract** — the use case owns its input/output; the
+  data layer owns what its infrastructure consumes.
+- **Infra depends on protocols, not models** — it imports domain
+  **protocols/contracts**, never concrete domain **data models**.
 
 This holds in any language; the materialization varies (see the example at the
 end).
 
-The persistence/transport shape (the row, the API payload, the serialization
-DTO) is **not** a boundary type to share inward — it belongs to the adapter that
-owns that detail. The adapter **maps** it to the domain contract at the edge
-(the usual `toDomain` / `toPersistence` translation), so the schema or wire
-format can change without touching the use case. A repository therefore exposes
-the domain-shaped contract, never the raw row type.
+The persistence/transport shape (row, API payload, serialization DTO) is **not**
+a boundary type to share inward — it belongs to the adapter that owns it.
+
+- The adapter **maps** it to the domain contract at the edge (the usual
+  `toDomain` / `toPersistence`), so the schema or wire format can change without
+  touching the use case.
+- A repository exposes the domain-shaped contract, never the raw row type.
 
 ### Boundary type vs internal type
 

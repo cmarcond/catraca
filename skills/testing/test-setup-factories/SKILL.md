@@ -14,22 +14,23 @@ model touches **one** point, not every spec.
 
 There are two complementary factories:
 
-1. A **factory for the component under test** that assembles the test doubles, instantiates the
-   component, and returns the component **together with** the test doubles that some test
-   needs to configure or inspect.
-2. **Data factories** that produce reusable test objects/inputs,
-   instead of duplicated literals.
+1. A **factory for the component under test** that assembles the test doubles,
+   instantiates the component, and returns the component **together with** the
+   test doubles a test may need to configure or inspect.
+2. **Data factories** that produce reusable test objects/inputs instead of
+   duplicated literals.
 
 > In stacks without constructor injection or without types, keep the principle (a
 > helper that returns the subject + its collaborators) and adapt the shape.
 
-The deeper reason to route construction through a factory: it **decouples every
-test from the subject's constructor and the model's shape**. When a constructor
-gains a dependency or a model gains a field, the test data builder absorbs the
-change in one place — the specs that did not care about that field never break.
-Data factories should default every field to a safe, valid value and let each
-test override **only the field it asserts on**, so the test reads as "this case
-is the default except for X", and irrelevant structure stays out of sight.
+Why route construction through a factory:
+
+- **It decouples every test from the constructor and the model's shape.** When a
+  constructor gains a dependency or a model gains a field, the factory absorbs the
+  change in one place — specs that didn't care about that field never break.
+- **Defaults are safe and valid; each test overrides only the field it asserts
+  on.** The test then reads as "the default except for X", and irrelevant
+  structure stays out of sight.
 
 ## When To Use
 
@@ -59,10 +60,9 @@ is the default except for X", and irrelevant structure stays out of sight.
    must accept parameters/overrides (e.g., a partial object merged over the
    default) so that a boundary test changes only the relevant field without recreating
    the whole object.
-5. **Promote recurring test doubles to a shared module** only when they are
-   really reused by more than one consumer. Replace the local copies
-   with imports — and **sweep all the specs** that imported the local
-   version so as not to leave a migration half-done.
+5. **Promote recurring test doubles to a shared module** only when more than one
+   consumer truly reuses them. Replace the local copies with imports, and **sweep
+   every spec** that used the local version so the migration isn't left half-done.
 6. **Make the factories evolve with the models**: when the domain changes,
    adjust the factory, not every assert.
 
@@ -103,12 +103,12 @@ suite for using a different nomenclature.
   real reuse.
 - **Partial migration**: extracting to a shared module without removing the local
   copies.
-- **Mutable shared default**: a single factory-built object reused across tests
-  that one test then mutates — the change bleeds into later tests and creates
-  order-dependent flakiness. Return a fresh instance per call.
-- **Override-everything call site**: a test that passes so many overrides the
-  factory adds nothing over a literal — sign the default is wrong for that case
-  or a dedicated variant is needed.
+- **Mutable shared default**: one factory-built object reused across tests, then
+  mutated by one — the change bleeds into later tests, creating order-dependent
+  flakiness. Return a fresh instance per call.
+- **Override-everything call site**: so many overrides that the factory adds
+  nothing over a literal — a sign the default is wrong here or a dedicated variant
+  is needed.
 
 ## Suggested Conventions (Optional)
 

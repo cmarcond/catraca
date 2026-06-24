@@ -8,16 +8,17 @@ dependencies: []
 
 # Folder Structure by Layer and Entity
 
-Organize artifacts first by the project's architectural boundary and then by
-the domain unit each file serves. Keep test code, mocks, and helpers out of the
-production scope. Treat any file movement as a pure refactor, without mixing in
-behavior changes.
+Organize artifacts first by the project's architectural boundary, then by the
+domain unit each file serves. Keep test code, mocks, and helpers out of the
+production scope. Treat any file movement as a pure refactor, with no behavior
+change mixed in.
 
-The inner axis exists so the tree **screams the domain**: skimming the names
-should reveal what the system is about (the business units), not merely which
-framework or technical layer holds them. Grouping by domain unit keeps the files
-that change together physically together (high cohesion), so a feature's edit
-touches one neighborhood rather than scattering across layer-named folders.
+The inner axis makes the tree **scream the domain**:
+
+- **Names reveal the system** — skimming reveals the business units, not just
+  which framework or technical layer holds them.
+- **Cohesion** — files that change together sit together, so a feature's edit
+  touches one neighborhood instead of scattering across layer-named folders.
 
 ## When To Use
 

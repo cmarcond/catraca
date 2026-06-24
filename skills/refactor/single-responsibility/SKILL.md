@@ -12,23 +12,26 @@ dependencies:
 # Single Responsibility
 
 Restructures existing code without breaking behavior: the new structure enters
-before the old one leaves, and the suite stays green between each step. This is
-the **parallel change** (expand–migrate–contract) pattern: *expand* by adding
-the new path beside the old, *migrate* consumers one by one, *contract* by
-removing the old path only once it has zero consumers. The order matters — each
-phase keeps the suite green and leaves the system shippable mid-refactor.
+before the old one leaves, and the suite stays green between steps. This is the
+**parallel change** (expand–migrate–contract) pattern:
 
-**External contract** = the boundary observable by the existing consumers of
-what is being refactored (signatures they call, values they read). Moving a
-method between layers may change the internal shape without changing that
-contract; if an existing consumer needs to adjust its expectation, the contract
-changed and this stops being a refactor.
+- **Expand** — add the new path beside the old.
+- **Migrate** — move consumers one by one.
+- **Contract** — remove the old path only once it has zero consumers.
 
-**Architecture precondition.** The steps assume layers with dependency
-inversion (consumers depend on an abstraction, not on the concrete
-implementation) — that is what makes it possible to swap the structure behind it
-without touching the consumer. Without that separation, "adding the new one
-alongside the old" may not be viable and the refactor requires another plan.
+The order matters: each phase keeps the suite green and leaves the system
+shippable mid-refactor.
+
+**External contract** = what existing consumers observe (signatures they call,
+values they read). Moving a method between layers may change the internal shape
+without changing that contract. If a consumer must adjust its expectation, the
+contract changed and this is no longer a refactor.
+
+**Architecture precondition.** The steps assume dependency inversion: consumers
+depend on an abstraction, not the concrete. That is what lets you swap the
+structure behind it without touching the consumer. Without that separation,
+adding the new path alongside the old may not be viable and the refactor needs
+another plan.
 
 ## When To Use
 
@@ -72,15 +75,18 @@ alongside the old" may not be viable and the refactor requires another plan.
 
 ### Extract method vs. extract dedicated accessor
 
-Decide by **scope and axis of change**. *Extract method* operates within a unit:
-the difference is only logic/composition in the same layer, and the extracted
-piece stays an implementation detail of the same owner. *Extract a dedicated
-operation/repository* (the "extract class" move) when a distinct responsibility —
-its own data and the operations on it — wants to live apart, or when the
-difference is how the data is obtained (a distinct read query/contract), so the
-consumer depends only on what it needs. Signal that it is extract-class, not
-extract-method: a subset of fields and the methods touching them always travel
-together, or one consumer drives a different reason to change than the rest.
+Decide by **scope and axis of change**.
+
+- **Extract method** — within a unit: only logic/composition moves, in the same
+  layer, and the piece stays an implementation detail of the same owner.
+- **Extract dedicated operation/repository** (the "extract class" move) — when a
+  distinct responsibility (its own data and operations) wants to live apart, or
+  when the data is obtained differently (a distinct read query/contract), so the
+  consumer depends only on what it needs.
+
+Signal that it is extract-class, not extract-method: a subset of fields and the
+methods touching them always travel together, or one consumer has a different
+reason to change than the rest.
 
 ### Optimization via projection
 

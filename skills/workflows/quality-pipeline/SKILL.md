@@ -40,20 +40,19 @@ describes the **invariant principle** (language-independent); the
    types, style, coverage) must have a hook that **rejects** the commit/push,
    not merely warns.
 2. **Pre-commit only over what changed.** The hook validates the staged set,
-   not the entire repository — otherwise it gets slow and the team resorts to
+   not the whole repository — otherwise it gets slow and the team resorts to
    `--no-verify`. When a tool auto-fixes files (formatter, lint `--fix`), it
-   must re-stage exactly what it fixed and operate on the staged content only,
-   so a partially-staged file is not silently committed whole. Mature runners
-   (e.g. lint-staged v10+) do this for you; a hand-rolled hook must handle it
-   explicitly or it corrupts partial stages.
-3. **Coverage as a ratchet against an explicit baseline.** Record the
-   percentage per scope (e.g., unit, integration) of the last green commit as
-   the baseline. The push is rejected if any scope falls below the baseline (or
-   the profile's target in `method.md`). The baseline only moves up — never edit
-   it down to make a red gate pass; that defeats the ratchet. Update it when
-   coverage rises on its own initiative. This is the "clean as you code" stance:
-   the gate protects against regression on what you touch, it does not demand
-   back-filling tests for untouched legacy in one go.
+   must re-stage exactly what it fixed and operate on staged content only, so a
+   partially-staged file is not committed whole. Mature runners (e.g.
+   lint-staged v10+) do this for you; a hand-rolled hook must handle it
+   explicitly.
+3. **Coverage as a ratchet against an explicit baseline.** Record each scope's
+   percentage (unit, integration) at the last green commit as the baseline. A
+   push is rejected if any scope falls below the baseline (or the target in
+   `method.md`). The baseline only moves up: raise it when coverage rises, never
+   edit it down to pass a red gate. This is "clean as you code" — the gate
+   guards against regression on what you touch, it does not demand back-filling
+   tests for untouched legacy.
 4. **Updates in verified batches.** Update dependencies in small,
    atomically-reversible batches (one batch = one related functional area),
    running the suite before and after each batch, so that a break is

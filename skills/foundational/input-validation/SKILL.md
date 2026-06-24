@@ -10,18 +10,20 @@ dependencies:
 # Input Validation
 
 **Shape** validation of the input (required fields, format, comparison between
-fields), not business rules. Each rule is an object that exposes
-`validate(input)` and returns **an error** or an **empty value** (depending on
-the language: `null`, `None`, absent `Optional`) meaning no error.
-An **aggregator** walks the list of rules; the entry boundary receives that
-aggregator via injection and only does `error = validation.validate(input)`.
+fields), not business rules. Each rule is an object exposing `validate(input)`,
+which returns **an error** or an **empty value** (per the language: `null`,
+`None`, absent `Optional`) meaning no error. An **aggregator** walks the list of
+rules; the boundary receives it via injection and only does
+`error = validation.validate(input)`.
 
-Validation lives **at the boundary** so that everything past it can assume valid
-shape: the boundary is the line that filters malformed input before it reaches
-the domain, which keeps the domain free to model only valid states instead of
-re-checking shape everywhere. The aggregator and a single rule expose the **same
-`validate(input)` contract** — a composite that is used exactly like a leaf — so
-rules nest and recombine without the boundary knowing how many there are.
+Principles:
+
+- **Validate at the boundary** — it filters malformed input before the domain,
+  so everything past it can assume valid shape and the domain models only valid
+  states.
+- **Same contract for rule and aggregator** — both expose `validate(input)`, so
+  the aggregator is a composite used exactly like a leaf. Rules nest and
+  recombine without the boundary knowing how many there are.
 
 ## When To Use
 
@@ -55,12 +57,15 @@ rules nest and recombine without the boundary knowing how many there are.
    protocol in the validation layer and inject the adapter. A pure local rule
    does not need this.
 4. Implement the **aggregator** that walks the list of rules.
-5. Define the **aggregation policy according to the spec's intent**: stop at the
-   **first error** (fail-fast — cheaper, and right when a later rule presupposes
-   an earlier one passed, e.g., "is a string" before "matches format") or
-   **collect all errors** (preferable in forms/APIs that report the whole set, at
-   the cost of running every rule). The order of the list in the factory is the
-   order of evaluation; under fail-fast, order is part of the contract.
+5. Define the **aggregation policy from the spec's intent**:
+   - **Fail-fast** — stop at the first error. Cheaper, and right when a later
+     rule presupposes an earlier one passed (e.g., "is a string" before "matches
+     format").
+   - **Collect all** — run every rule and return the whole set. Preferable in
+     forms/APIs that report all errors at once.
+
+   The list order in the factory is the evaluation order; under fail-fast, that
+   order is part of the contract.
 6. Create a **factory** that assembles the list of rules for that boundary and
    returns the configured aggregator.
 7. Inject the aggregator into the boundary; it only calls `validate` and

@@ -8,21 +8,21 @@ dependencies: []
 
 # Dependency Inversion, Protocols, and Adapters
 
-Core principle: a business-rule component depends on protocols that it declares
-itself, receives the implementations via injection (typically the
-constructor), and the assembly of the object chain is concentrated in a single
-composition point at the application's entry point. This way the rule neither
-imports nor instantiates concrete infrastructure.
+A business-rule component depends on protocols it declares itself, receives the
+implementations by injection, and is assembled at one composition point. The
+rule never imports or instantiates concrete infrastructure.
 
-The protocol is **owned by the consumer**, not by the implementer: it is phrased
-in the rule's vocabulary ("encrypt", "find by id"), so when the concrete detail
-is replaced the protocol does not move. Injection is via the **constructor**, not
-a service locator or global registry: the constructor is the honest declaration
-of what the unit needs — readable from the signature, enforced at construction,
-and impossible to satisfy with a hidden global. An adapter for a third-party
-library is an **anti-corruption layer**: it translates the library's vocabulary
-*and* its failures into the protocol's contract, so the library's types,
-exceptions, and quirks never leak inward.
+Principles:
+
+- **Protocol owned by the consumer** — phrased in the rule's vocabulary
+  ("encrypt", "find by id"), so swapping the concrete leaves the protocol in
+  place.
+- **Inject via the constructor** — not a service locator or global. The
+  signature declares what the unit needs, enforced at construction, impossible
+  to satisfy with a hidden global.
+- **Adapter as anti-corruption layer** — it translates a third-party library's
+  vocabulary *and* its failures into the protocol's contract, so the library's
+  types, exceptions, and quirks never leak inward.
 
 > **Illustrative** naming (adapt to your stack): layers
 > `data`/`presentation`/`infra`/`main`, `makeX()` factories in the composition.

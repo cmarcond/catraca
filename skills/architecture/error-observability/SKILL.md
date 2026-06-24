@@ -16,15 +16,17 @@ the complete error (type, message, stack, request context) is logged to an
 observability destination — otherwise the generic 500 becomes a black box and
 the production failure stays invisible.
 
-Principles: logging happens **once, at the boundary** (not spread across the
-layers); it is **decoupled from response translation** (a decorator or
-middleware wraps the boundary — the business controller does not know about
-logging); the **destination is a substitutable detail** (structured stdout,
-file, database, service — behind a protocol + adapter, like any library); the
-entry is **structured** (queryable fields, not one concatenated string) and
-**correlatable** (carries a request/correlation id, so the opaque generic 500
-the client saw can be traced back to its exact request); and it is recorded at
-an **error severity level**, so production log filters never hide the failure.
+Principles:
+
+- **Log once, at the boundary** — not spread across the layers.
+- **Decoupled from the response** — a decorator/middleware wraps the boundary;
+  the business controller knows nothing about logging.
+- **Substitutable destination** — stdout, file, database, service — behind a
+  protocol + adapter, like any library.
+- **Structured and correlatable** — queryable fields (not one concatenated
+  string) plus a request/correlation id, so the generic 500 traces back to its
+  request.
+- **Error severity** — so production log filters never hide the failure.
 
 ## When To Use
 

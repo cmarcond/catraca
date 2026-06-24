@@ -9,19 +9,22 @@ dependencies:
 
 # Test Doubles: Spies, Stubs And Failure Mocks
 
-Replace each external collaborator of the unit with a controlled test double so that
+Replace each external collaborator of the unit with a controlled test double, so
 the test asserts the unit's behavior, not the real dependency's. The technique is
 language-independent.
 
-Pick the lightest double that proves the case. The names are not decoration —
-they map to what you verify: a **stub** returns a canned answer (state
-verification: assert on the unit's output); a **spy** is a stub that also records
-how it was called (assert the interaction afterward); a **fake** is a working,
-shortcut implementation that keeps coherent state across calls; a **mock** is
-pre-programmed with expectations about the calls. Prefer state verification
-(stub/fake) over interaction verification (spy/mock), and double **only at the
-unit's real boundaries** — never its internal helpers — so the test does not
-calcify around how the unit happens to be wired today.
+Pick the lightest double that proves the case. The names map to what you verify:
+
+- **Stub** — returns a canned answer; you assert on the unit's output (state verification).
+- **Spy** — a stub that also records how it was called; you assert the interaction.
+- **Fake** — a working shortcut implementation that keeps coherent state across calls.
+- **Mock** — pre-programmed with expectations about the calls.
+
+Two rules of thumb:
+
+- Prefer state verification (stub/fake) over interaction verification (spy/mock).
+- Double **only at the unit's real boundaries**, never its internal helpers — so
+  the test does not calcify around how the unit happens to be wired today.
 
 ## When To Use
 
@@ -41,19 +44,18 @@ calcify around how the unit happens to be wired today.
 - A pure function without dependencies → test input→output directly.
 - Do not create a test double for a dependency the unit does not even use just to "have
   coverage".
-- When you need to exercise the dependency's real behavior (e.g.:
-  the logic of an in-memory repository), prefer a **fake/in-memory** over a
-  stub: the fake keeps coherent state across calls; the stub only responds with
-  hardcoded values per call.
+- When you need the dependency's real behavior (e.g., the logic of an in-memory
+  repository), prefer a **fake/in-memory** over a stub: the fake keeps coherent
+  state across calls; the stub only returns hardcoded values per call.
 
 ## Order Of Operations
 
 1. List the unit's real dependencies by their **contract (interface)**,
    not by the concrete implementation.
 2. Build each test double returning the **happy path by default** (valid stub),
-   assembled via the shared SUT factory — see `test-setup-factories`. The
-   stub's default must **differ from the asserted value** (e.g., the returned id ≠ the input
-   id), so that the assertion does not pass by coincidence.
+   assembled via the shared SUT factory — see `test-setup-factories`. The stub's
+   default must **differ from the asserted value** (e.g., returned id ≠ input id),
+   so the assertion can't pass by coincidence.
 3. Write the **integration test with a spy**: capture the received arguments
    and assert that the dependency was called with the correct values.
 4. Write the **success-return test**: it uses the plain SUT, without overriding
@@ -65,11 +67,11 @@ calcify around how the unit happens to be wired today.
 6. Cover the **absence** paths (the dependency returns "empty") where the
    contract distinguishes absence from error.
 7. If the flow involves dates, fix the clock before the block and restore it after,
-   covering every point that generates a date. Inject the clock (or pass time in)
-   rather than freezing global system time where the platform allows it — an
-   injected clock is local to the unit and cannot leak into sibling tests. The
-   same determinism rule applies to any ambient nondeterministic source the unit
-   reads (random, uuid, environment): pin it, do not let it vary per run.
+   covering every point that generates a date. Where the platform allows, inject
+   the clock (or pass time in) instead of freezing global system time: an injected
+   clock is local to the unit and cannot leak into sibling tests. Pin any ambient
+   nondeterministic source the unit reads (random, uuid, environment) the same way
+   — never let it vary per run.
 
 ## Test Checklist
 
@@ -94,9 +96,8 @@ calcify around how the unit happens to be wired today.
 - [ ] The double's failure/return matches the real contract's shape (a value the
       real dependency could actually produce), so a passing test could not pass
       against the real collaborator for the wrong reason.
-- [ ] If the unit needed many test doubles to be tested, reassess the
-      decomposition: an excess of collaborators to isolate signals coupling or too much
-      responsibility in the unit.
+- [ ] If the unit needed many test doubles, reassess the decomposition: too many
+      collaborators to isolate signals coupling or excess responsibility.
 
 ## Anti-Patterns
 

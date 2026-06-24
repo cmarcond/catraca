@@ -10,23 +10,23 @@ dependencies:
 
 # Error Boundary: Propagate in the Domain, Translate at the Boundary
 
-There is a single role where an unexpected exception becomes a response to the
-client: the **entry boundary** — the place that translates an exception into a
-response. In the explicit-controller style this is an outer try/catch in the
-controller; in frameworks with error middleware, an exception filter, or a
-central handler, that same role is fulfilled by the framework's boundary. The
-principle does not require a physical location; it requires that **one**
-boundary be responsible and that nothing below it suppress the error.
-Everything below propagates; the data layer converts to a result only when the
-failure has business meaning.
+One role turns an unexpected exception into a client response: the **entry
+boundary**. It may be an outer try/catch in an explicit controller, or a
+framework's error middleware, exception filter, or central handler. The location
+is free; what matters is that **one** boundary is responsible and nothing below
+it suppresses the error. Everything below propagates; the data layer converts to
+a result only when the failure has business meaning.
 
-The dividing line is **expected vs. unexpected**: a failure the caller can
-anticipate and handle (record absent, credential invalid, conflict) is an
-ordinary outcome and should be a **value/typed result**, not an exception; a
-failure the code cannot meaningfully continue past (driver error, network
-timeout, bug) propagates as an exception to the boundary and becomes the generic
-500. Modeling expected outcomes as values keeps both paths visible and testable;
-reserving exceptions for the unexpected keeps the 500 honest — every 500 means
+The dividing line is **expected vs. unexpected**:
+
+- **Expected** — a failure the caller can anticipate (record absent, credential
+  invalid, conflict). Model it as a **value/typed result**, not an exception.
+- **Unexpected** — a failure the code cannot continue past (driver error,
+  network timeout, bug). Let it propagate as an exception and become the generic
+  500.
+
+Modeling expected outcomes as values keeps both paths visible and testable.
+Reserving exceptions for the unexpected keeps the 500 honest: every 500 means
 "something we did not anticipate," never "a known business case."
 
 ## When To Use
@@ -44,15 +44,17 @@ reserving exceptions for the unexpected keeps the 500 honest — every 500 means
 
 - Request input validation: it is an explicit rule, returns 400 — use
   `input-validation`, not the technical-error boundary.
-- A domain error that deserves its own status (401, 403, 404, 409): it should be
-  a **typed return** decided in the application/boundary layer before becoming an
-  exception, not caught in the generic 500 catch. The status decision happens
-  in the explicit mapping of the typed result, not in the catch. Distinguish the
-  statuses by meaning: **401** when the caller is unauthenticated or credentials
-  are invalid/expired (re-authenticating would fix it); **403** when the caller
-  is known but lacks permission (re-authenticating would not help); **404** for
-  an absent resource; **409** for a conflict. Mapping the wrong one (e.g., 403
-  for a missing login) misleads every client.
+- A domain error that deserves its own status (401, 403, 404, 409). It should be
+  a **typed return** mapped explicitly, not caught in the generic 500 catch. The
+  status decision lives in that mapping. Distinguish by meaning:
+  - **401** — caller unauthenticated or credentials invalid/expired
+    (re-authenticating would fix it).
+  - **403** — caller known but lacking permission (re-authenticating would not
+    help).
+  - **404** — absent resource.
+  - **409** — conflict.
+
+  Mapping the wrong one (e.g., 403 for a missing login) misleads every client.
 - Logging the error: keep it out of the business catch (observability
   decorator/middleware) — the point is not to couple logging to response
   translation.

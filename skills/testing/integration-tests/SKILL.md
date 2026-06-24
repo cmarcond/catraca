@@ -9,18 +9,20 @@ dependencies:
 
 # Integration Tests
 
-Prove that the external boundary really works: the request enters and exits through the
-mounted application, and the repository writes to and reads from a real ephemeral database. What
-is under test uses no test double — the boundary (transport and store) is exercised
-as in production.
+Prove that the external boundary really works: the request enters and exits
+through the mounted application, and the repository writes to and reads from a
+real ephemeral database. What is under test uses no test double — the boundary
+(transport and store) is exercised as in production.
 
 The point is fidelity: a mocked driver is only as correct as the assumptions
-encoded in it, so it can never catch the schema, serialization, or dialect bug
-that production will. Two properties make these tests trustworthy instead of
-flaky: **isolation** (each test starts from a known, clean state and shares
-nothing with its neighbors, so execution order and concurrency cannot change the
-outcome) and **determinism** (no reliance on leftover data, ambient time, or a
-fixed id sequence). When both hold, a red is a real defect, not noise.
+encoded in it, so it never catches the schema, serialization, or dialect bug that
+production will. Two properties make these tests trustworthy instead of flaky:
+
+- **Isolation** — each test starts from a known, clean state and shares nothing
+  with its neighbors, so order and concurrency can't change the outcome.
+- **Determinism** — no reliance on leftover data, ambient time, or a fixed id sequence.
+
+When both hold, a red is a real defect, not noise.
 
 ## When To Use
 
@@ -49,21 +51,19 @@ fixed id sequence). When both hold, a red is a real defect, not noise.
    a reliable one; otherwise, bring up a disposable ephemeral container. In the
    suite setup, connect/start; in the teardown, disconnect and ensure
    disposal.
-2. **Ensure isolation.** Before each test, reset to a clean known state — clean
-   the data of the flow under test (respecting referential order when you
-   truncate/delete). Never depend on state left by another test; if the suite
-   uses shared seeds, recreate them per test instead of assuming execution
-   order. Note: wrapping the test in a transaction and rolling back is a fast
-   cleanup for in-process repository tests, but it does **not** isolate a route
-   test that hits the app over the transport (the app commits in its own
-   connection); there, clean explicitly. Cleaning before (not only after) each
-   test also survives a previous crash that skipped teardown.
+2. **Ensure isolation.** Before each test, reset to a clean known state: clean the
+   data of the flow under test, respecting referential order when you
+   truncate/delete. Never depend on state left by another test; recreate shared
+   seeds per test rather than assuming execution order. Clean *before* each test,
+   not only after — it survives a previous crash that skipped teardown.
+   Caveat: a transaction-rollback cleanup is fast for in-process repository tests
+   but does **not** isolate a route test that hits the app over the transport (the
+   app commits in its own connection). There, clean explicitly.
 3. **For a repository (round-trip):** instantiate the real repository, exercise
-   the operation, and read back to assert the persisted effect —
-   preferably through the path the system would use (the repository's own
-   read method). Reading directly from the store is acceptable as a persistence
-   verification, but it couples the test to the schema; use it only when there is no
-   readable read and flag the fragility.
+   the operation, and read back to assert the persisted effect — preferably
+   through the path the system uses (the repository's own read method). Reading
+   directly from the store works, but couples the test to the schema; use it only
+   when there is no read method, and flag the fragility.
 4. **For a route/endpoint:** mount the real app and fire the request via a
    test transport client (the real request, not the isolated handler).
    Use the shared setup factories to create entities and

@@ -8,20 +8,21 @@ dependencies: []
 
 # Commit Conventions and Git Flow
 
-Standardize every commit as a small, self-contained fact. The message follows
-conventional commits with `type: description`; the content is scoped so that
-**the state after each commit** passes the project's verification (build and/or
-tests), without leaving a test orphaned from the production it exercises.
+Standardize every commit as a small, self-contained fact:
 
-This convention assumes there is a per-commit verification step (compilation in
-typed stacks, or the test suite/build in dynamic languages). The criterion is
-"green state after the commit", not "it compiles".
+- **Message** — conventional commits, `type: description`.
+- **Scope** — the state after each commit passes the project's verification
+  (build and/or tests), with no test orphaned from the production it exercises.
 
-The subject is written so it completes the sentence "If applied, this commit
-will ..." — that is what the imperative mood encodes, and it aligns the message
-with Git's own generated messages (merge, revert). The atomicity rule has a
-practical tell: if you cannot summarize the change in one concise imperative
-line, the commit is probably doing more than one thing and should be split.
+This assumes a per-commit verification step (compilation in typed stacks, the
+suite/build in dynamic ones). The criterion is "green state after the commit",
+not just "it compiles".
+
+- **Imperative subject** — write it to complete "If applied, this commit will
+  ...". That mood aligns the message with Git's own generated ones (merge,
+  revert).
+- **Atomicity tell** — if you cannot summarize the change in one concise
+  imperative line, it is doing more than one thing and should be split.
 
 ## When To Use
 
