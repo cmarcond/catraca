@@ -16,6 +16,13 @@ The non-obvious decisions: ensure the red fails on the behavior's assertion
 (and not on setup), never leave a hardcoded value without the test that generalizes it, and
 close the step per behavior instead of "finishing the file".
 
+Choosing the implementation strategy is part of the cycle: type the **obvious
+implementation** when the code is clear; **fake it** (return a constant, then
+let later cases drive out the variable) when you want a fast green and a
+controlled scope; **triangulate** (force generalization with a second,
+contradicting example) only when the right abstraction is not yet evident. The
+constant is a scaffold to be removed, never a finished answer.
+
 ## When To Use
 
 - You are going to implement a new observable behavior with a verifiable
@@ -53,9 +60,11 @@ controller, and adapter are just examples of the same shape.
    assertion and not on setup or import.
 4. Implement the minimum that makes it pass; a hardcoded value is only legitimate when there already
    exists (or will come in the next step) a test that forces generalization.
-5. Run the suite to green (green).
+5. Run the suite to green (green) — the **smallest possible diff** to flip this
+   one test, nothing extra "while you are here".
 6. Refactor production and test keeping green; do not introduce new behavior
-   here.
+   here. Removing duplication (between code and test, or across cases) is the
+   refactor step's actual job, not an optional polish.
 7. Only then move on to the next behavior and repeat.
 
 ## Guard Branches: The Compiler Points To The Next Red
@@ -88,14 +97,19 @@ the guard) goes unnoticed by the suite.
 
 - [ ] The test failed before the implementation existed, on the behavior's
       assertion.
-- [ ] One behavior per test; the name describes the behavior, not the
-      method.
+- [ ] One behavior per test; the name describes the observable
+      behavior/scenario and expected result, not the method or implementation
+      (a non-programmer who knows the domain could read it).
 - [ ] The minimal implementation is covered by an assertion that forces it to
       generalize.
 - [ ] After refactor, the suite stays green without changing the assertions.
 - [ ] No deliberate hardcoded value was left without the test that generalizes it.
 - [ ] Every guard branch (a case required by compiler/lint) has its own red
       that was seen failing before the guard existed.
+- [ ] The red failed for the intended reason (a wrong/absent return), not a
+      compile/import/setup error masquerading as the behavior's failure.
+- [ ] The green diff is the minimum for this test only — no unasserted branch,
+      field, or feature was added "in passing".
 
 ## Anti-Patterns
 
@@ -110,3 +124,10 @@ the guard) goes unnoticed by the suite.
 - Closing the cycle with a hardcoded value and not adding the test that forces it to
   generalize.
 - Driving the cycle per file ("finishing the spec") instead of per behavior.
+- Naming the test after the method under test (`returnsTrue`, `testCreate`)
+  instead of the scenario and result — it no longer documents intent and the
+  reader cannot tell what broke when it goes red.
+- Implementing more than the failing test demands ("while I'm here") — the extra
+  code has no red behind it and slips past the suite unproven.
+- Triangulating (adding a redundant second test) when the obvious implementation
+  was already clear from the first case — wasted ceremony, not extra safety.
