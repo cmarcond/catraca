@@ -16,30 +16,69 @@ One rubric per feature, `NNN-slug.md` (same number as the spec), filled in by
 
 ## How scoring works (skills → dimensions → verdict)
 
-The model has three levels:
+Three levels, all computed from **counts** so two evaluators (or two runs) reach
+the same numbers. Round every score to **two decimals** (half up). The unit is a
+**binary, evidence-backed check** — a check with no evidence counts as unmet.
 
-1. **Per-skill score (0–1)** — for each skill declared in the spec, derived from
-   the skill's **Test Checklist** and **Anti-Patterns**: items met / items
-   applicable; a present anti-pattern discounts.
-2. **Transversal dimensions (0–1)** — four cross-cutting scores, always
-   measured, each fed by the relevant skill scores and the direct evidence:
+### 1. Per-skill score (0–1)
 
-   | Dimension | What it measures | How to verify | Fed by |
-   |---|---|---|---|
-   | `test_first` | Tests preceded production | commit history / order of the red tasks checked | `tdd-minimal-step` |
-   | `layer_discipline` | Imports respect `architecture.md` | per-layer import inspection | `dependency-inversion-adapters`, `layered-typing`, `project-structure` |
-   | `coverage` | Coverage vs the profile's target | test-runner report | `quality-pipeline` |
-   | `commit_discipline` | One commit per task, conventional format | `git log` | `git-conventions` |
+For each skill declared in the spec, from its **Test Checklist** and
+**Anti-Patterns**:
 
-3. **Verdict** — derived from the transversal dimensions against the ratchet's
-   threshold (the floor recorded in `ratchet.json`; in the absence of a prior
-   floor, the canonical default is **0.9**):
-   - `adherent` — all dimensions ≥ threshold;
-   - `partial` — at least one dimension below threshold;
-   - `non-adherent` — the majority of dimensions below threshold.
+- `applicable` = checklist items whose precondition holds for this feature (mark
+  the rest **N/A** — they leave the denominator). If every item is N/A, the skill
+  is N/A and is omitted.
+- `met` = applicable items satisfied with evidence.
+- `raw = met / applicable`.
+- `penalty = 0.25 × (anti-patterns observed)`.
+- **`score = max(0, raw − penalty)`**.
 
-   The per-skill scores justify the dimension scores; the dimensions decide the
-   verdict.
+A *justified* anti-pattern (justification recorded) is handled by the evaluation
+mode: **pragmatic** drops the penalty; **pedagogical** keeps it and records the
+lesson; **strict** zeros the dimension it belongs to (see step 3).
+
+### 2. Transversal dimensions (0–1)
+
+Four cross-cutting scores, each a direct **compliant ÷ total** ratio — measured,
+not averaged from the skills. The "reinforced by" skills explain a low score;
+they do not compute it.
+
+| Dimension | Score = | Reinforced by |
+|---|---|---|
+| `test_first` | behaviors whose red was seen to fail before green ÷ total behaviors | `tdd-minimal-step` |
+| `layer_discipline` | new units with no illegal import ÷ units inspected | `dependency-inversion-adapters`, `layered-typing`, `project-structure` |
+| `coverage` | min(1, measured coverage ÷ profile target) | `quality-pipeline` |
+| `commit_discipline` | commits that are conventional **and** scoped to one task ÷ total commits | `git-conventions` |
+
+Sources: `test_first` from the tasks' checked red items + git order;
+`layer_discipline` from per-layer import inspection; `coverage` from the runner
+report; `commit_discipline` from `git log`.
+
+### 3. Verdict
+
+Let `threshold` = the dimension's recorded ratchet floor, or the canonical
+default **0.9** if none. After applying the evaluation mode (strict zeros a
+dimension with an unjustified violation):
+
+- **adherent** — every dimension ≥ threshold;
+- **partial** — one or more dimensions below threshold, but fewer than half;
+- **non-adherent** — half or more of the dimensions below threshold.
+
+The per-skill scores justify and explain; the four dimensions decide the verdict.
+
+### Worked example (feature "create a poll")
+
+- **coverage** — runner reports 100%, target 100% → min(1, 100/100) = **1.00**.
+- **test_first** — 5 behaviors, each with a red seen before green → 5/5 = **1.00**.
+- **layer_discipline** — 13 new units inspected, 0 illegal imports → 13/13 = **1.00**.
+- **commit_discipline** — 5 feature commits, all conventional and one-per-task →
+  5/5 = **1.00**.
+- **per-skill `error-observability`** — 5 applicable items (3 N/A: no logging
+  destination wired yet), 4 met, 0 anti-patterns → 4/5 − 0 = **0.80**.
+
+Every dimension ≥ 0.9 → **verdict: adherent**; the 0.80 on a deferred skill is
+recorded as the one gap. (These are the numbers in `examples/minimal`'s feature
+001 rubric.)
 
 ## Ratchet
 

@@ -25,12 +25,15 @@ Run and capture a summarized output:
 Create `evaluation/NNN-slug.md` from `evaluation/RUBRIC-TEMPLATE.md`:
 
 1. **Per skill declared in the spec**: open the SKILL.md, walk the **Test
-   Checklist** (score = met/applicable) and the **Anti-Patterns** (present ⇒
-   penalize and record a "violation"). Concrete evidence on every line — no
-   evidence, 0.
-2. **Transversal dimensions**: `test_first` (red order in the tasks + history),
-   `layer_discipline` (imports), `coverage` (report vs the profile's target),
-   `commit_discipline` (format + one-per-task).
+   Checklist** and the **Anti-Patterns**, and compute the per-skill score by the
+   formula in `evaluation/README.md` — `max(0, met/applicable − 0.25 ×
+   anti-patterns)`. Concrete evidence on every line; an item with no evidence is
+   unmet; record each anti-pattern as a "violation".
+2. **Transversal dimensions** — each a compliant/total ratio (see
+   `evaluation/README.md`): `test_first` (red-first behaviors / total),
+   `layer_discipline` (clean units / units inspected), `coverage`
+   (min(1, measured/target)), `commit_discipline` (conventional + one-per-task /
+   total).
 3. Apply the **evaluation mode** from `method.md` (G9): strict zeros a dimension
    with an unjustified violation; pedagogical penalizes and explains; pragmatic
    does not penalize a justified violation. In pedagogical mode, compare with

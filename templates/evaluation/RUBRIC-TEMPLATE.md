@@ -11,13 +11,21 @@ Spec: `../specs/NNN-slug.md` · Date: <!-- ISO --> · Evaluation mode: <!-- stri
 | `testing/tdd-minimal-step` | | | | |
 | … | | | | |
 
-<!-- Score per skill = Test Checklist items met / applicable;
-     a present anti-pattern discounts. In pedagogical mode, explain each
-     violation: what the method asked for and why. -->
+<!-- Per-skill score = max(0, met/applicable − 0.25 × anti-patterns observed),
+     rounded to 2 decimals. "applicable" excludes N/A items; an item with no
+     evidence is unmet. In pedagogical mode, explain each violation: what the
+     method asked for and why. Full formula: ../evaluation/README.md. -->
 
 ## Transversal dimensions
 
-| Dimension | Score (0–1) | Evidence |
+<!-- Each dimension is a direct compliant/total ratio (not an average of skills),
+     rounded to 2 decimals — see ../evaluation/README.md:
+     test_first = red-first behaviors / total behaviors;
+     layer_discipline = units with no illegal import / units inspected;
+     coverage = min(1, measured / target);
+     commit_discipline = conventional + one-per-task commits / total commits. -->
+
+| Dimension | Score (0–1) | Evidence (counts) |
 |---|---|---|
 | `test_first` | | |
 | `layer_discipline` | | |
