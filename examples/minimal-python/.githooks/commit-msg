@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Reject commit messages that do not follow Conventional Commits.
+set -euo pipefail
+
+msg_file="$1"
+subject="$(head -n1 "$msg_file")"
+
+pattern='^(feat|fix|chore|refactor|test|docs)(\(.+\))?: .+'
+
+if [[ ! "$subject" =~ $pattern ]]; then
+    echo "commit-msg hook: rejected." >&2
+    echo "  Subject: '$subject'" >&2
+    echo "  Must match: type(scope): description" >&2
+    echo "  Allowed types: feat|fix|chore|refactor|test|docs" >&2
+    exit 1
+fi

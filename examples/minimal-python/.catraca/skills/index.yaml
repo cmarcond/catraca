@@ -1,0 +1,81 @@
+schema_version: "1"
+library: catraca
+skills:
+  - id: "testing/tdd-minimal-step"
+    name: "tdd-minimal-step"
+    category: "testing"
+    path: "skills/testing/tdd-minimal-step/SKILL.md"
+    description: "Drives each behavior through a red-green-refactor cycle with a minimal implementation under a green suite. Use when implementing a new observable behavior."
+    dependencies: []
+  - id: "testing/test-doubles"
+    name: "test-doubles"
+    category: "testing"
+    path: "skills/testing/test-doubles/SKILL.md"
+    description: "Isolates the unit with spies, stubs, and failure mocks, and a fixed clock for dates. Use when a unit test depends on collaborators or on time."
+    dependencies: ["testing/test-setup-factories"]
+  - id: "testing/test-setup-factories"
+    name: "test-setup-factories"
+    category: "testing"
+    path: "skills/testing/test-setup-factories/SKILL.md"
+    description: "Centralizes test arrangement in SUT and data factories. Use when test setup repeats across cases of the same unit."
+    dependencies: []
+  - id: "testing/integration-tests"
+    name: "integration-tests"
+    category: "testing"
+    path: "skills/testing/integration-tests/SKILL.md"
+    description: "Tests routes against the mounted app and repositories against an ephemeral database, with per-test cleanup. Use when verifying real wiring across a boundary."
+    dependencies: ["testing/test-setup-factories"]
+  - id: "architecture/dependency-inversion-adapters"
+    name: "dependency-inversion-adapters"
+    category: "architecture"
+    path: "skills/architecture/dependency-inversion-adapters/SKILL.md"
+    description: "Declares protocols in the consuming layer, injects via the constructor, isolates libraries behind adapters, and composes at a single point. Use when a unit needs an external capability."
+    dependencies: []
+  - id: "architecture/controller-error-boundary"
+    name: "controller-error-boundary"
+    category: "architecture"
+    path: "skills/architecture/controller-error-boundary/SKILL.md"
+    description: "Lets an unexpected exception propagate to the boundary and become a generic error, while a business absence becomes a result in the data layer. Use when building a controller or a use case that can fail."
+    dependencies: ["architecture/dependency-inversion-adapters", "testing/test-doubles"]
+  - id: "architecture/error-observability"
+    name: "error-observability"
+    category: "architecture"
+    path: "skills/architecture/error-observability/SKILL.md"
+    description: "Logs the complete error at the boundary via a decorator/middleware, sends it to a destination behind an adapter, and keeps the client payload clean. Use when a 500 can occur."
+    dependencies: ["architecture/controller-error-boundary", "architecture/dependency-inversion-adapters"]
+  - id: "foundational/input-validation"
+    name: "input-validation"
+    category: "foundational"
+    path: "skills/foundational/input-validation/SKILL.md"
+    description: "Models each input rule as an object, aggregates them with a composite built by a factory, and has the boundary only call validate. Use when validating shape at an entry boundary."
+    dependencies: ["architecture/dependency-inversion-adapters"]
+  - id: "refactor/single-responsibility"
+    name: "single-responsibility"
+    category: "refactor"
+    path: "skills/refactor/single-responsibility/SKILL.md"
+    description: "Refactors in steps under a green suite, with the new structure entering before the old one leaves. Use when a unit has grown more than one responsibility."
+    dependencies: ["testing/tdd-minimal-step", "architecture/dependency-inversion-adapters", "workflows/git-conventions"]
+  - id: "domain-conventions/layered-typing"
+    name: "layered-typing"
+    category: "domain-conventions"
+    path: "skills/domain-conventions/layered-typing/SKILL.md"
+    description: "Has boundary types born in the layer that publishes them and keeps infra from importing domain models. Use when defining a use case's input/output types."
+    dependencies: ["architecture/dependency-inversion-adapters"]
+  - id: "domain-conventions/project-structure"
+    name: "project-structure"
+    category: "domain-conventions"
+    path: "skills/domain-conventions/project-structure/SKILL.md"
+    description: "Groups files by domain unit within each architectural boundary, mirrors the tree in tests, and treats reorganization as a pure refactor. Use when placing or moving files."
+    dependencies: []
+  - id: "workflows/git-conventions"
+    name: "git-conventions"
+    category: "workflows"
+    path: "skills/workflows/git-conventions/SKILL.md"
+    description: "Validates conventional commits with a hook and keeps each commit leaving the tree green, with no orphan test. Use when committing a task's work."
+    dependencies: []
+  - id: "workflows/quality-pipeline"
+    name: "quality-pipeline"
+    category: "workflows"
+    path: "skills/workflows/quality-pipeline/SKILL.md"
+    description: "Installs automatic gates that reject commit/push; the requirements are fixed and the tools are chosen per stack in feature 000. Use when setting up or extending the quality pipeline."
+    dependencies: ["testing/tdd-minimal-step"]

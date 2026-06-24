@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Mechanical quality gate: lint (zero warnings), strict type-check, tests+coverage.
+#
+# Bootstrap: while no test exists yet, the suite must not block setup commits.
+# `pytest` reports "no tests collected" with exit code 5, which the hook treats
+# as success. The probe runs with --no-cov so the coverage gate (configured in
+# addopts) does not turn that exit 5 into a coverage failure (exit 1). Once any
+# test exists, the full run (with coverage) must be green. No --no-verify ever.
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+ruff=".venv/bin/ruff"
+mypy=".venv/bin/mypy"
+pytest=".venv/bin/pytest"
+
+echo "pre-commit: ruff check ."
+"$ruff" check .
+
+echo "pre-commit: mypy (strict)"
+"$mypy" --strict src tests
+
+echo "pre-commit: pytest"
+set +e
+"$pytest" --no-cov -q >/dev/null 2>&1
+probe_ec=$?
+set -e
+if [ $probe_ec -eq 5 ]; then
+    echo "pre-commit: no tests collected yet (exit 5) — allowed during bootstrap."
+    exit 0
+fi
+
+set +e
+"$pytest"
+ec=$?
+set -e
+if [ $ec -ne 0 ]; then
+    echo "pre-commit hook: tests/coverage failed (exit $ec)." >&2
+    exit "$ec"
+fi

@@ -1,0 +1,42 @@
+{
+  "schema_version": "1",
+  "buffer": 0.05,
+  "mode": "repair",
+  "last_check_at": "2026-06-24",
+  "features": {
+    "000-quality-pipeline": {
+      "verdict": "adherent",
+      "scores": {
+        "layer_discipline": 1.0,
+        "coverage": 1.0,
+        "commit_discipline": 1.0,
+        "skills": {
+          "workflows/quality-pipeline": 1.0,
+          "workflows/git-conventions": 1.0,
+          "domain-conventions/project-structure": 1.0
+        }
+      }
+    },
+    "001-create-poll": {
+      "verdict": "adherent",
+      "scores": {
+        "test_first": 1.0,
+        "layer_discipline": 1.0,
+        "coverage": 1.0,
+        "commit_discipline": 1.0,
+        "skills": {
+          "testing/tdd-minimal-step": 1.0,
+          "testing/test-doubles": 1.0,
+          "testing/test-setup-factories": 1.0,
+          "testing/integration-tests": 1.0,
+          "architecture/dependency-inversion-adapters": 1.0,
+          "architecture/controller-error-boundary": 1.0,
+          "architecture/error-observability": 0.8,
+          "foundational/input-validation": 1.0,
+          "domain-conventions/layered-typing": 1.0,
+          "domain-conventions/project-structure": 1.0
+        }
+      }
+    }
+  }
+}
