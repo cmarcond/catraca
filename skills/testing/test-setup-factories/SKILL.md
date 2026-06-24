@@ -23,6 +23,14 @@ There are two complementary factories:
 > In stacks without constructor injection or without types, keep the principle (a
 > helper that returns the subject + its collaborators) and adapt the shape.
 
+The deeper reason to route construction through a factory: it **decouples every
+test from the subject's constructor and the model's shape**. When a constructor
+gains a dependency or a model gains a field, the test data builder absorbs the
+change in one place — the specs that did not care about that field never break.
+Data factories should default every field to a safe, valid value and let each
+test override **only the field it asserts on**, so the test reads as "this case
+is the default except for X", and irrelevant structure stays out of sight.
+
 ## When To Use
 
 - The component has **two or more** injected dependencies (or you already foresee
@@ -72,6 +80,10 @@ suite for using a different nomenclature.
       factory.
 - [ ] Boundary cases use a factory override/parameter, without rebuilding the
       whole object.
+- [ ] Data factory defaults are valid on their own, and each test overrides only
+      the field(s) it asserts on — the rest is left implicit.
+- [ ] Adding a model field required changing the data factory only, not every
+      spec that constructs the model.
 - [ ] A shared test double was only promoted to a common module when there is real
       reuse, with no remaining local copies.
 - [ ] Each test still keeps visible the specific arrangement it depends on.
@@ -91,6 +103,12 @@ suite for using a different nomenclature.
   real reuse.
 - **Partial migration**: extracting to a shared module without removing the local
   copies.
+- **Mutable shared default**: a single factory-built object reused across tests
+  that one test then mutates — the change bleeds into later tests and creates
+  order-dependent flakiness. Return a fresh instance per call.
+- **Override-everything call site**: a test that passes so many overrides the
+  factory adds nothing over a literal — sign the default is wrong for that case
+  or a dedicated variant is needed.
 
 ## Suggested Conventions (Optional)
 
