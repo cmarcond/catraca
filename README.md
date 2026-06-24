@@ -25,7 +25,9 @@ The installer:
   different file is preserved (the new version lands as `*.new`); with
   `--force`, the existing file is backed up as `*.bak` before being overwritten;
 - with `--claude` (default), also installs the commands into
-  `.claude/commands/catraca/` for use as slash commands in Claude Code;
+  `.claude/commands/catraca/` (slash commands) and a flattened copy of the 13
+  skills into `.claude/skills/` so Claude Code auto-discovers them as Agent
+  Skills (`--no-agent-skills` keeps the commands but skips the skills copy);
 - stamps `.catraca/VERSION` with the framework version, and on re-run reports
   `current -> available` so upgrades are visible;
 - finishes with a report of created/skipped/conflicting files (and, on conflict,

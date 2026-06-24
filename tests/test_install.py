@@ -154,6 +154,29 @@ class InstallTests(unittest.TestCase):
         self.assertEqual((self.catraca / "VERSION").read_text(encoding="utf-8").strip(),
                          install.framework_version())
 
+    def test_agent_skills_installed_flat_by_default(self) -> None:
+        self.assertEqual(run_install(str(self.target)), 0)
+        skills = self.target / ".claude" / "skills"
+        # all 13 skills present, flattened (folder name = skill name, no category dir)
+        self.assertEqual(len(list(skills.glob("*/SKILL.md"))), 13)
+        self.assertTrue((skills / "tdd-minimal-step" / "SKILL.md").is_file())
+        self.assertFalse((skills / "testing").exists())  # no category nesting
+
+    def test_no_agent_skills_keeps_command_shortcuts(self) -> None:
+        self.assertEqual(run_install(str(self.target), "--no-agent-skills"), 0)
+        self.assertTrue(
+            (self.target / ".claude" / "commands" / "catraca" / "init.md").is_file()
+        )
+        self.assertFalse((self.target / ".claude" / "skills").exists())
+
+    def test_no_claude_omits_agent_skills_too(self) -> None:
+        self.assertEqual(run_install(str(self.target), "--no-claude"), 0)
+        self.assertFalse((self.target / ".claude").exists())
+        # canonical copy still written
+        self.assertEqual(
+            len(list((self.catraca / "skills").rglob("SKILL.md"))), 13
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

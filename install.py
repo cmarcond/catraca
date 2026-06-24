@@ -15,9 +15,14 @@ A `.catraca/VERSION` stamp records the framework version installed; on re-run th
 installer reports current -> available. `--dry-run` reports what would change
 without writing anything.
 
+Unless `--no-claude`, the 13 skills are also installed (flattened) into
+`.claude/skills/<name>/SKILL.md` so Claude Code auto-discovers them as Agent
+Skills; `--no-agent-skills` keeps the command shortcuts but skips that copy. The
+canonical, index-referenced copy in `.catraca/skills/` is always written.
+
 Usage:
     python3 install.py /path/to/target-project [--force] [--no-claude]
-                       [--dry-run] [--skills-source DIR]
+                       [--no-agent-skills] [--dry-run] [--skills-source DIR]
 """
 
 from __future__ import annotations
@@ -110,7 +115,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--force", action="store_true",
                         help="overwrite divergent files (with a .bak backup)")
     parser.add_argument("--no-claude", action="store_true",
-                        help="do not install shortcuts in .claude/commands/catraca/")
+                        help="do not install anything under .claude/ (commands + skills)")
+    parser.add_argument("--no-agent-skills", action="store_true",
+                        help="keep the .claude command shortcuts but skip the "
+                             ".claude/skills/ Agent Skills copy")
     parser.add_argument("--dry-run", action="store_true",
                         help="report what would change without writing anything")
     parser.add_argument("--skills-source", type=Path, default=DEFAULT_SKILLS_SOURCE,
@@ -151,6 +159,14 @@ def main(argv: list[str] | None = None) -> int:
     if not args.no_claude:
         install_tree(commands, target / ".claude" / "commands" / "catraca",
                      args.force, report, dry_run)
+        # Flattened copy for Claude Code auto-discovery: .claude/skills/<name>/SKILL.md
+        # (the folder name is the skill name; categories live only in .catraca/skills).
+        if not args.no_agent_skills and skills_source.is_dir():
+            agent_skills = target / ".claude" / "skills"
+            for skill_md in sorted(skills_source.rglob("SKILL.md")):
+                name = skill_md.parent.name
+                install_file(skill_md, agent_skills / name / "SKILL.md",
+                             args.force, report, dry_run)
 
     # Version stamp: report current -> available, then record it.
     version = framework_version()

@@ -91,7 +91,12 @@ regression in block mode, or an unforeseen dependency.
 
 The 13 skills (in `.catraca/skills/`) are the canonical solution. They are
 separate files, copied in by the installer, and referenced by id — never
-inlined into the templates:
+inlined into the templates.
+
+In Claude Code they are **also** installed (flattened) into `.claude/skills/`, so
+the agent **auto-discovers** the relevant skill by its `description` and loads it
+on demand. The id-reference path below is the fallback for other agents (and a
+backstop if a skill isn't auto-loaded):
 
 - in the **spec**, each feature declares the applicable skills (reference only);
 - in the **implementation**, the agent derives the technical criteria from the
