@@ -17,10 +17,7 @@ A completed plan moves to `done/` keeping its number, so a gap in the active
 numbering just means that plan is done (e.g. 01 — EARS — and 02 — scoring model —
 are done).
 
-**Framework & method**
-| # | Plan | Effort | Depends on |
-|---|---|---|---|
-| 03 | [Independent evaluator](03-independent-evaluator.md) | medium | 02 — scoring model (done) |
+**Framework & method** — all done (see `done/`).
 
 **Tooling & packaging**
 | # | Plan | Effort | Depends on |
@@ -43,6 +40,7 @@ are done).
   seam without --no-verify`).
 - [`done/01-ears-acceptance-criteria.md`](done/01-ears-acceptance-criteria.md) — EARS shipped as the **single default** dialect (not opt-in)
 - [`done/02-formalize-scoring-model.md`](done/02-formalize-scoring-model.md) — scoring is now countable formulas (reproducible)
+- [`done/03-independent-evaluator.md`](done/03-independent-evaluator.md) — a clean-context evaluator grades by default (no self-grading)
 - [`done/01-type-only-coverage-note.md`](done/01-type-only-coverage-note.md)
 - [`done/02-installer-self-test.md`](done/02-installer-self-test.md)
 - [`done/11-strengthen-skills-content.md`](done/11-strengthen-skills-content.md)
