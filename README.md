@@ -31,6 +31,12 @@ The installer:
 Options: `--force`, `--no-claude`, `--skills-source DIR` (default: `skills/` at
 the root of this repository).
 
+The installer has its own test suite (stdlib only):
+
+```bash
+python3 -m unittest discover -s tests
+```
+
 ## Usage
 
 After installing, open the agent in the target project and paste the initial
