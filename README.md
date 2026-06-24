@@ -26,10 +26,14 @@ The installer:
   `--force`, the existing file is backed up as `*.bak` before being overwritten;
 - with `--claude` (default), also installs the commands into
   `.claude/commands/catraca/` for use as slash commands in Claude Code;
-- finishes with a report of created/skipped/conflicting files.
+- stamps `.catraca/VERSION` with the framework version, and on re-run reports
+  `current -> available` so upgrades are visible;
+- finishes with a report of created/skipped/conflicting files (and, on conflict,
+  how to reconcile the `*.new` files).
 
-Options: `--force`, `--no-claude`, `--skills-source DIR` (default: `skills/` at
-the root of this repository).
+Options: `--force`, `--no-claude`, `--dry-run` (report what would change without
+writing), `--skills-source DIR` (default: `skills/` at the root of this
+repository).
 
 The installer has its own test suite (stdlib only):
 

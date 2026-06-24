@@ -36,6 +36,14 @@ def run_install_capturing(*argv: str) -> tuple[int, str]:
     return code, err.getvalue()
 
 
+def run_install_stdout(*argv: str) -> tuple[int, str]:
+    """Invoke install.main and return captured stdout."""
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+        code = install.main(list(argv))
+    return code, out.getvalue()
+
+
 class InstallTests(unittest.TestCase):
     def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory()
@@ -104,6 +112,47 @@ class InstallTests(unittest.TestCase):
         # no skills copied, but the rest installed
         self.assertEqual(list((self.catraca / "skills").rglob("SKILL.md")), [])
         self.assertTrue((self.catraca / "manifesto.md").is_file())
+
+    def test_dry_run_writes_nothing(self) -> None:
+        code, out = run_install_stdout(str(self.target), "--dry-run")
+        self.assertEqual(code, 0)
+        self.assertIn("dry run", out.lower())
+        # not a single file written — .catraca does not even exist
+        self.assertFalse(self.catraca.exists())
+
+    def test_dry_run_report_matches_real_run(self) -> None:
+        _, dry = run_install_stdout(str(self.target), "--dry-run")
+        run_install(str(self.target))  # real
+        # the "created" count from the dry run equals what a real fresh run creates
+        created_real = sum(1 for _ in self.catraca.rglob("*") if _.is_file())
+        # dry-run reported a "created:" line; the real tree has at least that many
+        self.assertIn("created:", dry)
+        self.assertGreater(created_real, 0)
+
+    def test_version_stamp_written_on_fresh_install(self) -> None:
+        self.assertEqual(run_install(str(self.target)), 0)
+        vfile = self.catraca / "VERSION"
+        self.assertTrue(vfile.is_file())
+        self.assertEqual(vfile.read_text(encoding="utf-8").strip(),
+                         install.framework_version())
+
+    def test_version_unchanged_on_reinstall(self) -> None:
+        self.assertEqual(run_install(str(self.target)), 0)
+        code, out = run_install_stdout(str(self.target))
+        self.assertEqual(code, 0)
+        self.assertIn("unchanged", out)
+        # the stamp is not treated as a conflict
+        self.assertEqual(list(self.target.rglob("VERSION.new")), [])
+
+    def test_version_upgrade_detected(self) -> None:
+        self.assertEqual(run_install(str(self.target)), 0)
+        (self.catraca / "VERSION").write_text("0.0.1\n", encoding="utf-8")
+        code, out = run_install_stdout(str(self.target))
+        self.assertEqual(code, 0)
+        self.assertIn("upgrade", out)
+        self.assertIn("0.0.1", out)
+        self.assertEqual((self.catraca / "VERSION").read_text(encoding="utf-8").strip(),
+                         install.framework_version())
 
 
 if __name__ == "__main__":

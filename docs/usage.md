@@ -12,6 +12,10 @@ identical file is skipped; a divergent one is preserved (the new version lands
 as `*.new`; with `--force`, a `*.bak` backup is made and the file is
 overwritten).
 
+The installer stamps `.catraca/VERSION`; on re-run it reports `current ->
+available` so an upgrade is visible. Use `--dry-run` to see exactly what would
+change (created/skipped/conflicted) without writing anything.
+
 ## 2. Start a project
 
 Open the agent (Claude Code) in the project folder and paste the initial
