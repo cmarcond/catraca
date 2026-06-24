@@ -24,7 +24,6 @@ are done).
 **Examples (downstream — run after the framework is settled)**
 | # | Plan | Effort | Depends on |
 |---|---|---|---|
-| 07 | [Second-stack example (Python)](07-second-stack-example-python.md) | medium–large | 02–03 + EARS (reflects final method) |
 | 08 | [Completed example with a repair cycle](08-completed-example-repair-cycle.md) | medium | 02, 03 (scoring + evaluator) |
 | 09 | [Regenerate the worked example](09-regenerate-worked-example.md) | medium | **everything — run last** |
 
@@ -39,6 +38,7 @@ are done).
 - [`done/06-standalone-glossary.md`](done/06-standalone-glossary.md) — terms extracted to `glossary.md`, linked at point of use
 - [`done/05-installer-niceties.md`](done/05-installer-niceties.md) — `--dry-run`, version stamp, clearer conflict report
 - [`done/04-installable-agent-skills.md`](done/04-installable-agent-skills.md) — skills installed to `.claude/skills/` for auto-discovery
+- [`done/07-second-stack-example-python.md`](done/07-second-stack-example-python.md) — Python example (`examples/minimal-python/`) proves agnosticism
 - [`done/01-type-only-coverage-note.md`](done/01-type-only-coverage-note.md)
 - [`done/02-installer-self-test.md`](done/02-installer-self-test.md)
 - [`done/11-strengthen-skills-content.md`](done/11-strengthen-skills-content.md)
