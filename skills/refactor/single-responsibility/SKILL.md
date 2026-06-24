@@ -12,7 +12,11 @@ dependencies:
 # Single Responsibility
 
 Restructures existing code without breaking behavior: the new structure enters
-before the old one leaves, and the suite stays green between each step.
+before the old one leaves, and the suite stays green between each step. This is
+the **parallel change** (expand–migrate–contract) pattern: *expand* by adding
+the new path beside the old, *migrate* consumers one by one, *contract* by
+removing the old path only once it has zero consumers. The order matters — each
+phase keeps the suite green and leaves the system shippable mid-refactor.
 
 **External contract** = the boundary observable by the existing consumers of
 what is being refactored (signatures they call, values they read). Moving a
@@ -59,7 +63,8 @@ alongside the old" may not be viable and the refactor requires another plan.
 4. Migrate the consumers one by one to the new path; update mocks/stubs
    together with each migration.
 5. Run the suite at each step — do not accumulate steps without green.
-6. When no consumer uses the old path, remove it.
+6. When no consumer uses the old path — verify by searching every call site, not
+   by assumption — remove it (the contract phase).
 7. Rename: apply a mechanical and verifiable sweep (automated refactor
    or reviewed search/replace) with the suite guaranteeing the mechanics. Keep
    the sweep separate from any behavior change — see `git-conventions`
@@ -67,11 +72,15 @@ alongside the old" may not be viable and the refactor requires another plan.
 
 ### Extract method vs. extract dedicated accessor
 
-When the usage is partial, decide by the axis of change: if the difference is
-only logic/composition in the same layer, extract a method; if the difference
-is how the data is obtained (a distinct read query/contract), extract a
-dedicated operation/repository so that the consumer depends only on what it
-needs.
+Decide by **scope and axis of change**. *Extract method* operates within a unit:
+the difference is only logic/composition in the same layer, and the extracted
+piece stays an implementation detail of the same owner. *Extract a dedicated
+operation/repository* (the "extract class" move) when a distinct responsibility —
+its own data and the operations on it — wants to live apart, or when the
+difference is how the data is obtained (a distinct read query/contract), so the
+consumer depends only on what it needs. Signal that it is extract-class, not
+extract-method: a subset of fields and the methods touching them always travel
+together, or one consumer drives a different reason to change than the rest.
 
 ### Optimization via projection
 
@@ -89,7 +98,11 @@ widen the projection when new fields start being used.
       expectation because of the refactor.
 - [ ] Mocks and factories were updated in the same step as the change that
       affects them.
-- [ ] Each old path was removed only after zeroing out consumers.
+- [ ] Each old path was removed only after a call-site search confirmed zero
+      remaining consumers.
+- [ ] The three phases were distinct: the new path was added (expand), consumers
+      migrated one by one, and the old path removed (contract) — no phase
+      collapsed into a single all-at-once change.
 - [ ] New structure (operation/repository/projection) is covered by the
       consumer that uses it.
 - [ ] Rename stayed separate from new logic.
@@ -102,6 +115,8 @@ widen the projection when new fields start being used.
   break).
 - Splitting for aesthetics, without a consumer that uses only part of the
   return.
+- Extracting a method to a new owner when only logic moved (no separate
+  responsibility or read contract) — churn without a single-responsibility gain.
 - Optimizing a query by assumption instead of real usage; or projecting fields
   and forgetting to widen the projection when new fields start being used.
 - Refactoring with the suite red "that I'll fix later".
