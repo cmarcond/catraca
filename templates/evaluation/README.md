@@ -8,6 +8,10 @@ One rubric per feature, `NNN-slug.md` (same number as the spec), filled in by
 - **Evidence or it didn't happen.** Each rubric line requires verifiable
   evidence: a command run + its relevant output, or a reference to a
   test/file/commit. Self-report with no evidence scores 0.
+- **Independent by default.** The score of record comes from a clean-context
+  evaluator that never saw the implementation conversation — the implementer does
+  not grade its own work (self-preference bias). Protocol and fallback:
+  `commands/evaluate.md`, Step 2.
 - **Evaluation mode** (from `method.md`, Gate D/G9):
   - *strict*: any unjustified violation zeros the dimension;
   - *pedagogical* (default): a violation reduces the score and the rubric

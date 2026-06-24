@@ -111,7 +111,10 @@ inlined into the templates:
   **except for the quality gates**: feature 000 installs hooks that
   mechanically reject commit/push (type-check, lint, commit message, staged
   tests, coverage), independent of the agent.
-- The evaluation is done by the same agent that implemented (mitigated by the
-  evidence requirement; an independent evaluator is a natural evolution).
+- The evaluation is **independent by default**: a clean-context evaluator (the
+  Task tool, or a separate model) scores the feature from the spec + code +
+  verification commands, never the build conversation — avoiding self-preference
+  bias. If no independent evaluator is available, the rubric is filled in a fresh
+  invocation, or marked `self (not independent)` as a recorded limitation.
 - Native integration only with Claude Code; other agents use the same Markdown
   manually.

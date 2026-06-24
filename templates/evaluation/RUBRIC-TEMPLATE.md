@@ -41,11 +41,17 @@ Spec: `../specs/NNN-slug.md` · Date: <!-- ISO --> · Evaluation mode: <!-- stri
 Files touched: <!-- list -->
 Commits: <!-- hashes + messages -->
 
-## Audit
+## Evaluator
 
-Clean context (subagent): <!-- yes/self --> · Directed mutations: <!-- N
-applied, N survivors --> · Findings: <!-- none | list finding →
-accepted (score adjusted) or refuted (justification) -->
+- **Identity**: <!-- independent subagent | separate model | self in a fresh
+     invocation | self (not independent) --> (independence is the default; see
+     commands/evaluate.md)
+- **Directed mutations**: <!-- N applied, N survivors -->
+- **Disagreement vs implementer self-score**: <!-- none | dimension: self X →
+     independent Y; resolution (independent stands / evidence the evaluator
+     missed) -->
+- **Findings**: <!-- none | finding → accepted (score adjusted) or refuted
+     (justification) -->
 
 ## Verdict
 
