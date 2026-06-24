@@ -1,50 +1,35 @@
 # Improvement Plans
 
-Each file here is a **self-contained plan** for one improvement to Catraca. Any
-one can be handed to a fresh agent context and executed end to end: it carries
-its own orientation, goal, scope, research step, acceptance criteria, and commit
-instructions.
+Each file is a **self-contained plan** for one improvement to Catraca — runnable
+solo from a clean context (orientation, goal, scope, research step, acceptance
+criteria, commit instructions). They were executed in a deliberate order:
+framework/method first, tooling next, examples last (examples are downstream
+artifacts that should reflect a settled framework).
 
-The numbers are now in **recommended execution order**: framework/method changes
-first, tooling next, and example/demonstration work last (examples are
-downstream artifacts — they should reflect a settled framework). Within that, do
-them in any order **except plan 09, which runs last** (it regenerates the worked
-example from the final framework).
+## Active backlog
 
-## Active backlog (in execution order)
+**Empty — all plans are done.** Completed plans live in `done/` (keeping their
+number). Add a new `NN-*.md` here to queue more work.
 
-A completed plan moves to `done/` keeping its number, so a gap in the active
-numbering just means that plan is done (e.g. 01 — EARS — and 02 — scoring model —
-are done).
+## Done (`done/`)
 
-**Framework & method** — all done (see `done/`).
-
-**Tooling & packaging** — all done (see `done/`).
-
-**Examples (downstream — run after the framework is settled)**
-| # | Plan | Effort | Depends on |
-|---|---|---|---|
-| 08 | [Completed example with a repair cycle](08-completed-example-repair-cycle.md) | medium | 02, 03 (scoring + evaluator) |
-| 09 | [Regenerate the worked example](09-regenerate-worked-example.md) | medium | **everything — run last** |
-
-## Done
-
-- **Bootstrap-seam fix** — test runner passes with no tests during feature-000
-  setup, so no commit bypasses the pipeline (`fix(pipeline): close the bootstrap
-  seam without --no-verify`).
-- [`done/01-ears-acceptance-criteria.md`](done/01-ears-acceptance-criteria.md) — EARS shipped as the **single default** dialect (not opt-in)
-- [`done/02-formalize-scoring-model.md`](done/02-formalize-scoring-model.md) — scoring is now countable formulas (reproducible)
-- [`done/03-independent-evaluator.md`](done/03-independent-evaluator.md) — a clean-context evaluator grades by default (no self-grading)
-- [`done/06-standalone-glossary.md`](done/06-standalone-glossary.md) — terms extracted to `glossary.md`, linked at point of use
-- [`done/05-installer-niceties.md`](done/05-installer-niceties.md) — `--dry-run`, version stamp, clearer conflict report
-- [`done/04-installable-agent-skills.md`](done/04-installable-agent-skills.md) — skills installed to `.claude/skills/` for auto-discovery
-- [`done/07-second-stack-example-python.md`](done/07-second-stack-example-python.md) — Python example (`examples/minimal-python/`) proves agnosticism
-- [`done/01-type-only-coverage-note.md`](done/01-type-only-coverage-note.md)
-- [`done/02-installer-self-test.md`](done/02-installer-self-test.md)
-- [`done/11-strengthen-skills-content.md`](done/11-strengthen-skills-content.md)
-- **Plan 09 (regenerate example) has already run once** against the current
-  framework — but it is **re-runnable**, so it stays in the backlog: run it again
-  after any of plans 01–08 land, to keep the example reflecting the final state.
+- **Bootstrap-seam fix** — the test runner passes with no tests during
+  feature-000 setup, so no commit bypasses the pipeline (no `--no-verify`).
+- **01 — EARS acceptance criteria** — shipped as the single default dialect.
+- **02 — Formalize the scoring model** — reproducible, countable formulas.
+- **03 — Independent evaluator** — a clean-context evaluator grades by default.
+- **04 — Installable Agent Skills** — skills also installed to `.claude/skills/`
+  for auto-discovery.
+- **05 — `install.py` niceties** — `--dry-run`, version stamp, clearer conflicts.
+- **06 — Standalone glossary** — terms in `glossary.md`, linked at point of use.
+- **07 — Python example** — `examples/minimal-python/` proves agnosticism (also
+  surfaced the pytest `--no-cov` bootstrap fix).
+- **08 — Completed example + repair cycle** — `examples/complete/` exercises the
+  ratchet repair end-to-end (a real layer-discipline regression → R1 → recovery).
+- **09 — Regenerate the worked example** — `examples/minimal/` rebuilt from the
+  final framework. *Re-runnable*: run it again if the framework changes.
+- Earlier one-offs: type-only coverage note, installer self-test, strengthen the
+  13 skills.
 
 ## How to run one solo
 
@@ -53,6 +38,6 @@ are done).
 3. Let it follow the plan, including the research step, and commit per the plan's
    instructions.
 
-Every plan ends commit messages with
-`Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>` and
-branches off `master` first.
+> Note: the older plan files contain a `Co-Authored-By` line in their commit
+> instructions. Do **not** add it — this repo's commits omit AI co-author
+> trailers.
