@@ -1,4 +1,4 @@
-# Plan 10 — Standalone glossary
+# Plan 06 — Standalone glossary
 
 ## Orientation (you may be starting from a clean context)
 

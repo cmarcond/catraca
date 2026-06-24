@@ -1,4 +1,4 @@
-# Plan 07 — Completed example with a repair cycle
+# Plan 08 — Completed example with a repair cycle
 
 ## Orientation (you may be starting from a clean context)
 
@@ -12,7 +12,7 @@ The current `examples/minimal/` is **mid-flight**: feature 000 + feature 001
 implemented; 002/003 are specs only. Read `templates/evaluation/README.md`,
 `commands/evaluate.md`, and `examples/minimal/.catraca/`.
 
-> **Dependency:** coordinate with plan 12. This either extends the regenerated
+> **Dependency:** coordinate with plan 09. This either extends the regenerated
 > example or is a separate `examples/complete/`. Decide and state which.
 
 ## Goal
@@ -49,8 +49,7 @@ proves the mechanism and teaches it.
 ## Research
 
 Check whether the repair-cycle rules in `evaluation/README.md` are fully
-specified for a real run; if gaps appear while doing it, note them (a follow-up
-to plan 04/05). No external research strictly required, but skim current thinking
+specified for a real run; if gaps appear while doing it, note them (a follow-up to plan 02/03). No external research strictly required, but skim current thinking
 on "ratchet / quality gates that only move forward" to frame the README.
 
 ## Acceptance / verification

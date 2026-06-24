@@ -1,4 +1,4 @@
-# Plan 06 — Second-stack example (Python)
+# Plan 07 — Second-stack example (Python)
 
 ## Orientation (you may be starting from a clean context)
 
@@ -12,7 +12,7 @@ which produces a clean `.catraca/`. Read `README.md`, `docs/usage.md`,
 finished example looks like.
 
 > **Dependency:** this plan creates a NEW example; it does not edit
-> `examples/minimal/`. If run before plan 12, coordinate so plan 12 regenerates
+> `examples/minimal/`. If run before plan 09, coordinate so plan 09 regenerates
 > both examples from the final framework.
 
 ## Goal

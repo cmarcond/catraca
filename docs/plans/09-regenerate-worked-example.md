@@ -1,4 +1,4 @@
-# Plan 12 — Regenerate the worked example (RUN LAST)
+# Plan 09 — Regenerate the worked example (RUN LAST)
 
 ## Orientation (you may be starting from a clean context)
 

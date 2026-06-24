@@ -1,4 +1,4 @@
-# Plan 04 — Formalize the scoring model
+# Plan 02 — Formalize the scoring model
 
 ## Orientation (you may be starting from a clean context)
 

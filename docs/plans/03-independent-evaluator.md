@@ -1,4 +1,4 @@
-# Plan 05 — Independent evaluator
+# Plan 03 — Independent evaluator
 
 ## Orientation (you may be starting from a clean context)
 

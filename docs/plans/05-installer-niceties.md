@@ -1,4 +1,4 @@
-# Plan 09 — `install.py` niceties
+# Plan 05 — `install.py` niceties
 
 ## Orientation (you may be starting from a clean context)
 
@@ -8,8 +8,7 @@ You are in the **Catraca** repo at `/Users/cesar/Projects/catraca`. `install.py`
 (skip identical, `*.new` on divergence, `--force` → `*.bak` + overwrite) and
 prints a created/skipped/conflicted report. Read `install.py` and `README.md`.
 
-> **Dependency:** if plan 02 (installer self-test) is done, extend its tests to
-> cover the new flags. If not, add tests for the new behavior here.
+> **Dependency:** the installer self-test (done/02-installer-self-test.md) exists — extend it to cover the new flags.
 
 ## Goal
 

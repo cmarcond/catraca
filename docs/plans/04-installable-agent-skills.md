@@ -1,4 +1,4 @@
-# Plan 08 — Ship skills as installable Agent Skills
+# Plan 04 — Ship skills as installable Agent Skills
 
 ## Orientation (you may be starting from a clean context)
 
@@ -40,7 +40,7 @@ enumerate them. Better ergonomics and fewer "forgot to read the skill" misses.
 
 ## Out of scope
 
-- Rewriting skill content (that's plan 11). This is packaging/distribution only.
+- Rewriting skill content (that's done — see done/11-strengthen-skills-content.md). This is packaging/distribution only.
 
 ## Research
 
@@ -53,8 +53,7 @@ Use the official Anthropic/Claude docs; cite them in the commit body.
 
 - A freshly installed target exposes the 13 skills as discoverable Agent Skills
   (verify per the official mechanism), while `index.yaml` references still work.
-- `install.py` remains idempotent; its self-test (plan 02, if present) still
-  passes.
+- `install.py` remains idempotent; its self-test (done/02-installer-self-test.md) still passes.
 
 ## Commit
 

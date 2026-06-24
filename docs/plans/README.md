@@ -3,31 +3,48 @@
 Each file here is a **self-contained plan** for one improvement to Catraca. Any
 one can be handed to a fresh agent context and executed end to end: it carries
 its own orientation, goal, scope, research step, acceptance criteria, and commit
-instructions. They are independent — do them in any order — **except plan 12,
-which must run last** (it regenerates the worked example from the final
-framework).
+instructions.
 
-> **Done so far:** the **bootstrap-seam fix** (`fix(pipeline): close the
-> bootstrap seam without --no-verify`), plus plans **01** (coverage note),
-> **02** (installer self-test), **11** (strengthen the 13 skills + a clarity
-> pass), and **12** (regenerated the worked example). Note: plan **12** is
-> re-runnable — if any of plans 03–10 land, regenerate the example again so it
-> keeps reflecting the final framework.
+The numbers are now in **recommended execution order**: framework/method changes
+first, tooling next, and example/demonstration work last (examples are
+downstream artifacts — they should reflect a settled framework). Within that, do
+them in any order **except plan 09, which runs last** (it regenerates the worked
+example from the final framework).
 
-| # | Plan | Effort | Solves |
+## Active backlog (in execution order)
+
+**Framework & method**
+| # | Plan | Effort | Depends on |
 |---|---|---|---|
-| 01 | [Document type-only 0/0 coverage](01-type-only-coverage-note.md) | small | Confusion when a 100% gate shows 0/0 type files |
-| 02 | [Installer self-test](02-installer-self-test.md) | small–medium | `install.py` has no safety net |
-| 03 | [EARS acceptance criteria option](03-ears-acceptance-criteria.md) | medium | Ambiguity in WHEN/THEN specs |
-| 04 | [Formalize the scoring model](04-formalize-scoring-model.md) | medium | Dimension scores are judgment calls |
-| 05 | [Independent evaluator](05-independent-evaluator.md) | medium | The implementing agent grades itself |
-| 06 | [Second-stack example (Python)](06-second-stack-example-python.md) | medium–large | Agnosticism is claimed but only TS is shown |
-| 07 | [Completed example with a repair cycle](07-completed-example-repair-cycle.md) | medium | Ratchet `repair` is never exercised end-to-end |
-| 08 | [Ship skills as installable Agent Skills](08-installable-agent-skills.md) | medium | Skills are referenced, not auto-discovered |
-| 09 | [`install.py` niceties](09-installer-niceties.md) | small | No dry-run / version / smart update |
-| 10 | [Standalone glossary](10-standalone-glossary.md) | small | Terms buried inside MANIFESTO |
-| 11 | [Strengthen the 13 skills' content](11-strengthen-skills-content.md) | large | Skills were translated, not improved |
-| 12 | [Regenerate the worked example](12-regenerate-worked-example.md) | medium | **Run last** — the shipped example must reflect the final framework |
+| 01 | [EARS acceptance criteria option](01-ears-acceptance-criteria.md) | medium | — |
+| 02 | [Formalize the scoring model](02-formalize-scoring-model.md) | medium | — |
+| 03 | [Independent evaluator](03-independent-evaluator.md) | medium | 02 (uses the scoring model) |
+
+**Tooling & packaging**
+| # | Plan | Effort | Depends on |
+|---|---|---|---|
+| 04 | [Ship skills as installable Agent Skills](04-installable-agent-skills.md) | medium | — |
+| 05 | [`install.py` niceties](05-installer-niceties.md) | small | — |
+| 06 | [Standalone glossary](06-standalone-glossary.md) | small | — |
+
+**Examples (downstream — run after the framework is settled)**
+| # | Plan | Effort | Depends on |
+|---|---|---|---|
+| 07 | [Second-stack example (Python)](07-second-stack-example-python.md) | medium–large | 01–03 (reflects final method) |
+| 08 | [Completed example with a repair cycle](08-completed-example-repair-cycle.md) | medium | 02, 03 (scoring + evaluator) |
+| 09 | [Regenerate the worked example](09-regenerate-worked-example.md) | medium | **everything — run last** |
+
+## Done
+
+- **Bootstrap-seam fix** — test runner passes with no tests during feature-000
+  setup, so no commit bypasses the pipeline (`fix(pipeline): close the bootstrap
+  seam without --no-verify`).
+- [`done/01-type-only-coverage-note.md`](done/01-type-only-coverage-note.md)
+- [`done/02-installer-self-test.md`](done/02-installer-self-test.md)
+- [`done/11-strengthen-skills-content.md`](done/11-strengthen-skills-content.md)
+- **Plan 09 (regenerate example) has already run once** against the current
+  framework — but it is **re-runnable**, so it stays in the backlog: run it again
+  after any of plans 01–08 land, to keep the example reflecting the final state.
 
 ## How to run one solo
 

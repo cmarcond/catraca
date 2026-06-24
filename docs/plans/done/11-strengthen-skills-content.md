@@ -36,7 +36,7 @@ skills directly raise the ceiling of every project that uses the framework.
 ## Why it solves it well
 
 Each skill improvement is research-backed and immediately measurable through the
-rubric, and the worked example (regenerated in plan 12) will exercise the
+rubric, and the worked example (regenerated in plan 09) will exercise the
 improved skills end to end.
 
 ## Scope / what's involved
@@ -57,7 +57,7 @@ Work **skill by skill** (one commit per skill, so each is reviewable):
    section set consistent.
 3. Keep changes in the method's spirit (test-first, dependencies inward, gates
    not discipline) — sharpen, don't rewrite the philosophy.
-4. If a change alters what the rubric expects, note it for plan 04/07.
+4. If a change alters what the rubric expects, note it for plan 02/08.
 
 ## Out of scope
 
@@ -81,7 +81,7 @@ responsibility refactoring under tests", "conventional commits spec latest",
   review findings.
 - `skills/index.yaml` descriptions still match each skill.
 - No Portuguese reintroduced; `examples/minimal` references still resolve (the
-  example itself is regenerated in plan 12).
+  example itself is regenerated in plan 09).
 
 ## Commit
 

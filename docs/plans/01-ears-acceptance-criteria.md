@@ -1,4 +1,4 @@
-# Plan 03 — EARS acceptance criteria option
+# Plan 01 — EARS acceptance criteria option
 
 ## Orientation (you may be starting from a clean context)
 
