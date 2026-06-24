@@ -31,8 +31,10 @@ For each product feature in the roadmap (001+; feature 000 has no spec), create
 `specs/NNN-slug.md` from `specs/FEATURE-TEMPLATE.md`:
 
 1. **Intent** in a developer's voice, 2–5 sentences.
-2. **Acceptance criteria** in WHEN/THEN — observable behavior, including error
-   cases (invalid input, duplicates, unauthorized…).
+2. **Acceptance criteria** — observable behavior, including error cases (invalid
+   input, duplicates, unauthorized…). Use the dialect chosen at Gate C (G5b):
+   WHEN/THEN (default) or EARS (`When`/`While`/`If-then`/`Where`); see
+   `specs/README.md`. One dialect per spec.
 3. **Out of scope**, explicit.
 4. **Applicable skills**: consult `skills/index.yaml`; select by trigger (the
    "When To Use" section of each SKILL.md). A feature normally pulls in the

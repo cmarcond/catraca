@@ -37,6 +37,7 @@
 | # | Question | Answer | Review |
 |---|---|---|---|
 | G5 | TDD rigor: strict or pragmatic? | | |
+| G5b | Acceptance criteria syntax: WHEN/THEN (default) or EARS? | | |
 | G6 | Which method skills (from `.catraca/skills/`) are mandatory? | | |
 | G7 | Which skills are optional/not applicable (and why)? | | |
 | G8 | Small commits with conventional commits: required or recommended? | | |
@@ -56,8 +57,8 @@
 
 ## Canonical profile defaults (used in auto mode)
 
-Strict TDD · strict Clean Architecture (5 layers) · every library via an
-adapter · local environment with ephemeral infrastructure in tests · 100%
-blocking coverage · conventional commits required (one per task) · pedagogical
-evaluation · ratchet on `repair` · 13 mandatory skills unless an obvious
-inapplicability is recorded.
+Strict TDD · WHEN/THEN acceptance syntax · strict Clean Architecture (5 layers)
+· every library via an adapter · local environment with ephemeral infrastructure
+in tests · 100% blocking coverage · conventional commits required (one per task)
+· pedagogical evaluation · ratchet on `repair` · 13 mandatory skills unless an
+obvious inapplicability is recorded.

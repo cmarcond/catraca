@@ -13,6 +13,7 @@
 | Clean Architecture | | strict (5 layers) | |
 | Coverage | | 100% as a blocking gate | |
 | Commits | | conventional commits, one per task, required | |
+| Acceptance syntax | | WHEN/THEN (EARS optional) | |
 | Evaluation | | pedagogical | |
 | Ratchet | | repair (options: warn / block / repair) | |
 
