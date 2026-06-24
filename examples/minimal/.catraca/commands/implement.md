@@ -32,8 +32,11 @@ feature:
 ## Step 1 — Load context
 
 1. Re-read: `method.md` (profile + gates), `architecture.md` (layers,
-   boundaries), the feature's spec, and **each SKILL.md** it references. Also
-   read the **pedagogical notes and violations from prior rubrics**
+   boundaries), the feature's spec, and **each SKILL.md** it references. (In
+   Claude Code the relevant skill may auto-load by its description from
+   `.claude/skills/`; still consult every skill the spec declares — don't rely on
+   auto-load alone.) Also read the **pedagogical notes and violations from prior
+   rubrics**
    (`evaluation/*.md`): a lesson recorded there must not recur here — if the
    same violation reappears, this feature's rubric will treat it as a
    **recurrence**, with a larger penalty.
@@ -45,8 +48,8 @@ feature:
 
 Create `tasks/NNN-slug.md` from `tasks/TASKS-TEMPLATE.md`:
 
-- one task per behavior (the smallest observable rule), mapped to the WHEN/THEN
-  it covers;
+- one task per behavior (the smallest observable rule), mapped to the EARS
+  criterion it covers;
 - order by layer: domain/data → presentation/validation → infra → main;
 - each task is born with its red/green/refactor sub-items;
 - last task: the feature's evaluation.

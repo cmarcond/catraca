@@ -8,7 +8,7 @@ complete, suite green. Outputs: `evaluation/NNN-slug.md` + updated
 > `warn` records the regression and continues; `block` halts and reports;
 > `repair` attaches repair tasks and re-evaluates once. The `buffer` (default
 > 0.05) is a tolerance band: a score between `best − buffer` and `best` is not a
-> regression. See Step 3.
+> regression. See Step 3. (Ratchet, gate proof, and other terms: `../glossary.md`.)
 
 ## Step 1 — Collect evidence (before scoring)
 
@@ -20,48 +20,57 @@ Run and capture a summarized output:
 4. an import inspection of the new units, per layer (against the table in
    `architecture.md`).
 
-## Step 2 — Fill the rubric
+## Step 2 — Score the feature (independently)
 
-Create `evaluation/NNN-slug.md` from `evaluation/RUBRIC-TEMPLATE.md`:
+The implementer must not grade its own work — that is **self-preference bias**,
+the most-cited weakness of self-evaluation. The score of record is produced by an
+**independent evaluator** that never saw the implementation conversation.
 
-1. **Per skill declared in the spec**: open the SKILL.md, walk the **Test
-   Checklist** (score = met/applicable) and the **Anti-Patterns** (present ⇒
-   penalize and record a "violation"). Concrete evidence on every line — no
-   evidence, 0.
-2. **Transversal dimensions**: `test_first` (red order in the tasks + history),
-   `layer_discipline` (imports), `coverage` (report vs the profile's target),
-   `commit_discipline` (format + one-per-task).
-3. Apply the **evaluation mode** from `method.md` (G9): strict zeros a dimension
-   with an unjustified violation; pedagogical penalizes and explains; pragmatic
-   does not penalize a justified violation. In pedagogical mode, compare with
-   the prior rubrics: a violation already noted as a lesson in an earlier
-   feature is a **recurrence** and is penalized more.
-4. Give the **verdict**: `adherent` / `partial` / `non-adherent`.
+**Who scores.** A clean-context evaluator — in Claude Code, the Task tool; better
+still, a separate model. It receives **only**:
 
-## Step 2b — Independent audit of the rubric
+- the feature spec and the declared skills (their SKILL.md files);
+- the code and the project's `architecture.md`;
+- the verification commands (suite, coverage, `git log`, import inspection);
+- the scoring formula in `evaluation/README.md`.
 
-Before the ratchet, delegate the audit to a **clean-context subagent** (in
-Claude Code, the Task tool), handing it: the spec, the declared skills, the
-filled rubric with its evidence, and the verification commands (suite, coverage,
-`git log`, import inspection). Its instruction is to **knock scores down**, on
-two fronts:
+It does **not** receive the build conversation, the agent's reasoning, or a
+pre-filled rubric.
 
-1. **Re-execution**: re-run each piece of evidence and look for a score without
-   proof, an undetected violation, or an ignored anti-pattern.
-2. **Directed mutation testing** — line coverage does not prove assertion;
-   mutation is the test of the test. For each critical criterion in the spec,
-   mutate the corresponding link in production and run the suite: if no test
-   breaks (even at 100% coverage), the criterion is covered without being
-   asserted — a finding. Revert the mutation after each proof. Examples of a
-   mutation per criterion: remove the error log while keeping the 500; invert an
-   authorization rule; flip the boundary comparison of a range; return success
-   without persisting.
+**What it does** — fill `evaluation/NNN-slug.md` from `RUBRIC-TEMPLATE.md`, from
+scratch:
 
-It **does not rewrite the rubric** — it only reports findings; you accept it
-(adjust the score) or refute it with a justification, and record the result on
-the rubric's "Audit" line (including mutations applied × survivors).
-*Claude-Code specific; without subagent support: run both fronts yourself in a
-separate pass before the ratchet, and record the audit as "self".*
+1. **Per declared skill**: walk the **Test Checklist** and **Anti-Patterns**;
+   compute `max(0, met/applicable − 0.25 × anti-patterns)` (`evaluation/README.md`).
+   Concrete evidence per line; no evidence ⇒ unmet; each anti-pattern ⇒ a
+   recorded "violation".
+2. **Transversal dimensions** — each a compliant/total ratio: `test_first`,
+   `layer_discipline`, `coverage` = min(1, measured/target), `commit_discipline`.
+3. **Directed mutation testing** — line coverage does not prove assertion. For
+   each critical criterion, mutate the corresponding link in production and run
+   the suite: if no test breaks (even at 100% coverage), the criterion is covered
+   but not asserted — a finding that lowers the relevant skill score. Revert each
+   mutation. (Examples: remove the error log but keep the 500; invert an
+   authorization rule; flip a range's boundary comparison; return success without
+   persisting.)
+4. Apply the **evaluation mode** from `method.md` (G9): strict zeros a dimension
+   on an unjustified violation; pedagogical penalizes and explains; pragmatic
+   does not penalize a justified one. In pedagogical mode a violation already
+   noted as a lesson in an earlier feature is a **recurrence** and is penalized
+   more.
+5. Give the **verdict**: `adherent` / `partial` / `non-adherent`.
+
+**Disagreement.** The implementer may keep a quick self-score, but the
+independent score is authoritative. If they differ by more than `buffer` on any
+dimension, re-check the evidence together; the independent score stands unless
+the implementer points to concrete evidence the evaluator missed. Record the
+evaluator identity and the resolution in the rubric's **Evaluator** section.
+
+**Fallback (no subagent / single agent).** Run the evaluation in a **second,
+fresh invocation** with the context cleared — that preserves independence. If even
+that is impossible, the implementer may fill the rubric but must mark the
+evaluator **`self (not independent)`** — a recorded limitation, never hidden; the
+mutation pass and the evidence-per-line rule remain mandatory.
 
 ## Step 3 — Ratchet
 

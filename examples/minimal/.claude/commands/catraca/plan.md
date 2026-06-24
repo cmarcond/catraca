@@ -10,7 +10,7 @@ Preconditions: `product.md`, `architecture.md`, `method.md` filled in
    not come from `product.md`; it comes from the method (skill
    `workflows/quality-pipeline`): mechanical gates for type-check, lint,
    commit-msg, pre-commit staged-only, and coverage, installed and proven
-   before any product feature. It has no WHEN/THEN spec; its tasks come from
+   before any product feature. It has no behavior spec; its tasks come from
    `tasks/TASKS-000-TEMPLATE.md`, adapted to the stack in `architecture.md`.
 2. Start from the candidate features in `product.md`. If there is a **deploy**
    feature, that is where the Dockerfile/compose/image are born (with their own
@@ -31,8 +31,9 @@ For each product feature in the roadmap (001+; feature 000 has no spec), create
 `specs/NNN-slug.md` from `specs/FEATURE-TEMPLATE.md`:
 
 1. **Intent** in a developer's voice, 2–5 sentences.
-2. **Acceptance criteria** in WHEN/THEN — observable behavior, including error
-   cases (invalid input, duplicates, unauthorized…).
+2. **Acceptance criteria** in **EARS** — observable behavior, including error
+   cases as unwanted-behavior criteria (`If <invalid/duplicate/unauthorized>,
+   then the system shall …`). See `specs/README.md` for the patterns.
 3. **Out of scope**, explicit.
 4. **Applicable skills**: consult `skills/index.yaml`; select by trigger (the
    "When To Use" section of each SKILL.md). A feature normally pulls in the
@@ -40,7 +41,8 @@ For each product feature in the roadmap (001+; feature 000 has no spec), create
    `method.md` marks as mandatory requires a justification in the spec.
 5. **Dependencies**: the numbers of the prior features required.
 6. **Run the leakage checklist** from the template — if the spec mentions a
-   class, path, or library, rewrite it before closing.
+   class, path, or library, rewrite it before closing. (Leakage and other terms:
+   `../glossary.md`.)
 7. **Adversarial review (before G12).** Delegate the spec's review to a
    **clean-context subagent** (in Claude Code, the Task tool), handing it only:
    `product.md`, `architecture.md`, the spec, and the adversarial checklist from

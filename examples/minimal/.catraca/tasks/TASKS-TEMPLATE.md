@@ -9,7 +9,7 @@ Spec: `../specs/NNN-slug.md` · Active skills: <!-- ids --> · Layers touched: <
 
 ### T1 — <behavior in one sentence>
 
-Criterion covered: <!-- which WHEN/THEN of the spec -->
+Criterion covered: <!-- which EARS criterion of the spec -->
 Layer: <!-- domain | data | presentation | validation | infra | main -->
 
 - [ ] **red** — test written and seen to fail on the assertion: <!-- which assertion -->

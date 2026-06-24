@@ -19,6 +19,8 @@ design come exclusively from the user and the artifacts in this directory.
    technical criteria from the **Test Checklists** of the skills declared in the
    spec.
 
+Unfamiliar term? See `glossary.md`.
+
 ## Operating rules
 
 - **User decisions happen at the gates.** In guided mode, ask at the points
@@ -32,8 +34,8 @@ design come exclusively from the user and the artifacts in this directory.
 - **Test-first.** No production code without a test that failed first on the
   behavior's assertion. If you wrote production before the test, delete it and
   start over from the test.
-- **Specs are intent.** `specs/` describes behavior (WHEN/THEN), never classes,
-  paths, libraries, or signatures. The "how" lives in the skills.
+- **Specs are intent.** `specs/` describes behavior (EARS criteria), never
+  classes, paths, libraries, or signatures. The "how" lives in the skills.
 - **Dependencies point inward.** Respect the boundaries in `architecture.md`;
   third-party libraries only through an adapter.
 - **State is Markdown.** Progress lives in the checkboxes in `tasks/` and the
@@ -57,6 +59,7 @@ progress".
 | File/folder | Role |
 |---|---|
 | `manifesto.md` | Constitutional principles (invariable) |
+| `glossary.md` | Definitions of recurring terms (gate proof, ratchet, leakage, EARS…) |
 | `method.md` | Rigor profile + this project's gates |
 | `questions.md` | Questions, answers, and `[assumed]` assumptions |
 | `product.md` | What the product is (intent, no technique) |

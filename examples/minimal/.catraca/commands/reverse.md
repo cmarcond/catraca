@@ -53,11 +53,11 @@ it; mark weak inferences as `[assumed YYYY-MM-DD]`. Record them in
   (the convention in the log);
 - **D** evaluation mode and ratchet.
 
-## Step 4 — Sample WHEN/THEN specs (from the tests)
+## Step 4 — Sample EARS specs (from the tests)
 
-For 1–2 features, draft the **acceptance criteria** in WHEN/THEN extracted from
-the existing tests — including error cases — without citing a class, path, or
-library, as a sample of what `/catraca.plan` would generate. Run the leakage
+For 1–2 features, draft the **acceptance criteria** in EARS extracted from the
+existing tests — including error cases as `If/then` criteria — without citing a
+class, path, or library, as a sample of what `/catraca.plan` would generate. Run the leakage
 checklist and, if subagents are supported, the **clean-context adversarial
 review** (Claude Code Task tool) that tries to refute the spec.
 

@@ -11,13 +11,15 @@ an option that is not part of the poll, is rejected.
 
 ## Acceptance criteria
 
-- **WHEN** a vote names an existing poll and a valid option **THEN** the vote is
-  recorded against that option.
-- **WHEN** a vote names a poll that does not exist **THEN** it is rejected as not
-  found.
-- **WHEN** a vote names an option that is not part of the poll **THEN** it is
-  rejected as a bad request.
-- **WHEN** recording the vote fails unexpectedly **THEN** the caller gets a
+<!-- EARS (see README.md). -->
+
+- When a vote names an existing poll and a valid option, the system shall record
+  the vote against that option.
+- If a vote names a poll that does not exist, then the system shall reject it as
+  not found.
+- If a vote names an option that is not part of the poll, then the system shall
+  reject it as a bad request.
+- If recording the vote fails unexpectedly, then the system shall return a
   generic failure.
 
 ## Out of scope

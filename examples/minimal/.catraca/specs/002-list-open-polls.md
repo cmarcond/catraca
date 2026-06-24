@@ -11,11 +11,13 @@ returns an empty result rather than an error.
 
 ## Acceptance criteria
 
-- **WHEN** polls exist **THEN** listing returns all of them, each with its
+<!-- EARS (see README.md). -->
+
+- When polls exist, the system shall return all of them, each with its
   identifier, question, and options.
-- **WHEN** no polls exist **THEN** listing returns an empty list (not an error).
-- **WHEN** reading the polls fails unexpectedly **THEN** the caller gets a
-  generic failure.
+- While there are no polls, the system shall return an empty list (not an error).
+- If reading the polls fails unexpectedly, then the system shall return a generic
+  failure.
 
 ## Out of scope
 

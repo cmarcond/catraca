@@ -36,29 +36,17 @@
 9. **Small commits tell the story.** Conventional commits, imperative mood, one
    commit per task — validated by a hook, not by discipline.
 10. **Specs are intent; skills are the solution.** The spec says what the system
-    does (WHEN/THEN); how to do it with quality is already written in the
-    skills. Don't mix the two.
+    does (EARS behavior criteria); how to do it with quality is already written
+    in the skills. Don't mix the two.
 11. **Automatic gates, not discipline.** Every verifiable convention becomes a
     hook that rejects commit/push (feature 000 — the quality pipeline), before
     any product feature.
 
 ## Glossary
 
-A few recurring terms, defined once:
-
-- **Quality pipeline** (feature 000): the set of automatic gates — type-check,
-  lint, commit-message format, staged-only tests, coverage — installed as git
-  hooks that reject a commit/push when violated.
-- **Gate proof**: evidence that a gate actually works — you deliberately
-  trigger a violation and confirm the hook rejects it. A gate without a proof
-  does not count as installed.
-- **Ratchet**: a one-way regression check. `ratchet.json` stores the best score
-  per feature/dimension; a later run below `best − buffer` is flagged.
-- **Safety net**: the green test suite that lets you refactor without fear.
-- **Leakage**: accidental mixing of intent (the *what*) with implementation
-  (the *how*) — e.g. a class, path, library, or signature appearing in a spec.
-- **Canonical profile**: the method's default rigor settings (strict TDD,
-  5 layers, 100% coverage, conventional commits) used in auto mode.
+Recurring terms (quality pipeline, gate proof, ratchet, safety net, leakage,
+canonical profile, EARS, test double, hard gate, recurrence…) are defined in
+`glossary.md`.
 
 ## The 13 skills
 

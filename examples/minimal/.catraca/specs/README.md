@@ -17,10 +17,35 @@ Forbidden in specs:
 
 Allowed and expected:
 
-- observable behavior in WHEN/THEN format;
+- observable behavior in EARS form (see below);
 - domain vocabulary (account, poll, answer…);
 - status codes and response formats *of the external contract* (e.g. "returns
   403"), since those are behavior, not internal structure.
+
+## Acceptance criteria syntax — EARS
+
+Write acceptance criteria in **EARS** (Easy Approach to Requirements Syntax —
+Mavin/Rolls-Royce, 2009): a small set of patterns that keep each criterion
+unambiguous and directly testable. Each still describes behavior in domain
+language — the leakage rules below apply unchanged. The everyday case is the
+**event-driven** pattern (`When …, the system shall …`); the others cover
+states, errors, optional features, and always-true properties.
+
+| Pattern | Shape | Example (domain language) |
+|---|---|---|
+| **Ubiquitous** (always true) | The system shall `<response>`. | The system shall keep a poll's options in the order they were submitted. |
+| **Event-driven** (`When`) | When `<trigger>`, the system shall `<response>`. | When an organizer submits a poll with a question and at least two options, the system shall store it and return its identifier. |
+| **State-driven** (`While`) | While `<state>`, the system shall `<response>`. | While a poll is open, the system shall accept votes for it. |
+| **Unwanted** (`If/then`) | If `<unwanted condition>`, then the system shall `<response>`. | If a poll is submitted without a question, then the system shall reject it as a bad request naming the missing field. |
+| **Optional** (`Where`) | Where `<feature>`, the system shall `<response>`. | Where anonymous voting is enabled, the system shall accept a vote without an account. |
+
+Patterns combine for complex behavior: *"While a poll is open, when a voter
+selects an option, the system shall record the vote against that option."*
+
+**Each criterion maps to one behavior test:** the `When`/`While`/`If`/`Where`
+clause is the test's arrange + act; the `shall <response>` is the assertion.
+Unwanted (`If/then`) criteria are your error cases. Keep every criterion at the
+behavior level — `shall <observable response>`, never `shall <implementation>`.
 
 ## Leakage checklist (before closing the spec)
 
@@ -37,8 +62,8 @@ tries to **refute** it:
 - [ ] **Boundary semantics**: do the statuses distinguish unauthenticated from
       unauthorized (typically 401 vs 403)? If they don't, is that a deliberate
       decision or a habit?
-- [ ] **Testability**: is each WHEN/THEN criterion verifiable by a behavior
-      test, with no interpretation?
+- [ ] **Testability**: is each criterion verifiable by a behavior test, with no
+      interpretation?
 - [ ] **Role consistency**: do the permissions match the roles in `product.md`?
       Is there a role mentioned without a rule, or a rule without a role?
 - [ ] **Negative cases**: do invalid input, absence, and internal failure each

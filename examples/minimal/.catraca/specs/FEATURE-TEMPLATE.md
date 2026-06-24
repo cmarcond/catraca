@@ -10,10 +10,13 @@
 
 ## Acceptance criteria
 
-<!-- Observable behavior, one criterion per line, WHEN/THEN format. -->
+<!-- Observable behavior in EARS, one criterion per line (see README.md).
+     Event-driven is the everyday case; add While / If-then / Where / ubiquitous
+     as needed. Keep each at the behavior level: "shall <observable response>". -->
 
-- **WHEN** … **THEN** …
-- **WHEN** … **THEN** …
+- When <trigger>, the system shall <response>.
+- If <unwanted condition>, then the system shall <response>.
+
 
 ## Out of scope
 

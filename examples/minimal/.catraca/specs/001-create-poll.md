@@ -11,15 +11,17 @@ can be referenced later.
 
 ## Acceptance criteria
 
-- **WHEN** a poll is created with a non-empty question and at least two options
-  **THEN** the poll is stored and returned with an identifier, the question, and
-  the options.
-- **WHEN** a poll is submitted without a question **THEN** it is rejected as a
+<!-- EARS (see README.md). -->
+
+- When an organizer submits a poll with a non-empty question and at least two
+  options, the system shall store it and return it with an identifier, the
+  question, and the options.
+- If a poll is submitted without a question, then the system shall reject it as a
   bad request naming the missing field.
-- **WHEN** a poll is submitted with fewer than two options **THEN** it is
-  rejected as a bad request explaining the minimum.
-- **WHEN** storing the poll fails unexpectedly **THEN** the caller gets a generic
-  failure (no internal detail leaks).
+- If a poll is submitted with fewer than two options, then the system shall
+  reject it as a bad request explaining the minimum.
+- If storing the poll fails unexpectedly, then the system shall return a generic
+  failure with no internal detail.
 
 ## Out of scope
 
@@ -28,8 +30,6 @@ can be referenced later.
 - Duplicate-question detection.
 
 ## Applicable skills
-
-<!-- Ids from .catraca/skills/index.yaml. Reference only. -->
 
 - `testing/tdd-minimal-step`
 - `testing/test-doubles`
