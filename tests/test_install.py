@@ -177,6 +177,45 @@ class InstallTests(unittest.TestCase):
             len(list((self.catraca / "skills").rglob("SKILL.md"))), 13
         )
 
+    def test_update_preserves_filled_artifacts(self) -> None:
+        self.assertEqual(run_install(str(self.target)), 0)
+        # the user fills in their artifacts
+        filled = {
+            "product.md": "MY PRODUCT\n",
+            "architecture.md": "MY ARCH\n",
+            "method.md": "MY METHOD\n",
+            "questions.md": "MY Q\n",
+            "roadmap.md": "MY ROADMAP\n",
+            "ratchet.json": '{"mine": true}\n',
+        }
+        for name, content in filled.items():
+            (self.catraca / name).write_text(content, encoding="utf-8")
+        # and a per-feature artifact the installer never ships
+        (self.catraca / "specs" / "001-x.md").write_text("MY SPEC\n", encoding="utf-8")
+
+        self.assertEqual(run_install(str(self.target), "--update"), 0)
+
+        # filled artifacts are untouched (no overwrite, no .new, no .bak, no removal)
+        for name, content in filled.items():
+            self.assertEqual((self.catraca / name).read_text(encoding="utf-8"), content)
+            self.assertFalse((self.catraca / (name + ".new")).exists())
+            self.assertFalse((self.catraca / (name + ".bak")).exists())
+        self.assertEqual((self.catraca / "specs" / "001-x.md").read_text(encoding="utf-8"),
+                         "MY SPEC\n")
+
+    def test_update_refreshes_framework_files(self) -> None:
+        self.assertEqual(run_install(str(self.target)), 0)
+        # simulate an outdated framework file (user is NOT meant to edit these)
+        manifesto = self.catraca / "manifesto.md"
+        manifesto.write_text("OLD MANIFESTO\n", encoding="utf-8")
+
+        self.assertEqual(run_install(str(self.target), "--update"), 0)
+
+        source = (REPO_ROOT / "templates" / "manifesto.md").read_text(encoding="utf-8")
+        self.assertEqual(manifesto.read_text(encoding="utf-8"), source)  # refreshed
+        self.assertEqual(manifesto.with_name("manifesto.md.bak").read_text(encoding="utf-8"),
+                         "OLD MANIFESTO\n")  # old kept as .bak
+
 
 if __name__ == "__main__":
     unittest.main()

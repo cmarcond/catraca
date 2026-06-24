@@ -33,9 +33,25 @@ The installer:
 - finishes with a report of created/skipped/conflicting files (and, on conflict,
   how to reconcile the `*.new` files).
 
-Options: `--force`, `--no-claude`, `--dry-run` (report what would change without
-writing), `--skills-source DIR` (default: `skills/` at the root of this
-repository).
+Options: `--force`, `--update` (upgrade in place — see below), `--no-claude`,
+`--dry-run` (report what would change without writing), `--skills-source DIR`
+(default: `skills/` at the root of this repository).
+
+### Upgrading an installed project
+
+Re-run with `--update` to pull a newer framework into an existing `.catraca/`:
+
+```bash
+python3 catraca/install.py /path/to/project --update --dry-run  # preview
+python3 catraca/install.py /path/to/project --update            # apply
+```
+
+It refreshes the **framework-managed** files (commands, skills, manifesto,
+glossary, CLAUDE, the `*-TEMPLATE`/`README` scaffolds), keeping the old copy as
+`.bak`, and **leaves your filled artifacts untouched** —
+`product.md`, `architecture.md`, `method.md`, `questions.md`, `roadmap.md`,
+`ratchet.json`, and your `specs/`, `tasks/`, `evaluation/` content. Nothing is
+ever deleted. The `VERSION` stamp reports `current → available`.
 
 The installer has its own test suite (stdlib only):
 

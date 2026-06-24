@@ -16,6 +16,13 @@ The installer stamps `.catraca/VERSION`; on re-run it reports `current ->
 available` so an upgrade is visible. Use `--dry-run` to see exactly what would
 change (created/skipped/conflicted) without writing anything.
 
+**Upgrading in place:** re-run with `--update`. It refreshes the
+framework-managed files (commands, skills, manifesto, glossary, CLAUDE, the
+`*-TEMPLATE`/`README` scaffolds) — keeping the old copy as `.bak` — and never
+touches or deletes your filled artifacts (`product.md`, `architecture.md`,
+`method.md`, `questions.md`, `roadmap.md`, `ratchet.json`, and your
+`specs/`/`tasks/`/`evaluation/` content). Combine with `--dry-run` to preview.
+
 ## 2. Start a project
 
 Open the agent (Claude Code) in the project folder and paste the initial

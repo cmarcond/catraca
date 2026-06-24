@@ -15,13 +15,19 @@ A `.catraca/VERSION` stamp records the framework version installed; on re-run th
 installer reports current -> available. `--dry-run` reports what would change
 without writing anything.
 
+To upgrade an installed project in place, re-run with `--update`: framework-managed
+files (commands, skills, manifesto, glossary, CLAUDE, the *-TEMPLATE/README
+scaffolds) are refreshed (the old copy kept as `.bak`), while your filled
+artifacts (product/architecture/method/questions/roadmap/ratchet.json and your
+specs/tasks/evaluation) are left untouched. Nothing is ever deleted.
+
 Unless `--no-claude`, the 13 skills are also installed (flattened) into
 `.claude/skills/<name>/SKILL.md` so Claude Code auto-discovers them as Agent
 Skills; `--no-agent-skills` keeps the command shortcuts but skips that copy. The
 canonical, index-referenced copy in `.catraca/skills/` is always written.
 
 Usage:
-    python3 install.py /path/to/target-project [--force] [--no-claude]
+    python3 install.py /path/to/target-project [--force] [--update] [--no-claude]
                        [--no-agent-skills] [--dry-run] [--skills-source DIR]
 """
 
@@ -47,18 +53,32 @@ def framework_version() -> str:
     return "0.0.0"
 
 
+# Files the user fills in (init/plan/implement/evaluate). `--update` never
+# overwrites or removes these — only the framework-managed files are refreshed.
+# Per-feature artifacts (specs/NNN-*, tasks/NNN-*, evaluation/NNN-*) are never
+# shipped by the installer, so they are inherently untouched.
+USER_FILLABLE = frozenset({
+    "product.md", "architecture.md", "method.md", "questions.md",
+    "roadmap.md", "ratchet.json",
+})
+
+
 class Report:
     def __init__(self) -> None:
         self.created: list[str] = []
         self.skipped: list[str] = []
         self.conflicted: list[str] = []
         self.backed_up: list[str] = []
+        self.preserved: list[str] = []
 
     def summary(self) -> str:
         lines = [
             f"created:    {len(self.created)}",
             f"skipped (identical): {len(self.skipped)}",
         ]
+        if self.preserved:
+            lines.append(f"preserved (your filled artifacts, untouched): "
+                         f"{len(self.preserved)}")
         if self.backed_up:
             lines.append(f"overwritten with .bak backup: {len(self.backed_up)}")
             lines.extend(f"  - {p}" for p in self.backed_up)
@@ -76,8 +96,12 @@ class Report:
 
 
 def install_file(src: Path, dest: Path, force: bool, report: Report,
-                 dry_run: bool = False) -> None:
+                 dry_run: bool = False, protected: bool = False) -> None:
     rel = str(dest)
+    if protected and dest.exists():
+        # A user-filled artifact during --update: leave it exactly as-is.
+        report.preserved.append(rel)
+        return
     if not dest.exists():
         if not dry_run:
             dest.parent.mkdir(parents=True, exist_ok=True)
@@ -102,18 +126,26 @@ def install_file(src: Path, dest: Path, force: bool, report: Report,
 
 
 def install_tree(src_dir: Path, dest_dir: Path, force: bool, report: Report,
-                 dry_run: bool = False) -> None:
+                 dry_run: bool = False,
+                 protected_names: frozenset[str] = frozenset()) -> None:
     for src in sorted(src_dir.rglob("*")):
         if src.is_dir():
             continue
-        install_file(src, dest_dir / src.relative_to(src_dir), force, report, dry_run)
+        rel = src.relative_to(src_dir)
+        install_file(src, dest_dir / rel, force, report, dry_run,
+                     protected=str(rel) in protected_names)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Install Catraca into a project.")
     parser.add_argument("target", type=Path, help="target project directory")
     parser.add_argument("--force", action="store_true",
-                        help="overwrite divergent files (with a .bak backup)")
+                        help="overwrite ALL divergent files (with a .bak backup)")
+    parser.add_argument("--update", action="store_true",
+                        help="upgrade in place: refresh framework-managed files "
+                             "(with .bak), but never touch your filled artifacts "
+                             "(product/architecture/method/questions/roadmap/"
+                             "ratchet.json and your specs/tasks/evaluation)")
     parser.add_argument("--no-claude", action="store_true",
                         help="do not install anything under .claude/ (commands + skills)")
     parser.add_argument("--no-agent-skills", action="store_true",
@@ -139,26 +171,31 @@ def main(argv: list[str] | None = None) -> int:
     catraca = target / ".catraca"
     report = Report()
 
-    install_tree(templates, catraca, args.force, report, dry_run)
-    install_tree(commands, catraca / "commands", args.force, report, dry_run)
+    # --update refreshes framework-managed files (overwrite, like --force) but
+    # protects the user's filled artifacts in .catraca/ from being touched.
+    overwrite = args.force or args.update
+    protected = USER_FILLABLE if args.update else frozenset()
+
+    install_tree(templates, catraca, overwrite, report, dry_run, protected)
+    install_tree(commands, catraca / "commands", overwrite, report, dry_run)
 
     skills_source: Path = args.skills_source.resolve()
     if skills_source.is_dir():
         index = skills_source / "index.yaml"
         if index.is_file():
             install_file(index, catraca / "skills" / "index.yaml",
-                         args.force, report, dry_run)
+                         overwrite, report, dry_run)
         for skill_md in sorted(skills_source.rglob("SKILL.md")):
             rel = skill_md.relative_to(skills_source)
             install_file(skill_md, catraca / "skills" / rel,
-                         args.force, report, dry_run)
+                         overwrite, report, dry_run)
     else:
         print(f"warning: skills library not found at {skills_source}; "
               ".catraca/skills/ was left empty (use --skills-source)", file=sys.stderr)
 
     if not args.no_claude:
         install_tree(commands, target / ".claude" / "commands" / "catraca",
-                     args.force, report, dry_run)
+                     overwrite, report, dry_run)
         # Flattened copy for Claude Code auto-discovery: .claude/skills/<name>/SKILL.md
         # (the folder name is the skill name; categories live only in .catraca/skills).
         if not args.no_agent_skills and skills_source.is_dir():
@@ -166,7 +203,7 @@ def main(argv: list[str] | None = None) -> int:
             for skill_md in sorted(skills_source.rglob("SKILL.md")):
                 name = skill_md.parent.name
                 install_file(skill_md, agent_skills / name / "SKILL.md",
-                             args.force, report, dry_run)
+                             overwrite, report, dry_run)
 
     # Version stamp: report current -> available, then record it.
     version = framework_version()
