@@ -1,0 +1,69 @@
+# Evaluation — NNN Feature Name
+
+> Filled in by `/catraca.evaluate`. Each line requires verifiable evidence.
+
+Spec: `../specs/NNN-slug.md` · Date: <!-- ISO --> · Evaluation mode: <!-- strict/pedagogical/pragmatic -->
+
+## Per declared skill
+
+| Skill | Score (0–1) | Evidence (command/output/test/commit) | Violation | Justified? |
+|---|---|---|---|---|
+| `testing/tdd-minimal-step` | | | | |
+| … | | | | |
+
+<!-- Per-skill score = max(0, met/applicable − 0.25 × anti-patterns observed),
+     rounded to 2 decimals. "applicable" excludes N/A items; an item with no
+     evidence is unmet. In pedagogical mode, explain each violation: what the
+     method asked for and why. Full formula: ../evaluation/README.md. -->
+
+## Transversal dimensions
+
+<!-- Each dimension is a direct compliant/total ratio (not an average of skills),
+     rounded to 2 decimals — see ../evaluation/README.md:
+     test_first = red-first behaviors / total behaviors;
+     layer_discipline = units with no illegal import / units inspected;
+     coverage = min(1, measured / target);
+     commit_discipline = conventional + one-per-task commits / total commits. -->
+
+| Dimension | Score (0–1) | Evidence (counts) |
+|---|---|---|
+| `test_first` | | |
+| `layer_discipline` | | |
+| `coverage` | | |
+| `commit_discipline` | | |
+
+## Execution evidence
+
+```
+<!-- summarized output of: test suite, coverage report -->
+```
+
+Files touched: <!-- list -->
+Commits: <!-- hashes + messages -->
+
+## Evaluator
+
+- **Identity**: <!-- independent subagent | separate model | self in a fresh
+     invocation | self (not independent) --> (independence is the default; see
+     commands/evaluate.md)
+- **Directed mutations**: <!-- N applied, N survivors -->
+- **Disagreement vs implementer self-score**: <!-- none | dimension: self X →
+     independent Y; resolution (independent stands / evidence the evaluator
+     missed) -->
+- **Findings**: <!-- none | finding → accepted (score adjusted) or refuted
+     (justification) -->
+
+## Verdict
+
+**<adherent | partial | non-adherent>** — <!-- a one-sentence synthesis -->
+
+## Ratchet
+
+- [ ] `ratchet.json` updated (higher scores recorded)
+- [ ] Regressions? <!-- none | list dimension: before → now; action taken
+      per the warn/block mode -->
+
+## Pedagogical notes
+
+<!-- In pedagogical mode: what to learn from this feature; what to do
+     differently next time. -->
