@@ -94,7 +94,7 @@ according to the chosen platform.
 
 ## Design principles
 
-- **Intent/solution barrier**: specs speak of behavior (WHEN/THEN), never of
+- **Intent/solution barrier**: specs speak of behavior (EARS criteria), never of
   classes or paths; the solution lives in the skills.
 - **Automatic gates, not discipline**: every roadmap starts with feature 000
   (the quality pipeline), which installs hooks that reject commit/push — just as

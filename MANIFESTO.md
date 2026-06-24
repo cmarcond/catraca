@@ -36,8 +36,8 @@
 9. **Small commits tell the story.** Conventional commits, imperative mood, one
    commit per task — validated by a hook, not by discipline.
 10. **Specs are intent; skills are the solution.** The spec says what the system
-    does (WHEN/THEN); how to do it with quality is already written in the
-    skills. Don't mix the two.
+    does (EARS behavior criteria); how to do it with quality is already written
+    in the skills. Don't mix the two.
 11. **Automatic gates, not discipline.** Every verifiable convention becomes a
     hook that rejects commit/push (feature 000 — the quality pipeline), before
     any product feature.

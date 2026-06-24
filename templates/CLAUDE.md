@@ -32,8 +32,8 @@ design come exclusively from the user and the artifacts in this directory.
 - **Test-first.** No production code without a test that failed first on the
   behavior's assertion. If you wrote production before the test, delete it and
   start over from the test.
-- **Specs are intent.** `specs/` describes behavior (WHEN/THEN), never classes,
-  paths, libraries, or signatures. The "how" lives in the skills.
+- **Specs are intent.** `specs/` describes behavior (EARS criteria), never
+  classes, paths, libraries, or signatures. The "how" lives in the skills.
 - **Dependencies point inward.** Respect the boundaries in `architecture.md`;
   third-party libraries only through an adapter.
 - **State is Markdown.** Progress lives in the checkboxes in `tasks/` and the

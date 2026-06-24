@@ -13,10 +13,12 @@ example from the final framework).
 
 ## Active backlog (in execution order)
 
+A completed plan moves to `done/` keeping its number, so a gap in the active
+numbering just means that plan is done (e.g. 01 — EARS — is done).
+
 **Framework & method**
 | # | Plan | Effort | Depends on |
 |---|---|---|---|
-| 01 | [EARS acceptance criteria option](01-ears-acceptance-criteria.md) | medium | — |
 | 02 | [Formalize the scoring model](02-formalize-scoring-model.md) | medium | — |
 | 03 | [Independent evaluator](03-independent-evaluator.md) | medium | 02 (uses the scoring model) |
 
@@ -30,7 +32,7 @@ example from the final framework).
 **Examples (downstream — run after the framework is settled)**
 | # | Plan | Effort | Depends on |
 |---|---|---|---|
-| 07 | [Second-stack example (Python)](07-second-stack-example-python.md) | medium–large | 01–03 (reflects final method) |
+| 07 | [Second-stack example (Python)](07-second-stack-example-python.md) | medium–large | 02–03 + EARS (reflects final method) |
 | 08 | [Completed example with a repair cycle](08-completed-example-repair-cycle.md) | medium | 02, 03 (scoring + evaluator) |
 | 09 | [Regenerate the worked example](09-regenerate-worked-example.md) | medium | **everything — run last** |
 
@@ -39,6 +41,7 @@ example from the final framework).
 - **Bootstrap-seam fix** — test runner passes with no tests during feature-000
   setup, so no commit bypasses the pipeline (`fix(pipeline): close the bootstrap
   seam without --no-verify`).
+- [`done/01-ears-acceptance-criteria.md`](done/01-ears-acceptance-criteria.md) — EARS shipped as the **single default** dialect (not opt-in)
 - [`done/01-type-only-coverage-note.md`](done/01-type-only-coverage-note.md)
 - [`done/02-installer-self-test.md`](done/02-installer-self-test.md)
 - [`done/11-strengthen-skills-content.md`](done/11-strengthen-skills-content.md)

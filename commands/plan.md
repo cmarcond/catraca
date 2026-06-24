@@ -10,7 +10,7 @@ Preconditions: `product.md`, `architecture.md`, `method.md` filled in
    not come from `product.md`; it comes from the method (skill
    `workflows/quality-pipeline`): mechanical gates for type-check, lint,
    commit-msg, pre-commit staged-only, and coverage, installed and proven
-   before any product feature. It has no WHEN/THEN spec; its tasks come from
+   before any product feature. It has no behavior spec; its tasks come from
    `tasks/TASKS-000-TEMPLATE.md`, adapted to the stack in `architecture.md`.
 2. Start from the candidate features in `product.md`. If there is a **deploy**
    feature, that is where the Dockerfile/compose/image are born (with their own
@@ -31,10 +31,9 @@ For each product feature in the roadmap (001+; feature 000 has no spec), create
 `specs/NNN-slug.md` from `specs/FEATURE-TEMPLATE.md`:
 
 1. **Intent** in a developer's voice, 2–5 sentences.
-2. **Acceptance criteria** — observable behavior, including error cases (invalid
-   input, duplicates, unauthorized…). Use the dialect chosen at Gate C (G5b):
-   WHEN/THEN (default) or EARS (`When`/`While`/`If-then`/`Where`); see
-   `specs/README.md`. One dialect per spec.
+2. **Acceptance criteria** in **EARS** — observable behavior, including error
+   cases as unwanted-behavior criteria (`If <invalid/duplicate/unauthorized>,
+   then the system shall …`). See `specs/README.md` for the patterns.
 3. **Out of scope**, explicit.
 4. **Applicable skills**: consult `skills/index.yaml`; select by trigger (the
    "When To Use" section of each SKILL.md). A feature normally pulls in the

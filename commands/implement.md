@@ -45,8 +45,8 @@ feature:
 
 Create `tasks/NNN-slug.md` from `tasks/TASKS-TEMPLATE.md`:
 
-- one task per behavior (the smallest observable rule), mapped to the WHEN/THEN
-  it covers;
+- one task per behavior (the smallest observable rule), mapped to the EARS
+  criterion it covers;
 - order by layer: domain/data → presentation/validation → infra → main;
 - each task is born with its red/green/refactor sub-items;
 - last task: the feature's evaluation.

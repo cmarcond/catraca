@@ -17,18 +17,19 @@ Forbidden in specs:
 
 Allowed and expected:
 
-- observable behavior in WHEN/THEN format;
+- observable behavior in EARS form (see below);
 - domain vocabulary (account, poll, answer…);
 - status codes and response formats *of the external contract* (e.g. "returns
   403"), since those are behavior, not internal structure.
 
-## Acceptance criteria syntax — WHEN/THEN (default) or EARS (optional)
+## Acceptance criteria syntax — EARS
 
-`WHEN … THEN …` is the default and is enough for most projects. For sharper,
-less ambiguous criteria you may opt into **EARS** (Easy Approach to Requirements
-Syntax — Mavin/Rolls-Royce, 2009), selected per project at Gate C (see
-`method.md`). EARS has five small patterns; each still describes behavior in
-domain language — the leakage rules below apply unchanged.
+Write acceptance criteria in **EARS** (Easy Approach to Requirements Syntax —
+Mavin/Rolls-Royce, 2009): a small set of patterns that keep each criterion
+unambiguous and directly testable. Each still describes behavior in domain
+language — the leakage rules below apply unchanged. The everyday case is the
+**event-driven** pattern (`When …, the system shall …`); the others cover
+states, errors, optional features, and always-true properties.
 
 | Pattern | Shape | Example (domain language) |
 |---|---|---|
@@ -43,9 +44,8 @@ selects an option, the system shall record the vote against that option."*
 
 **Each criterion maps to one behavior test:** the `When`/`While`/`If`/`Where`
 clause is the test's arrange + act; the `shall <response>` is the assertion.
-Unwanted (`If/then`) criteria are your error cases. This is the same intent as
-WHEN/THEN, just with named triggers and conditions — pick one dialect per spec
-and stay consistent.
+Unwanted (`If/then`) criteria are your error cases. Keep every criterion at the
+behavior level — `shall <observable response>`, never `shall <implementation>`.
 
 ## Leakage checklist (before closing the spec)
 
@@ -62,8 +62,8 @@ tries to **refute** it:
 - [ ] **Boundary semantics**: do the statuses distinguish unauthenticated from
       unauthorized (typically 401 vs 403)? If they don't, is that a deliberate
       decision or a habit?
-- [ ] **Testability**: is each WHEN/THEN criterion verifiable by a behavior
-      test, with no interpretation?
+- [ ] **Testability**: is each criterion verifiable by a behavior test, with no
+      interpretation?
 - [ ] **Role consistency**: do the permissions match the roles in `product.md`?
       Is there a role mentioned without a rule, or a rule without a role?
 - [ ] **Negative cases**: do invalid input, absence, and internal failure each

@@ -1,4 +1,11 @@
-# Plan 01 — EARS acceptance criteria option
+# Plan 01 — EARS acceptance criteria
+
+> **Outcome (done):** implemented as the **single default** dialect, not an
+> opt-in toggle. EARS is now the canonical acceptance-criteria syntax across the
+> specs templates, commands, and the manifesto/CLAUDE emblem; the per-project
+> toggle (G5b / method row) was dropped. Verified safe for the 13 skills (they
+> are dialect-agnostic — zero `WHEN/THEN` references in `skills/`). The body
+> below describes the originally-planned opt-in approach, kept for the record.
 
 ## Orientation (you may be starting from a clean context)
 
