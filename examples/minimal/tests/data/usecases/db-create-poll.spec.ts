@@ -1,54 +1,54 @@
 import { describe, it, expect, vi } from 'vitest';
 import { DbCreatePoll } from '../../../src/data/usecases/db-create-poll.js';
-import { AddPollRepository } from '../../../src/data/protocols/add-poll-repository.js';
-import { Poll } from '../../../src/domain/models/poll.js';
+import type { AddPollRepository } from '../../../src/data/protocols/add-poll-repository.js';
+import type { Poll } from '../../../src/domain/models/poll.js';
 
-const makePoll = (): Poll => ({
-  id: 'any-id',
-  question: 'any question?',
-  options: ['option a', 'option b'],
+const makeFakeParams = (): { question: string; options: string[] } => ({
+  question: 'Best language?',
+  options: ['TypeScript', 'Rust'],
 });
 
-const makeAddPollRepositoryStub = (): AddPollRepository => {
-  class AddPollRepositoryStub implements AddPollRepository {
-    async add(): Promise<AddPollRepository.Result> {
-      return makePoll();
-    }
+const makeFakePoll = (): Poll => ({
+  id: 'any-id',
+  question: 'Best language?',
+  options: ['TypeScript', 'Rust'],
+});
+
+class AddPollRepositorySpy implements AddPollRepository {
+  params?: AddPollRepository.Params;
+  result: Poll = makeFakePoll();
+
+  async add(params: AddPollRepository.Params): Promise<AddPollRepository.Result> {
+    this.params = params;
+    return this.result;
   }
-  return new AddPollRepositoryStub();
-};
+}
 
-type SutTypes = {
-  sut: DbCreatePoll;
-  addPollRepositoryStub: AddPollRepository;
-};
-
-const makeSut = (): SutTypes => {
-  const addPollRepositoryStub = makeAddPollRepositoryStub();
-  const sut = new DbCreatePoll(addPollRepositoryStub);
-  return { sut, addPollRepositoryStub };
+const makeSut = (): { sut: DbCreatePoll; repository: AddPollRepositorySpy } => {
+  const repository = new AddPollRepositorySpy();
+  const sut = new DbCreatePoll(repository);
+  return { sut, repository };
 };
 
 describe('DbCreatePoll', () => {
-  it('calls AddPollRepository with the right question and options', async () => {
-    const { sut, addPollRepositoryStub } = makeSut();
-    const addSpy = vi.spyOn(addPollRepositoryStub, 'add');
-    await sut.create({
-      question: 'any question?',
-      options: ['option a', 'option b'],
-    });
+  it('calls AddPollRepository with the question and options', async () => {
+    const { sut, repository } = makeSut();
+    const addSpy = vi.spyOn(repository, 'add');
+
+    await sut.create(makeFakeParams());
+
     expect(addSpy).toHaveBeenCalledWith({
-      question: 'any question?',
-      options: ['option a', 'option b'],
+      question: 'Best language?',
+      options: ['TypeScript', 'Rust'],
     });
   });
 
-  it('returns the created poll on success', async () => {
-    const { sut } = makeSut();
-    const poll = await sut.create({
-      question: 'any question?',
-      options: ['option a', 'option b'],
-    });
-    expect(poll).toEqual(makePoll());
+  it('returns the poll created by the repository', async () => {
+    const { sut, repository } = makeSut();
+    repository.result = { id: 'poll-1', question: 'Q', options: ['a', 'b'] };
+
+    const poll = await sut.create(makeFakeParams());
+
+    expect(poll).toEqual({ id: 'poll-1', question: 'Q', options: ['a', 'b'] });
   });
 });

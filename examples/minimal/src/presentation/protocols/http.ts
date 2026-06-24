@@ -1,8 +1,8 @@
-export type HttpResponse = {
-  statusCode: number;
-  body: unknown;
+export type HttpRequest<B = unknown> = {
+  body: B;
 };
 
-export type HttpRequest = {
-  body: unknown;
+export type HttpResponse<B = unknown> = {
+  statusCode: number;
+  body: B;
 };

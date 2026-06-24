@@ -1,43 +1,32 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { ValidationComposite } from '../../../src/validation/validators/validation-composite.js';
-import { Validation } from '../../../src/presentation/protocols/validation.js';
+import type { Validation } from '../../../src/presentation/protocols/validation.js';
 
-const makeValidationStub = (): Validation => {
-  class ValidationStub implements Validation {
-    validate(): Error | null {
-      return null;
-    }
+class ValidationStub implements Validation {
+  constructor(private readonly error: Error | null) {}
+  validate(): Error | null {
+    return this.error;
   }
-  return new ValidationStub();
-};
-
-type SutTypes = {
-  sut: ValidationComposite;
-  validationStubs: Validation[];
-};
-
-const makeSut = (): SutTypes => {
-  const validationStubs = [makeValidationStub(), makeValidationStub()];
-  const sut = new ValidationComposite(validationStubs);
-  return { sut, validationStubs };
-};
+}
 
 describe('ValidationComposite', () => {
-  it('returns the first validator error', () => {
-    const { sut, validationStubs } = makeSut();
-    vi.spyOn(validationStubs[0], 'validate').mockReturnValueOnce(
-      new Error('first error'),
-    );
-    vi.spyOn(validationStubs[1], 'validate').mockReturnValueOnce(
-      new Error('second error'),
-    );
-    const error = sut.validate({});
-    expect(error).toEqual(new Error('first error'));
+  it('returns the first error when multiple validations fail', () => {
+    const first = new Error('first');
+    const second = new Error('second');
+    const sut = new ValidationComposite([
+      new ValidationStub(first),
+      new ValidationStub(second),
+    ]);
+
+    expect(sut.validate({})).toBe(first);
   });
 
-  it('returns null when no validator fails', () => {
-    const { sut } = makeSut();
-    const error = sut.validate({});
-    expect(error).toBeNull();
+  it('returns null when all validations pass', () => {
+    const sut = new ValidationComposite([
+      new ValidationStub(null),
+      new ValidationStub(null),
+    ]);
+
+    expect(sut.validate({})).toBeNull();
   });
 });

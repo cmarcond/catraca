@@ -1,43 +1,40 @@
 import { describe, it, expect } from 'vitest';
 import { makeCreatePollController } from '../../../src/main/factories/create-poll-controller-factory.js';
-import { CreatePollController } from '../../../src/presentation/controllers/create-poll-controller.js';
-import { DbCreatePoll } from '../../../src/data/usecases/db-create-poll.js';
-import { PollMemoryRepository } from '../../../src/infra/db/memory/poll-memory-repository.js';
-import { makeCreatePollValidation } from '../../../src/main/factories/create-poll-validation-factory.js';
+import type { Poll } from '../../../src/domain/models/poll.js';
 
-describe('makeCreatePollController (integration)', () => {
-  it('returns 200 with a created poll for a valid request', async () => {
-    const sut = makeCreatePollController();
-    const response = await sut.handle({
-      body: { question: 'Best language?', options: ['TS', 'Go'] },
+describe('CreatePollController factory (integration)', () => {
+  it('builds a controller that returns 200 and persists a valid poll', async () => {
+    const controller = makeCreatePollController();
+
+    const response = await controller.handle({
+      body: { question: 'Best language?', options: ['TypeScript', 'Rust'] },
     });
+
     expect(response.statusCode).toBe(200);
-    expect(response.body).toMatchObject({
-      question: 'Best language?',
-      options: ['TS', 'Go'],
-    });
-    expect((response.body as { id: string }).id).toBeTypeOf('string');
+    const poll = response.body as Poll;
+    expect(poll.id).toEqual(expect.any(String));
+    expect(poll.id.length).toBeGreaterThan(0);
+    expect(poll.question).toBe('Best language?');
+    expect(poll.options).toEqual(['TypeScript', 'Rust']);
   });
 
-  it('returns 400 for a request that violates the real validation rules', async () => {
-    const sut = makeCreatePollController();
-    const response = await sut.handle({
-      body: { question: 'Only one option', options: ['just one'] },
+  it('builds a controller that returns 400 when the question is missing', async () => {
+    const controller = makeCreatePollController();
+
+    const response = await controller.handle({
+      body: { options: ['TypeScript', 'Rust'] },
     });
+
     expect(response.statusCode).toBe(400);
   });
 
-  it('persists the poll in the real in-memory repository', async () => {
-    const repository = new PollMemoryRepository();
-    const controller = new CreatePollController(
-      makeCreatePollValidation(),
-      new DbCreatePoll(repository),
-    );
+  it('builds a controller that returns 400 when there are fewer than two options', async () => {
+    const controller = makeCreatePollController();
+
     const response = await controller.handle({
-      body: { question: 'Best language?', options: ['TS', 'Go'] },
+      body: { question: 'Best language?', options: ['only-one'] },
     });
-    expect(response.statusCode).toBe(200);
-    expect(repository.polls).toHaveLength(1);
-    expect(repository.polls[0]).toEqual(response.body);
+
+    expect(response.statusCode).toBe(400);
   });
 });

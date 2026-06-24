@@ -10,11 +10,20 @@ dependencies:
 # Input Validation
 
 **Shape** validation of the input (required fields, format, comparison between
-fields), not business rules. Each rule is an object that exposes
-`validate(input)` and returns **an error** or an **empty value** (depending on
-the language: `null`, `None`, absent `Optional`) meaning no error.
-An **aggregator** walks the list of rules; the entry boundary receives that
-aggregator via injection and only does `error = validation.validate(input)`.
+fields), not business rules. Each rule is an object exposing `validate(input)`,
+which returns **an error** or an **empty value** (per the language: `null`,
+`None`, absent `Optional`) meaning no error. An **aggregator** walks the list of
+rules; the boundary receives it via injection and only does
+`error = validation.validate(input)`.
+
+Principles:
+
+- **Validate at the boundary** — it filters malformed input before the domain,
+  so everything past it can assume valid shape and the domain models only valid
+  states.
+- **Same contract for rule and aggregator** — both expose `validate(input)`, so
+  the aggregator is a composite used exactly like a leaf. Rules nest and
+  recombine without the boundary knowing how many there are.
 
 ## When To Use
 
@@ -48,10 +57,15 @@ aggregator via injection and only does `error = validation.validate(input)`.
    protocol in the validation layer and inject the adapter. A pure local rule
    does not need this.
 4. Implement the **aggregator** that walks the list of rules.
-5. Define the **aggregation policy according to the spec's intent**: stop at the
-   **first error** or **collect all errors** (preferable in
-   forms/APIs that report the whole set). The order of the list in the factory
-   is the order of evaluation.
+5. Define the **aggregation policy from the spec's intent**:
+   - **Fail-fast** — stop at the first error. Cheaper, and right when a later
+     rule presupposes an earlier one passed (e.g., "is a string" before "matches
+     format").
+   - **Collect all** — run every rule and return the whole set. Preferable in
+     forms/APIs that report all errors at once.
+
+   The list order in the factory is the evaluation order; under fail-fast, that
+   order is part of the contract.
 6. Create a **factory** that assembles the list of rules for that boundary and
    returns the configured aggregator.
 7. Inject the aggregator into the boundary; it only calls `validate` and
@@ -64,9 +78,12 @@ aggregator via injection and only does `error = validation.validate(input)`.
 
 - [ ] Each rule has a unit test: error case and success case in isolation.
 - [ ] Comparison between fields tested with equal and different values.
-- [ ] Aggregator respects the chosen policy: if first-error, proof of
-      ordering; if all-errors, proof of complete collection.
+- [ ] Aggregator respects the chosen policy: if first-error, proof of ordering
+      **and** that later rules are not evaluated after the first failure; if
+      all-errors, proof of complete collection across multiple failing rules.
 - [ ] Aggregator returns success (empty value) when all rules pass.
+- [ ] Validation runs at the boundary; the domain/use case does not re-check the
+      same shape (it assumes valid input once past the boundary).
 - [ ] Factory tested/guarantees that the list contains the expected rules in the
       right order.
 - [ ] Boundary test uses a stub rule and verifies that `validate` was called
@@ -81,6 +98,14 @@ aggregator via injection and only does `error = validation.validate(input)`.
 - Mixing aggregation policies without the spec's intent defining which to use
   (first-error vs all-errors is a trade-off, not a defect — choose
   explicitly).
+- A validation rule with a side effect (writing, mutating shared state, calling
+  out): rules must be pure checks, so the aggregation policy can run, skip, or
+  reorder them freely.
+- Re-validating the same input shape inside the domain because the boundary
+  cannot be trusted: the boundary should be the single filter, leaving the
+  domain to assume validity.
+- Ordering rules so a dependent check runs before its precondition under
+  fail-fast (e.g., format before presence), producing a misleading first error.
 - A validation rule importing from the UI or the domain, creating a cross
   dependency between layers.
 - Putting a business rule inside a validation rule for convenience.

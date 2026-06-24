@@ -1,16 +1,16 @@
-import { HttpResponse } from '../protocols/http.js';
+import type { HttpResponse } from '../protocols/http.js';
 
-export const ok = (data: unknown): HttpResponse => ({
+export const ok = <B>(body: B): HttpResponse<B> => ({
   statusCode: 200,
-  body: data,
+  body,
 });
 
-export const badRequest = (error: Error): HttpResponse => ({
+export const badRequest = (error: Error): HttpResponse<Error> => ({
   statusCode: 400,
-  body: error.message,
+  body: error,
 });
 
-export const serverError = (): HttpResponse => ({
+export const serverError = (): HttpResponse<Error> => ({
   statusCode: 500,
-  body: 'Internal server error',
+  body: new Error('Internal server error'),
 });

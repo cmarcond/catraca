@@ -1,4 +1,4 @@
-import { Poll } from '../models/poll.js';
+import type { Poll } from '../models/poll.js';
 
 export interface CreatePoll {
   create: (params: CreatePoll.Params) => Promise<CreatePoll.Result>;

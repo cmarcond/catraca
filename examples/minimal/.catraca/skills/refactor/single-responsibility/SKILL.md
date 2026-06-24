@@ -12,19 +12,26 @@ dependencies:
 # Single Responsibility
 
 Restructures existing code without breaking behavior: the new structure enters
-before the old one leaves, and the suite stays green between each step.
+before the old one leaves, and the suite stays green between steps. This is the
+**parallel change** (expand–migrate–contract) pattern:
 
-**External contract** = the boundary observable by the existing consumers of
-what is being refactored (signatures they call, values they read). Moving a
-method between layers may change the internal shape without changing that
-contract; if an existing consumer needs to adjust its expectation, the contract
-changed and this stops being a refactor.
+- **Expand** — add the new path beside the old.
+- **Migrate** — move consumers one by one.
+- **Contract** — remove the old path only once it has zero consumers.
 
-**Architecture precondition.** The steps assume layers with dependency
-inversion (consumers depend on an abstraction, not on the concrete
-implementation) — that is what makes it possible to swap the structure behind it
-without touching the consumer. Without that separation, "adding the new one
-alongside the old" may not be viable and the refactor requires another plan.
+The order matters: each phase keeps the suite green and leaves the system
+shippable mid-refactor.
+
+**External contract** = what existing consumers observe (signatures they call,
+values they read). Moving a method between layers may change the internal shape
+without changing that contract. If a consumer must adjust its expectation, the
+contract changed and this is no longer a refactor.
+
+**Architecture precondition.** The steps assume dependency inversion: consumers
+depend on an abstraction, not the concrete. That is what lets you swap the
+structure behind it without touching the consumer. Without that separation,
+adding the new path alongside the old may not be viable and the refactor needs
+another plan.
 
 ## When To Use
 
@@ -59,7 +66,8 @@ alongside the old" may not be viable and the refactor requires another plan.
 4. Migrate the consumers one by one to the new path; update mocks/stubs
    together with each migration.
 5. Run the suite at each step — do not accumulate steps without green.
-6. When no consumer uses the old path, remove it.
+6. When no consumer uses the old path — verify by searching every call site, not
+   by assumption — remove it (the contract phase).
 7. Rename: apply a mechanical and verifiable sweep (automated refactor
    or reviewed search/replace) with the suite guaranteeing the mechanics. Keep
    the sweep separate from any behavior change — see `git-conventions`
@@ -67,11 +75,18 @@ alongside the old" may not be viable and the refactor requires another plan.
 
 ### Extract method vs. extract dedicated accessor
 
-When the usage is partial, decide by the axis of change: if the difference is
-only logic/composition in the same layer, extract a method; if the difference
-is how the data is obtained (a distinct read query/contract), extract a
-dedicated operation/repository so that the consumer depends only on what it
-needs.
+Decide by **scope and axis of change**.
+
+- **Extract method** — within a unit: only logic/composition moves, in the same
+  layer, and the piece stays an implementation detail of the same owner.
+- **Extract dedicated operation/repository** (the "extract class" move) — when a
+  distinct responsibility (its own data and operations) wants to live apart, or
+  when the data is obtained differently (a distinct read query/contract), so the
+  consumer depends only on what it needs.
+
+Signal that it is extract-class, not extract-method: a subset of fields and the
+methods touching them always travel together, or one consumer has a different
+reason to change than the rest.
 
 ### Optimization via projection
 
@@ -89,7 +104,11 @@ widen the projection when new fields start being used.
       expectation because of the refactor.
 - [ ] Mocks and factories were updated in the same step as the change that
       affects them.
-- [ ] Each old path was removed only after zeroing out consumers.
+- [ ] Each old path was removed only after a call-site search confirmed zero
+      remaining consumers.
+- [ ] The three phases were distinct: the new path was added (expand), consumers
+      migrated one by one, and the old path removed (contract) — no phase
+      collapsed into a single all-at-once change.
 - [ ] New structure (operation/repository/projection) is covered by the
       consumer that uses it.
 - [ ] Rename stayed separate from new logic.
@@ -102,6 +121,8 @@ widen the projection when new fields start being used.
   break).
 - Splitting for aesthetics, without a consumer that uses only part of the
   return.
+- Extracting a method to a new owner when only logic moved (no separate
+  responsibility or read contract) — churn without a single-responsibility gain.
 - Optimizing a query by assumption instead of real usage; or projecting fields
   and forgetting to widen the projection when new fields start being used.
 - Refactoring with the suite red "that I'll fix later".

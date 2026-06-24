@@ -11,15 +11,24 @@ dependencies:
 
 ## Principle (invariant)
 
-A **boundary type** — the input/output contract that one layer exposes to
-another — is born in the layer that publishes it, and the direction of the
-dependency points toward the domain. The use case owns its input/output
-contract; the data layer owns the types that its infrastructure consumes. The
-infra depends on **protocols/contracts** defined in the domain, but not on
-concrete domain **data models**.
+A **boundary type** is the input/output contract one layer exposes to another.
+
+- **Born where published** — the dependency direction points toward the domain.
+- **Each layer owns its contract** — the use case owns its input/output; the
+  data layer owns what its infrastructure consumes.
+- **Infra depends on protocols, not models** — it imports domain
+  **protocols/contracts**, never concrete domain **data models**.
 
 This holds in any language; the materialization varies (see the example at the
 end).
+
+The persistence/transport shape (row, API payload, serialization DTO) is **not**
+a boundary type to share inward — it belongs to the adapter that owns it.
+
+- The adapter **maps** it to the domain contract at the edge (the usual
+  `toDomain` / `toPersistence`), so the schema or wire format can change without
+  touching the use case.
+- A repository exposes the domain-shaped contract, never the raw row type.
 
 ### Boundary type vs internal type
 
@@ -46,9 +55,12 @@ not a boundary — do not force the convention onto it.
 2. Confirm the direction: the infra implements domain protocols; it does **not**
    import domain data models. If an adapter needs an input/output type, declare
    it in the protocol of the data layer.
-3. Ask what the caller uses from the return (see "Deciding to reduce to a
+3. If the adapter has a persistence/transport shape of its own (a row or wire
+   DTO), keep it private to the adapter and map it to the domain contract at the
+   edge — do not return it upward and do not let it become the protocol's type.
+4. Ask what the caller uses from the return (see "Deciding to reduce to a
    boolean").
-4. Update mocks, stubs, and tests in the same step: a change to the contract or
+5. Update mocks, stubs, and tests in the same step: a change to the contract or
    to a mirrored type breaks them all together.
 
 ## Deciding to reduce to a boolean (mandatory step)
@@ -72,6 +84,9 @@ Before declaring a return as a boolean (success/existence):
 
 - [ ] No infrastructure file imports domain **data models** (importing domain
       protocols is allowed).
+- [ ] An adapter's persistence/transport shape (row, wire DTO) does not appear
+      in any protocol signature or in the use case — it is mapped at the edge and
+      the repository returns the domain-shaped contract.
 - [ ] Each use case exposes its input/output contract in the layer that
       publishes it, used by the implementation and by the stubs.
 - [ ] Write/check returns were reduced only after the "Deciding to reduce to a
@@ -87,6 +102,9 @@ Before declaring a return as a boolean (success/existence):
   inverts the direction of the dependency.
 - A central file of shared models that every layer imports, creating coupling
   and cycles.
+- Returning the raw persistence/transport shape (the row or wire DTO) upward, so
+  the use case becomes coupled to the storage schema or wire format — the mapping
+  step is missing.
 - Returning the entire persisted object when the caller demonstrably only needs
   to know whether it succeeded (or reducing too early, requiring a second
   query).

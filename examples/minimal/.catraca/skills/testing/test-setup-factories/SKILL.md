@@ -14,14 +14,23 @@ model touches **one** point, not every spec.
 
 There are two complementary factories:
 
-1. A **factory for the component under test** that assembles the test doubles, instantiates the
-   component, and returns the component **together with** the test doubles that some test
-   needs to configure or inspect.
-2. **Data factories** that produce reusable test objects/inputs,
-   instead of duplicated literals.
+1. A **factory for the component under test** that assembles the test doubles,
+   instantiates the component, and returns the component **together with** the
+   test doubles a test may need to configure or inspect.
+2. **Data factories** that produce reusable test objects/inputs instead of
+   duplicated literals.
 
 > In stacks without constructor injection or without types, keep the principle (a
 > helper that returns the subject + its collaborators) and adapt the shape.
+
+Why route construction through a factory:
+
+- **It decouples every test from the constructor and the model's shape.** When a
+  constructor gains a dependency or a model gains a field, the factory absorbs the
+  change in one place — specs that didn't care about that field never break.
+- **Defaults are safe and valid; each test overrides only the field it asserts
+  on.** The test then reads as "the default except for X", and irrelevant
+  structure stays out of sight.
 
 ## When To Use
 
@@ -51,10 +60,9 @@ There are two complementary factories:
    must accept parameters/overrides (e.g., a partial object merged over the
    default) so that a boundary test changes only the relevant field without recreating
    the whole object.
-5. **Promote recurring test doubles to a shared module** only when they are
-   really reused by more than one consumer. Replace the local copies
-   with imports — and **sweep all the specs** that imported the local
-   version so as not to leave a migration half-done.
+5. **Promote recurring test doubles to a shared module** only when more than one
+   consumer truly reuses them. Replace the local copies with imports, and **sweep
+   every spec** that used the local version so the migration isn't left half-done.
 6. **Make the factories evolve with the models**: when the domain changes,
    adjust the factory, not every assert.
 
@@ -72,6 +80,10 @@ suite for using a different nomenclature.
       factory.
 - [ ] Boundary cases use a factory override/parameter, without rebuilding the
       whole object.
+- [ ] Data factory defaults are valid on their own, and each test overrides only
+      the field(s) it asserts on — the rest is left implicit.
+- [ ] Adding a model field required changing the data factory only, not every
+      spec that constructs the model.
 - [ ] A shared test double was only promoted to a common module when there is real
       reuse, with no remaining local copies.
 - [ ] Each test still keeps visible the specific arrangement it depends on.
@@ -91,6 +103,12 @@ suite for using a different nomenclature.
   real reuse.
 - **Partial migration**: extracting to a shared module without removing the local
   copies.
+- **Mutable shared default**: one factory-built object reused across tests, then
+  mutated by one — the change bleeds into later tests, creating order-dependent
+  flakiness. Return a fresh instance per call.
+- **Override-everything call site**: so many overrides that the factory adds
+  nothing over a literal — a sign the default is wrong here or a dedicated variant
+  is needed.
 
 ## Suggested Conventions (Optional)
 

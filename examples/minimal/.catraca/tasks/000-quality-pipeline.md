@@ -1,10 +1,12 @@
 # Tasks — 000 Quality Pipeline
 
 > A mandatory feature that precedes any product feature (skill
-> `workflows/quality-pipeline`: "automatic gates, not discipline"). It does not
-> come from `product.md` — it comes from the method. It does not follow a
-> red/green/refactor cycle: each tool enters as a separate **chore**, and the
-> equivalent of "red" is to **provoke a violation and watch the gate reject it**.
+> `workflows/quality-pipeline`: "automatic gates, not discipline"). It comes from
+> the method, not `product.md`. No red/green/refactor cycle: each tool enters as
+> a **chore**, and the "red" equivalent is a gate proof (provoke a violation,
+> watch it get rejected). The test script passes with no tests during setup
+> (`vitest run --passWithNoTests`), so every setup commit clears the real hook —
+> **no `--no-verify` anywhere**.
 
 Active skills: `workflows/quality-pipeline`, `workflows/git-conventions`,
 `domain-conventions/project-structure`
@@ -22,58 +24,46 @@ Active skills: `workflows/quality-pipeline`, `workflows/git-conventions`,
 | Zero-warnings lint | ESLint flat config + `typescript-eslint`, `--max-warnings=0` |
 | Commit-message hook | `.githooks/commit-msg` (conventional-commit regex) |
 | Pre-commit staged-only (lint+tests) | `.githooks/pre-commit` (typecheck + lint + test) |
-| Scoped test runner | Vitest (`vitest run`) |
+| Scoped test runner | Vitest (`vitest run`); `--passWithNoTests` so setup commits pass |
 | Coverage as a gate | `@vitest/coverage-v8`, 100% threshold in `vitest.config.ts` |
 
 ### T0.0b — Containerized environment *(skipped: G2b = local)*
 
-Not applicable — the store is in-memory and recreated per test; nothing is
-installed as a service. (See `questions.md` G2b.)
+Not applicable — the store is in-memory and recreated per test.
 
 ### T0.1 — Project skeleton + type-checking as the first gate
 
-- [x] directory structure by layer (per `architecture.md`)
-- [x] `tsc --noEmit` strict; type error is rejected (proven during T0.6)
-- [x] commit `chore(pipeline): add strict TypeScript config` (`47191d9`)
+- [x] `tsc --noEmit` strict; the first source file ships with the gate so `tsc`
+      has inputs (no "No inputs were found")
+- [x] commit `chore(pipeline): add strict TypeScript type-check gate` (`f0adf9f`)
 
 ### T0.2 — Lint with zero warnings
 
-- [x] ESLint flat config; zero warnings is the criterion
-- [x] **gate proof**: a staged file with an unused var is rejected (see T0.6)
-- [x] commit `chore(pipeline): add ESLint flat config with zero warnings` (`33d6d92`)
+- [x] ESLint flat config; zero warnings is the criterion (namespaces allowed for
+      layered `Params`/`Result` types)
+- [x] **gate proof**: a staged `any` is rejected (see T0.6)
+- [x] commit `chore(pipeline): add ESLint zero-warning gate` (`a888d46`)
 
-### T0.3 — Commit-message hook
+### T0.3/T0.4 — Test runner, coverage gate, and hooks
 
-- [x] `.githooks/commit-msg` validates conventional commits
-- [x] **gate proof**: `git commit -m "bad message"` rejected (see T0.6)
-- [x] commit `chore(pipeline): add commit-msg and pre-commit git hooks` (`26a2b01`)
+- [x] Vitest with `--passWithNoTests`; coverage threshold 100%
+- [x] `.githooks/commit-msg` (conventional commits) + `.githooks/pre-commit`
+      (typecheck + lint + test), activated with `core.hooksPath` before the first
+      commit
+- [x] commits `chore(pipeline): add Vitest runner with coverage gate` (`b79822f`),
+      `chore(pipeline): add git hooks for commit-msg and pre-commit` (`a807c2f`)
 
-### T0.4 — Pre-commit running lint + tests over the staged files
+### T0.5 — Bootstrap proof: setup commits pass the real hook with no tests
 
-- [x] `.githooks/pre-commit` runs typecheck + lint + tests; rejects on failure
-- [x] **gate proof**: broken lint ⇒ commit rejected (see T0.6)
-- [x] commit (same as T0.3: `26a2b01`)
-
-### T0.5 — Test runner with scopes + coverage gate
-
-- [x] Vitest configured; coverage threshold 100% (lines/functions/branches/statements)
-- [x] **gate proof**: a deliberately failing test ⇒ suite red (see T0.6)
-- [x] commit `chore(pipeline): add Vitest config with 100% coverage gate` (`ee4653d`)
+- [x] the scaffold commit (`420320c`) ran the real pre-commit with zero tests:
+      typecheck + lint + `vitest run --passWithNoTests` ("No test files found,
+      exiting with code 0") → committed **without `--no-verify`**
 
 ### T0.6 — End-to-end verification of the pipeline
 
-- [x] full sequence proven (the three gate proofs captured in `evaluation/000-quality-pipeline.md`):
-  - invalid commit message rejected by `commit-msg`;
-  - staged lint error rejected by `pre-commit`;
-  - a red test rejects the suite.
-- [x] proofs recorded for the rubric
-
-> **Bootstrap note (honest record):** the six `chore(pipeline)` setup commits
-> used `--no-verify`, because the `pre-commit` hook runs `npm test` and Vitest
-> exits non-zero when **no test files exist yet**. This is the standard
-> pipeline-bootstrap exception: the gate cannot pass before there is anything to
-> test. Every commit from `df1495c` onward (all of feature 001) went through the
-> real hooks with no bypass.
+- [x] gate proofs captured (see `evaluation/000-quality-pipeline.md`): invalid
+      commit message rejected; staged lint error (`any`) rejected; a red test
+      makes the suite fail. Breakages reverted.
 
 ### T-final — Feature evaluation
 

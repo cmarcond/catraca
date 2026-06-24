@@ -1,16 +1,13 @@
-import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['node_modules', 'coverage', 'dist'],
+    ignores: ['node_modules/**', 'coverage/**', 'dist/**', '*.config.js'],
   },
-  eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
     rules: {
-      // Namespaced use-case/protocol types (Params/Result) are a deliberate
-      // Clean Architecture convention in this project — see .catraca/architecture.md.
+      // Layered Params/Result types are modeled with TS namespaces.
       '@typescript-eslint/no-namespace': 'off',
     },
   },

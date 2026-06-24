@@ -10,15 +10,24 @@ dependencies:
 
 # Error Boundary: Propagate in the Domain, Translate at the Boundary
 
-There is a single role where an unexpected exception becomes a response to the
-client: the **entry boundary** — the place that translates an exception into a
-response. In the explicit-controller style this is an outer try/catch in the
-controller; in frameworks with error middleware, an exception filter, or a
-central handler, that same role is fulfilled by the framework's boundary. The
-principle does not require a physical location; it requires that **one**
-boundary be responsible and that nothing below it suppress the error.
-Everything below propagates; the data layer converts to a result only when the
-failure has business meaning.
+One role turns an unexpected exception into a client response: the **entry
+boundary**. It may be an outer try/catch in an explicit controller, or a
+framework's error middleware, exception filter, or central handler. The location
+is free; what matters is that **one** boundary is responsible and nothing below
+it suppresses the error. Everything below propagates; the data layer converts to
+a result only when the failure has business meaning.
+
+The dividing line is **expected vs. unexpected**:
+
+- **Expected** — a failure the caller can anticipate (record absent, credential
+  invalid, conflict). Model it as a **value/typed result**, not an exception.
+- **Unexpected** — a failure the code cannot continue past (driver error,
+  network timeout, bug). Let it propagate as an exception and become the generic
+  500.
+
+Modeling expected outcomes as values keeps both paths visible and testable.
+Reserving exceptions for the unexpected keeps the 500 honest: every 500 means
+"something we did not anticipate," never "a known business case."
 
 ## When To Use
 
@@ -35,10 +44,17 @@ failure has business meaning.
 
 - Request input validation: it is an explicit rule, returns 400 — use
   `input-validation`, not the technical-error boundary.
-- A domain error that deserves its own status (403, 404, 409): it should be a
-  **typed return** decided in the application/boundary layer before becoming an
-  exception, not caught in the generic 500 catch. The status decision happens
-  in the explicit mapping of the typed result, not in the catch.
+- A domain error that deserves its own status (401, 403, 404, 409). It should be
+  a **typed return** mapped explicitly, not caught in the generic 500 catch. The
+  status decision lives in that mapping. Distinguish by meaning:
+  - **401** — caller unauthenticated or credentials invalid/expired
+    (re-authenticating would fix it).
+  - **403** — caller known but lacking permission (re-authenticating would not
+    help).
+  - **404** — absent resource.
+  - **409** — conflict.
+
+  Mapping the wrong one (e.g., 403 for a missing login) misleads every client.
 - Logging the error: keep it out of the business catch (observability
   decorator/middleware) — the point is not to couple logging to response
   translation.
@@ -92,6 +108,14 @@ boundary:
       still propagates and is not masked by the empty return. Distinguish in
       the test the expected absence (valid data, no record) from the technical
       error (corrupted data/bug).
+- [ ] Expected, recoverable outcomes (absence, invalid credential, conflict) are
+      modeled as typed results/values, not as thrown exceptions caught by the
+      generic boundary.
+- [ ] *(when a typed result maps to a specific status)* A test asserts the
+      mapping is correct by meaning: 401 for unauthenticated/invalid credentials,
+      403 for authenticated-but-forbidden, 404 for absent, 409 for conflict.
+- [ ] The generic-500 path is reached only by unanticipated exceptions; no
+      known business case routes through it.
 
 ## Anti-Patterns
 
@@ -104,5 +128,11 @@ boundary:
   infrastructure bugs under "expected absence".
 - Leaking a raw infrastructure exception into the response: the boundary
   returns a generic error to the client; details go only to the logs.
-- Catching a domain error with its own status (403/404) in the generic 500
-  catch: it should be a typed result mapped explicitly.
+- Catching a domain error with its own status (401/403/404/409) in the generic
+  500 catch: it should be a typed result mapped explicitly.
+- Throwing an exception for an expected business outcome (not found, invalid
+  credential) and unwinding it through the 500 catch: it inflates the 500 with
+  known cases and hides them from the type/return signature.
+- Returning 403 when the caller is simply not authenticated (or 401 when the
+  caller is authenticated but unauthorized): the status no longer tells the
+  client whether re-authenticating would help.

@@ -1,96 +1,61 @@
 # Tasks — 001 Create a poll
 
-> Generated from `specs/001-create-poll.md`. One task per behavior; each task
-> with an explicit red/green/refactor cycle. State = checkboxes.
+> Generated from `specs/001-create-poll.md`. One task per behavior, red→green→
+> refactor. State = checkboxes. Every commit passed the real hooks (no
+> `--no-verify`).
 
 Spec: `../specs/001-create-poll.md` · Active skills: `tdd-minimal-step`,
 `test-doubles`, `test-setup-factories`, `integration-tests`,
 `dependency-inversion-adapters`, `controller-error-boundary`, `input-validation`,
-`layered-typing`, `project-structure` · Layers touched: domain, data,
-presentation, validation, infra, main
+`layered-typing`, `project-structure` · Layers: domain, data, presentation,
+validation, infra, main
 
 ## Tasks
 
-### T1 — DbCreatePoll calls the repository with the question and options
+### T1 — DbCreatePoll delegates to the repository (question + options) and returns the poll
 
-Criterion covered: poll is stored · Layer: data
+Criteria: poll stored; poll returned · Layer: data
 
-- [x] **red** — `db-create-poll.spec.ts`: spy on `AddPollRepository.add`, assert called with `{ question, options }`
+- [x] **red** — spy/stub `AddPollRepository`; assert called with `{question, options}` and that the created poll is returned
 - [x] **green** — `DbCreatePoll` delegates to the injected repository
 - [x] **refactor** — n/a
-- [x] gates verified · commit `feat(poll): DbCreatePoll calls repository and returns created poll` (`c23610a`)
+- [x] commit `feat(create-poll): DbCreatePoll delegates to AddPollRepository` (`ddeadf5`)
 
-### T2 — DbCreatePoll returns the created poll
+### T2 — Controller maps validation → 400, success → 200, unexpected → 500
 
-Criterion covered: poll returned with id/question/options · Layer: data
+Criteria: invalid input rejected; poll created; generic failure · Layer: presentation (`controller-error-boundary`)
 
-- [x] **red** — stub repository returns a poll; assert `create` returns it
-- [x] **green** — return the repository's result
+- [x] **red** — validation stub returns error ⇒ 400; CreatePoll stub returns poll ⇒ 200; CreatePoll mock throws ⇒ 500
+- [x] **green** — controller validates, calls `CreatePoll`, wraps the body in try/catch → `serverError()`
 - [x] **refactor** — n/a
-- [x] gates verified · commit (same as T1: `c23610a`)
+- [x] commit `feat(create-poll): controller maps validation, success, and errors to HTTP` (`e6db56e`)
 
-### T3 — Controller returns 400 when validation fails
+### T3 — Fail-fast validators + composite (first error)
 
-Criterion covered: missing question / too few options rejected · Layer: presentation
+Criteria: missing question / fewer than two options · Layer: validation (`input-validation`)
 
-- [x] **red** — `create-poll-controller.spec.ts`: validation stub returns an error; assert 400 + error body
-- [x] **green** — controller calls `Validation.validate`; on error returns `badRequest`
+- [x] **red** — `ValidationComposite` returns the first validator's error; `RequiredFieldValidation` / `MinOptionsValidation` each report their error (incl. null-input branch)
+- [x] **green** — each rule a `Validation` object; composite returns the first non-null error (fail-fast)
 - [x] **refactor** — n/a
-- [x] gates verified · commit `feat(poll): CreatePollController validates, returns 200, and 500 on throw` (`1fef63c`)
+- [x] commit `feat(create-poll): add fail-fast validators and validation composite` (`eecf9b6`)
 
-### T4 — Controller returns 200 with the created poll on success
+### T4 — In-memory repository persists and assigns an id
 
-Criterion covered: poll stored and returned · Layer: presentation
+Criteria: poll persisted with identifier · Layer: infra (`integration-tests`)
 
-- [x] **red** — `CreatePoll` stub returns a poll; assert 200 + poll body
-- [x] **green** — controller calls `CreatePoll.create`, returns `ok(poll)`
-- [x] **refactor** — n/a
-- [x] gates verified · commit (same as T3: `1fef63c`)
-
-### T5 — Controller returns 500 when the use case throws
-
-Criterion covered: generic failure, no leak · Layer: presentation (`controller-error-boundary`)
-
-- [x] **red** — `CreatePoll` mock throws; assert 500 generic response
-- [x] **green** — wrap the body in try/catch, return `serverError()`
-- [x] **refactor** — n/a
-- [x] gates verified · commit (same as T3: `1fef63c`)
-
-### T6 — ValidationComposite returns the first validator's error
-
-Criterion covered: bad request explains the first violation · Layer: validation (`input-validation`)
-
-- [x] **red** — `validation-composite.spec.ts`: two stubbed validators; assert the first error is returned
-- [x] **green** — composite iterates and returns the first non-null error
-- [x] **refactor** — n/a
-- [x] gates verified · commit `feat(poll): ValidationComposite returns the first validator error` (`4f05396`)
-
-### T7 — RequiredFieldValidation and MinOptionsValidation each report their error
-
-Criterion covered: missing field / fewer than two options · Layer: validation
-
-- [x] **red** — per-validator specs assert the right error on violation (incl. null/array-shape branches)
-- [x] **green** — each rule implemented as a small `Validation` object
-- [x] **refactor** — added the null-input branch tests in `test(poll): cover null-input branch in field validators` (`7d71e8c`)
-- [x] gates verified · commit `feat(poll): add required-field and min-options field validators` (`23b346c`)
-
-### T8 — PollMemoryRepository stores and returns a poll with an id
-
-Criterion covered: poll persisted with identifier · Layer: infra (`integration-tests`)
-
-- [x] **red** — `poll-memory-repository.spec.ts`: add a poll, assert returned poll has an id and is retrievable
+- [x] **red** — add a poll; assert the returned poll has an id and is stored
 - [x] **green** — in-memory store, `crypto.randomUUID()` for the id
 - [x] **refactor** — n/a
-- [x] gates verified · commit `feat(poll): in-memory AddPollRepository generates id and persists` (`84da16a`)
+- [x] commit `feat(create-poll): in-memory poll repository persists and assigns ids` (`d89257b`)
 
-### T9 — Factory-built controller + real in-memory repo returns 200 and persists
+### T5 — Composition root wires the controller with the real repository
 
-Criterion covered: full slice wired · Layer: main (`project-structure`, composition)
+Criteria: full slice wired · Layer: main (`project-structure`, composition)
 
-- [x] **red** — `create-poll-controller-factory.spec.ts`: real repo, assert 200 and the poll is stored
+- [x] **red** — factory-built controller + real in-memory repo returns 200 and persists
 - [x] **green** — composition root wires controller + DbCreatePoll + repo + validation composite
-- [x] **refactor** — dropped unused barrel files (`refactor(poll): drop unused barrel files for direct imports`, `615256c`)
-- [x] gates verified · commit `feat(poll): wire create-poll controller factory with real in-memory repo` (`2fd98bb`)
+- [x] **refactor** — n/a
+- [x] commit `feat(create-poll): wire composition root for the create-poll controller` (`f009ea8`)
 
 ### T-final — Feature evaluation
 

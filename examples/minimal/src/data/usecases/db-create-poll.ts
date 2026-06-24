@@ -1,5 +1,5 @@
-import { CreatePoll } from '../../domain/usecases/create-poll.js';
-import { AddPollRepository } from '../protocols/add-poll-repository.js';
+import type { CreatePoll } from '../../domain/usecases/create-poll.js';
+import type { AddPollRepository } from '../protocols/add-poll-repository.js';
 
 export class DbCreatePoll implements CreatePoll {
   constructor(private readonly addPollRepository: AddPollRepository) {}

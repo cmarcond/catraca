@@ -4,24 +4,28 @@ import { PollMemoryRepository } from '../../../../src/infra/db/memory/poll-memor
 const makeSut = (): PollMemoryRepository => new PollMemoryRepository();
 
 describe('PollMemoryRepository', () => {
-  it('stores and returns a poll with a generated id', async () => {
+  it('persists the poll and returns it with a generated id', async () => {
     const sut = makeSut();
+
     const poll = await sut.add({
-      question: 'any question?',
-      options: ['option a', 'option b'],
+      question: 'Best language?',
+      options: ['TypeScript', 'Rust'],
     });
-    expect(poll.id).toBeTypeOf('string');
+
+    expect(poll.id).toEqual(expect.any(String));
     expect(poll.id.length).toBeGreaterThan(0);
-    expect(poll.question).toBe('any question?');
-    expect(poll.options).toEqual(['option a', 'option b']);
+    expect(poll.question).toBe('Best language?');
+    expect(poll.options).toEqual(['TypeScript', 'Rust']);
+    expect(sut.polls).toContainEqual(poll);
   });
 
-  it('persists each added poll in its store', async () => {
+  it('generates a distinct id for each stored poll', async () => {
     const sut = makeSut();
-    const poll = await sut.add({
-      question: 'any question?',
-      options: ['option a', 'option b'],
-    });
-    expect(sut.polls).toContainEqual(poll);
+
+    const first = await sut.add({ question: 'A', options: ['x', 'y'] });
+    const second = await sut.add({ question: 'B', options: ['x', 'y'] });
+
+    expect(first.id).not.toBe(second.id);
+    expect(sut.polls).toHaveLength(2);
   });
 });

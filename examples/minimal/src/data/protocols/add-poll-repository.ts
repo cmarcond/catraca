@@ -1,7 +1,7 @@
-import { Poll } from '../../domain/models/poll.js';
+import type { Poll } from '../../domain/models/poll.js';
 
 export interface AddPollRepository {
-  add: (data: AddPollRepository.Params) => Promise<AddPollRepository.Result>;
+  add: (params: AddPollRepository.Params) => Promise<AddPollRepository.Result>;
 }
 
 export namespace AddPollRepository {

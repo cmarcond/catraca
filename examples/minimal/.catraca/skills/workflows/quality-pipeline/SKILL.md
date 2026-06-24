@@ -40,13 +40,19 @@ describes the **invariant principle** (language-independent); the
    types, style, coverage) must have a hook that **rejects** the commit/push,
    not merely warns.
 2. **Pre-commit only over what changed.** The hook validates the staged set,
-   not the entire repository — otherwise it gets slow and the team resorts to
-   `--no-verify`.
-3. **Coverage as a gate with an explicit baseline.** Record the percentage per
-   scope (e.g., unit, integration) of the last green commit as the baseline.
-   The push is rejected if any scope falls below the baseline (or the profile's
-   target in `method.md`). Update the baseline only when it goes up on its own
-   initiative.
+   not the whole repository — otherwise it gets slow and the team resorts to
+   `--no-verify`. When a tool auto-fixes files (formatter, lint `--fix`), it
+   must re-stage exactly what it fixed and operate on staged content only, so a
+   partially-staged file is not committed whole. Mature runners (e.g.
+   lint-staged v10+) do this for you; a hand-rolled hook must handle it
+   explicitly.
+3. **Coverage as a ratchet against an explicit baseline.** Record each scope's
+   percentage (unit, integration) at the last green commit as the baseline. A
+   push is rejected if any scope falls below the baseline (or the target in
+   `method.md`). The baseline only moves up: raise it when coverage rises, never
+   edit it down to pass a red gate. This is "clean as you code" — the gate
+   guards against regression on what you touch, it does not demand back-filling
+   tests for untouched legacy.
 4. **Updates in verified batches.** Update dependencies in small,
    atomically-reversible batches (one batch = one related functional area),
    running the suite before and after each batch, so that a break is
@@ -68,6 +74,15 @@ proposes the tools and the user confirms):
 | Tests per scope (unit, integration, ci) | separate scripts |
 | Coverage vs baseline/target | rejects at push/closure |
 
+**Type-only files and coverage.** Files that compile to no executable code (pure
+interfaces / type aliases) report as `0/0` — or red — in coverage tools such as
+v8/Vitest. This is expected and does **not** mean a real gap: with zero
+executable statements they don't lower the aggregate (a project can sit at 100%
+with several `0/0` files, as the worked example shows). Don't chase phantom
+coverage on them; only if a particular tool/version drags the **aggregate** down
+should you exclude type-only paths via the coverage config — never add a hollow
+test just to color a type file green.
+
 ## Order Of Operations
 
 ### Setup
@@ -80,6 +95,16 @@ Initial setup (one chore per tool, separate commits — see feature 000):
 4. `pre-commit` hook running lint and tests **only over the staged files**.
 5. Test runner with separate scripts per scope (unit, integration, ci) and
    coverage measured.
+
+**Bootstrapping (avoid the chicken-and-egg).** The setup commits land *before*
+any test exists, yet the `pre-commit` hook runs the test suite — and most
+runners exit non-zero when they find zero tests. Do **not** reach for
+`--no-verify` (it bypasses type-check and lint too). Instead, configure the test
+script to **pass when there are no tests yet** (e.g. Vitest `--passWithNoTests`,
+pytest's "no tests" tolerated via config, Go's `./...` which is already empty-safe).
+Then the setup commits pass the real hook — type-check and lint still gate them —
+and tests begin gating the moment the first test appears. No commit ever bypasses
+the pipeline.
 
 ### Closure
 
@@ -104,11 +129,18 @@ Dependency updates:
 ## Test Checklist
 
 - [ ] There is a gate that rejects the commit/push for every verifiable
-      convention of the project.
+      convention of the project (verifiable: a deliberate violation of each
+      convention is refused, not merely warned about).
 - [ ] `--no-verify` is not needed in the normal flow — if the temptation
       appears, the hook is slow or validating too many files.
-- [ ] Pre-commit runs against the stage area, not against the whole repository.
-- [ ] Coverage compared against the baseline/target, per scope; a drop rejects.
+- [ ] Pre-commit runs against the stage area, not against the whole repository
+      (an unstaged change elsewhere does not affect the result).
+- [ ] Auto-fixing tools re-stage only the files they touched; a partially-staged
+      file is not committed in full by the hook.
+- [ ] Coverage compared against the baseline/target, per scope; a drop rejects,
+      and the baseline is never edited downward to pass.
+- [ ] The test runner passes with zero tests at bootstrap, so the setup commits
+      clear the real hook without `--no-verify`.
 - [ ] Each update batch validated by the suite on its own and reversible by
       itself.
 - [ ] (If applicable) breakpoint stops at the correct line, with no prints left
@@ -120,6 +152,11 @@ Dependency updates:
   gate.
 - A slow pre-commit hook that processes the entire codebase, pushing the team
   toward `--no-verify`.
+- A hook that auto-fixes files but does not re-stage them, or that lints the
+  working tree instead of the staged content, so a partial stage is committed
+  whole.
+- Lowering the recorded baseline so a red coverage gate turns green — that
+  inverts the ratchet and lets regression through silently.
 - Chasing the coverage number with trivial tests; coverage is a gate against
   regression, not a numeric goal.
 - Updating many dependencies in a single batch: it mixes causes of breakage and

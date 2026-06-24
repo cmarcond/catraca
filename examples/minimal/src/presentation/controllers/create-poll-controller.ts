@@ -1,7 +1,7 @@
-import { Controller } from '../protocols/controller.js';
-import { HttpRequest, HttpResponse } from '../protocols/http.js';
-import { Validation } from '../protocols/validation.js';
-import { CreatePoll } from '../../domain/usecases/create-poll.js';
+import type { Controller } from '../protocols/controller.js';
+import type { HttpRequest, HttpResponse } from '../protocols/http.js';
+import type { Validation } from '../protocols/validation.js';
+import type { CreatePoll } from '../../domain/usecases/create-poll.js';
 import { ok, badRequest, serverError } from '../helpers/http-helper.js';
 
 export class CreatePollController implements Controller {

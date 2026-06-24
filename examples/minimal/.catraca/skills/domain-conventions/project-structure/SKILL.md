@@ -8,10 +8,17 @@ dependencies: []
 
 # Folder Structure by Layer and Entity
 
-Organize artifacts first by the project's architectural boundary and then by
-the domain unit each file serves. Keep test code, mocks, and helpers out of the
-production scope. Treat any file movement as a pure refactor, without mixing in
-behavior changes.
+Organize artifacts first by the project's architectural boundary, then by the
+domain unit each file serves. Keep test code, mocks, and helpers out of the
+production scope. Treat any file movement as a pure refactor, with no behavior
+change mixed in.
+
+The inner axis makes the tree **scream the domain**:
+
+- **Names reveal the system** — skimming reveals the business units, not just
+  which framework or technical layer holds them.
+- **Cohesion** — files that change together sit together, so a feature's edit
+  touches one neighborhood instead of scattering across layer-named folders.
 
 ## When To Use
 
@@ -50,8 +57,9 @@ behavior changes.
    manually reviewable steps.
 2. Define the axis: outer level = the architectural boundary already adopted by
    the project; inner level = the domain unit.
-3. Create the test tree mirroring the production structure exactly; move mocks,
-   spies, and helpers there.
+3. Create the test tree mirroring the production structure exactly — same nesting
+   under the boundary→unit axes, so each spec sits at the path predicted by the
+   file it covers; move mocks, spies, and helpers there.
 4. Move the files by domain unit; group related protocols into subfolders by
    responsibility when the folder grows.
 5. If the stack has a build/compilation step or a runner with multiple roots,
@@ -71,6 +79,11 @@ behavior changes.
 - [ ] Suite green immediately after, without changing assertions or logic — and
       the diff contains only renames/moves + import adjustments.
 - [ ] No mock, spy, helper, or spec file inside the production tree.
+- [ ] Each spec sits at the test-tree path that mirrors the production file it
+      covers (same boundary→unit nesting), so a file's tests are locatable from
+      its path alone.
+- [ ] The top level reads as the project's boundaries/domain units, not as a
+      flat dump of framework- or type-named folders.
 - [ ] (If there is a separate build) the build excludes the test tree and
       coverage points only at production.
 
@@ -81,6 +94,10 @@ behavior changes.
 - Keeping everything at the root of the layer until it becomes an
   impossible-to-navigate list.
 - Leaving test artifacts in the production directory "because it's closer".
+- A test tree whose shape diverges from production, so finding a file's tests
+  means a project-wide search instead of following the mirrored path.
+- A top level that screams the framework/technical layers and hides the domain,
+  forcing a reader to open folders to learn what the system does.
 - Creating barrels and deep subfolders ahead of time, with no duplication or
   volume to justify them.
 - Changing an assertion to "make the test pass" during the migration — a sign

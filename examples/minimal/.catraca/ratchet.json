@@ -9,7 +9,7 @@
       "scores": {
         "layer_discipline": 1.0,
         "coverage": 1.0,
-        "commit_discipline": 0.9,
+        "commit_discipline": 1.0,
         "skills": {
           "workflows/quality-pipeline": 1.0,
           "workflows/git-conventions": 1.0,

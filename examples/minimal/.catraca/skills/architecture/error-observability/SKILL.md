@@ -16,11 +16,17 @@ the complete error (type, message, stack, request context) is logged to an
 observability destination — otherwise the generic 500 becomes a black box and
 the production failure stays invisible.
 
-Principles: logging happens **once, at the boundary** (not spread across the
-layers); it is **decoupled from response translation** (a decorator or
-middleware wraps the boundary — the business controller does not know about
-logging); and the **destination is a substitutable detail** (structured stdout,
-file, database, service — behind a protocol + adapter, like any library).
+Principles:
+
+- **Log once, at the boundary** — not spread across the layers.
+- **Decoupled from the response** — a decorator/middleware wraps the boundary;
+  the business controller knows nothing about logging.
+- **Substitutable destination** — stdout, file, database, service — behind a
+  protocol + adapter, like any library.
+- **Structured and correlatable** — queryable fields (not one concatenated
+  string) plus a request/correlation id, so the generic 500 traces back to its
+  request.
+- **Error severity** — so production log filters never hide the failure.
 
 ## When To Use
 
@@ -34,8 +40,10 @@ file, database, service — behind a protocol + adapter, like any library).
 - Throwaway spikes.
 - **Business** logging (audit, event trail): it is a domain requirement, with
   its own spec — do not confuse it with error observability.
-- Full metrics/tracing: legitimate evolutions, but outside this skill's minimal
-  scope (which is: no 500 without a log).
+- Full metrics/distributed tracing: legitimate evolutions, but outside this
+  skill's minimal scope (which is: no 500 without a structured, correlatable
+  log). A single request/correlation id is in scope; a full tracing backend is
+  not.
 
 ## Order Of Operations
 
@@ -47,11 +55,14 @@ file, database, service — behind a protocol + adapter, like any library).
    change.
 3. Ensure the split: the **payload** carries only the generic error; the **log**
    carries everything (stack, context). Never the other way around.
-4. Implement the **destination adapter** in infra (structured stdout is an
+4. Make the entry **structured and correlatable**: log structured fields (not a
+   concatenated message), at an error severity, including a request/correlation
+   id and the request context — never sensitive data.
+5. Implement the **destination adapter** in infra (structured stdout is an
    honest default; database/service when there is a requirement).
-5. Compose the decorator at the composition point (`main`), applied to every
+6. Compose the decorator at the composition point (`main`), applied to every
    boundary — not case by case.
-6. Test with a **spy of the protocol**: unexpected error ⇒ logger called with
+7. Test with a **spy of the protocol**: unexpected error ⇒ logger called with
    the complete error and the response stays generic; happy path ⇒ nothing
    logged.
 
@@ -65,7 +76,10 @@ file, database, service — behind a protocol + adapter, like any library).
 - [ ] Logging happens at a single point (decorator/middleware), not inside the
       business controllers.
 - [ ] The log destination is behind a protocol + adapter, with its own test.
-- [ ] No sensitive data (password, token, credential) appears in the log.
+- [ ] The logged entry is structured (distinct fields) and carries a
+      request/correlation id that ties it to the originating request.
+- [ ] The error is logged at an error severity level (not info/debug).
+- [ ] No sensitive data (password, token, credential, PII) appears in the log.
 
 ## Anti-Patterns
 
@@ -76,5 +90,11 @@ file, database, service — behind a protocol + adapter, like any library).
 - Stack or internal message in the response payload (the symmetric opposite).
 - Logging inside the business controller, coupling the rule to observability.
 - Logging sensitive request data along with the error.
+- Logging the failure as a flat concatenated string with no fields — unqueryable
+  when it matters most.
+- No request/correlation id, so the generic 500 the client saw cannot be tied to
+  any log entry.
+- Logging at info/debug, so production filters hide the very failure that needs
+  to be seen.
 - Logging and **swallowing**: logging the error and returning success — the log
   does not replace propagation.
