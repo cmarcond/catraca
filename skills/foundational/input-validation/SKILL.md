@@ -16,6 +16,13 @@ the language: `null`, `None`, absent `Optional`) meaning no error.
 An **aggregator** walks the list of rules; the entry boundary receives that
 aggregator via injection and only does `error = validation.validate(input)`.
 
+Validation lives **at the boundary** so that everything past it can assume valid
+shape: the boundary is the line that filters malformed input before it reaches
+the domain, which keeps the domain free to model only valid states instead of
+re-checking shape everywhere. The aggregator and a single rule expose the **same
+`validate(input)` contract** — a composite that is used exactly like a leaf — so
+rules nest and recombine without the boundary knowing how many there are.
+
 ## When To Use
 
 - An **entry boundary** (route, CLI command, queue message, batch item)
@@ -49,9 +56,11 @@ aggregator via injection and only does `error = validation.validate(input)`.
    does not need this.
 4. Implement the **aggregator** that walks the list of rules.
 5. Define the **aggregation policy according to the spec's intent**: stop at the
-   **first error** or **collect all errors** (preferable in
-   forms/APIs that report the whole set). The order of the list in the factory
-   is the order of evaluation.
+   **first error** (fail-fast — cheaper, and right when a later rule presupposes
+   an earlier one passed, e.g., "is a string" before "matches format") or
+   **collect all errors** (preferable in forms/APIs that report the whole set, at
+   the cost of running every rule). The order of the list in the factory is the
+   order of evaluation; under fail-fast, order is part of the contract.
 6. Create a **factory** that assembles the list of rules for that boundary and
    returns the configured aggregator.
 7. Inject the aggregator into the boundary; it only calls `validate` and
@@ -64,9 +73,12 @@ aggregator via injection and only does `error = validation.validate(input)`.
 
 - [ ] Each rule has a unit test: error case and success case in isolation.
 - [ ] Comparison between fields tested with equal and different values.
-- [ ] Aggregator respects the chosen policy: if first-error, proof of
-      ordering; if all-errors, proof of complete collection.
+- [ ] Aggregator respects the chosen policy: if first-error, proof of ordering
+      **and** that later rules are not evaluated after the first failure; if
+      all-errors, proof of complete collection across multiple failing rules.
 - [ ] Aggregator returns success (empty value) when all rules pass.
+- [ ] Validation runs at the boundary; the domain/use case does not re-check the
+      same shape (it assumes valid input once past the boundary).
 - [ ] Factory tested/guarantees that the list contains the expected rules in the
       right order.
 - [ ] Boundary test uses a stub rule and verifies that `validate` was called
@@ -81,6 +93,14 @@ aggregator via injection and only does `error = validation.validate(input)`.
 - Mixing aggregation policies without the spec's intent defining which to use
   (first-error vs all-errors is a trade-off, not a defect — choose
   explicitly).
+- A validation rule with a side effect (writing, mutating shared state, calling
+  out): rules must be pure checks, so the aggregation policy can run, skip, or
+  reorder them freely.
+- Re-validating the same input shape inside the domain because the boundary
+  cannot be trusted: the boundary should be the single filter, leaving the
+  domain to assume validity.
+- Ordering rules so a dependent check runs before its precondition under
+  fail-fast (e.g., format before presence), producing a misleading first error.
 - A validation rule importing from the UI or the domain, creating a cross
   dependency between layers.
 - Putting a business rule inside a validation rule for convenience.
