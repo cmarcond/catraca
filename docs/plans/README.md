@@ -19,10 +19,7 @@ are done).
 
 **Framework & method** — all done (see `done/`).
 
-**Tooling & packaging**
-| # | Plan | Effort | Depends on |
-|---|---|---|---|
-| 04 | [Ship skills as installable Agent Skills](04-installable-agent-skills.md) | medium | — |
+**Tooling & packaging** — all done (see `done/`).
 
 **Examples (downstream — run after the framework is settled)**
 | # | Plan | Effort | Depends on |
@@ -41,6 +38,7 @@ are done).
 - [`done/03-independent-evaluator.md`](done/03-independent-evaluator.md) — a clean-context evaluator grades by default (no self-grading)
 - [`done/06-standalone-glossary.md`](done/06-standalone-glossary.md) — terms extracted to `glossary.md`, linked at point of use
 - [`done/05-installer-niceties.md`](done/05-installer-niceties.md) — `--dry-run`, version stamp, clearer conflict report
+- [`done/04-installable-agent-skills.md`](done/04-installable-agent-skills.md) — skills installed to `.claude/skills/` for auto-discovery
 - [`done/01-type-only-coverage-note.md`](done/01-type-only-coverage-note.md)
 - [`done/02-installer-self-test.md`](done/02-installer-self-test.md)
 - [`done/11-strengthen-skills-content.md`](done/11-strengthen-skills-content.md)
