@@ -14,6 +14,16 @@ constructor), and the assembly of the object chain is concentrated in a single
 composition point at the application's entry point. This way the rule neither
 imports nor instantiates concrete infrastructure.
 
+The protocol is **owned by the consumer**, not by the implementer: it is phrased
+in the rule's vocabulary ("encrypt", "find by id"), so when the concrete detail
+is replaced the protocol does not move. Injection is via the **constructor**, not
+a service locator or global registry: the constructor is the honest declaration
+of what the unit needs — readable from the signature, enforced at construction,
+and impossible to satisfy with a hidden global. An adapter for a third-party
+library is an **anti-corruption layer**: it translates the library's vocabulary
+*and* its failures into the protocol's contract, so the library's types,
+exceptions, and quirks never leak inward.
+
 > **Illustrative** naming (adapt to your stack): layers
 > `data`/`presentation`/`infra`/`main`, `makeX()` factories in the composition.
 > In another stack, translate to the equivalent (e.g., a bootstrap module or DI
@@ -51,7 +61,9 @@ imports nor instantiates concrete infrastructure.
    the substitutable dependency inside it.
 4. Implement the concrete in the outer layer. If it is a third-party library,
    create an Adapter that implements the internal protocol and isolates the
-   library import.
+   library import. The adapter also maps the library's exceptions/return shapes
+   onto the protocol's contract — inward code never sees a library-specific
+   error type.
 5. Concentrate the chain's instantiation in a single composition point; the
    entry point consumes only that composer.
 6. *(when applicable)* For a new transport, write a transport→component adapter
@@ -70,8 +82,16 @@ imports nor instantiates concrete infrastructure.
       at the composition point.
 - [ ] No third-party library import appears inside the business rule (it stays
       restricted to adapters/infra).
+- [ ] The component declares its dependencies in the constructor signature; it
+      never reaches for them through a service locator, global, or singleton
+      registry.
+- [ ] The protocol is named in the consumer's vocabulary (the capability, not
+      the library), so swapping the concrete leaves the protocol unchanged.
 - [ ] *(when there is an external-library adapter)* The adapter has its own
       test that isolates/mocks only the library.
+- [ ] *(when there is an external-library adapter)* A test proves the adapter
+      maps a library failure onto the protocol's contract, so no
+      library-specific error type escapes inward.
 - [ ] *(when there are multiple transports)* The rule is exercised once; the
       transport adapter is tested in isolation.
 
@@ -79,8 +99,15 @@ imports nor instantiates concrete infrastructure.
 
 - Instantiating a concrete substitutable dependency inside the business
   component.
+- Reaching for a dependency through a service locator, global, or container
+  pulled in at call time: it hides what the unit needs and defeats the
+  constructor as the contract.
 - Importing the third-party library directly into the business rule instead of
   behind an adapter.
+- An adapter that re-exports the library's own error/return type instead of
+  translating it: the leak crosses the boundary even though the import does not.
+- A protocol named after the library or its method ("BcryptHasher.hashSync")
+  instead of the capability: the abstraction is the concrete in disguise.
 - Fat interface: a protocol with many unrelated methods. The opposite signal
   (fragmentation): a swarm of single-method protocols, all used together by the
   same collaborator — in that case, group them.
