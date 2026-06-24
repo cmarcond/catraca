@@ -81,6 +81,16 @@ Initial setup (one chore per tool, separate commits — see feature 000):
 5. Test runner with separate scripts per scope (unit, integration, ci) and
    coverage measured.
 
+**Bootstrapping (avoid the chicken-and-egg).** The setup commits land *before*
+any test exists, yet the `pre-commit` hook runs the test suite — and most
+runners exit non-zero when they find zero tests. Do **not** reach for
+`--no-verify` (it bypasses type-check and lint too). Instead, configure the test
+script to **pass when there are no tests yet** (e.g. Vitest `--passWithNoTests`,
+pytest's "no tests" tolerated via config, Go's `./...` which is already empty-safe).
+Then the setup commits pass the real hook — type-check and lint still gate them —
+and tests begin gating the moment the first test appears. No commit ever bypasses
+the pipeline.
+
 ### Closure
 
 Feature/refactor closure:

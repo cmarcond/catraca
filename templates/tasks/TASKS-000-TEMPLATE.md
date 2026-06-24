@@ -76,6 +76,9 @@ installed as a service on the machine.)
 ### T0.5 — Test runner with scopes + coverage gate
 
 - [ ] runner configured with scripts per scope (unit, integration, ci)
+- [ ] the test script **passes with no tests yet** (e.g. Vitest
+      `--passWithNoTests`), so these setup commits clear the `pre-commit` hook
+      without `--no-verify` — type-check and lint still gate them
 - [ ] coverage measured with the profile's target (`method.md`); a drop rejects
 - [ ] **gate proof**: a provoked failing test ⇒ suite rejected
 - [ ] commit `chore: ...`
