@@ -1,104 +1,104 @@
 ---
 name: test-setup-factories
-title: "Factories de setup: SUT, dados e dublês compartilhados"
-description: Centraliza o arranjo dos testes em factories — uma que constrói o SUT retornando-o junto com seus dublês, e factories de dados reutilizáveis — para que mudanças no construtor ou nos models toquem um lugar só.
+title: "Test Setup Factories"
+description: "Centralizes test arrangement in SUT and data factories. Use when test setup repeats across cases of the same unit."
 category: testing
 dependencies: []
 ---
 
 # Test Setup Factories
 
-**Princípio invariante:** centralize o arranjo (arrange) dos testes em
-factories, para que uma mudança no construtor do componente ou na forma de um
-model toque **um** ponto, não cada spec.
+**Invariant principle:** centralize the test arrangement (arrange) in
+factories, so that a change in the component's constructor or in the shape of a
+model touches **one** point, not every spec.
 
-Há duas factories complementares:
+There are two complementary factories:
 
-1. Uma **factory do componente sob teste** que monta os dublês, instancia o
-   componente e devolve o componente **junto com** os dublês que algum teste
-   precise configurar ou inspecionar.
-2. **Factories de dados** que produzem objetos/entradas de teste
-   reutilizáveis, em vez de literais duplicados.
+1. A **factory for the component under test** that assembles the test doubles, instantiates the
+   component, and returns the component **together with** the test doubles that some test
+   needs to configure or inspect.
+2. **Data factories** that produce reusable test objects/inputs,
+   instead of duplicated literals.
 
-> Em stacks sem injeção por construtor ou sem tipos, mantenha o princípio (um
-> helper que devolve o sujeito + seus colaboradores) e adapte a forma.
+> In stacks without constructor injection or without types, keep the principle (a
+> helper that returns the subject + its collaborators) and adapt the shape.
 
 ## When To Use
 
-- O componente tem **duas ou mais** dependências injetadas (ou você já prevê
-  que terá).
-- O mesmo dado de teste ou dublê se repete em **dois ou mais** specs.
-- A mesma dependência é dublada em camadas/módulos distintos.
+- The component has **two or more** injected dependencies (or you already foresee
+  that it will).
+- The same test data or test double repeats across **two or more** specs.
+- The same dependency is doubled in distinct layers/modules.
 
 ## When Not To Use
 
-- Função pura/isolada sem dependências e sem setup repetido.
-- Um único spec consome o dado e nenhum outro precisa dele.
-- Quando a factory esconderia o detalhe exato que o teste precisa afirmar
-  (caso de borda específico) — aí prefira override explícito ou literal local.
+- A pure/isolated function without dependencies and without repeated setup.
+- A single spec consumes the data and no other needs it.
+- When the factory would hide the exact detail the test needs to assert
+  (a specific boundary case) — there, prefer an explicit override or a local literal.
 
 ## Order Of Operations
 
-1. **Crie uma factory de construção do SUT** que instancia os dublês, monta o
-   componente e retorna o componente **com** seus dublês. Cada teste extrai só
-   o que usa.
-2. **Mantenha paridade com o construtor real**: a ordem e o conjunto de dublês
-   devem refletir as dependências reais. Ao adicionar uma dependência,
-   atualize **só** a factory.
-3. **Extraia dados repetidos** para factories de dados nomeadas e importáveis.
-   Substitua literais duplicados pelas chamadas.
-4. **Exponha variação por override**, não por duplicação: a factory de dados
-   deve aceitar parâmetros/overrides (ex.: um objeto parcial mesclado sobre o
-   padrão) para que um teste de borda altere só o campo relevante sem recriar
-   o objeto inteiro.
-5. **Promova dublês recorrentes a um módulo compartilhado** apenas quando
-   realmente reusados por mais de um consumidor. Substitua as cópias locais
-   por imports — e **varra todos os specs** que importavam a versão local para
-   não deixar migração pela metade.
-6. **Faça as factories evoluírem com os models**: quando o domínio muda,
-   ajuste a factory, não cada assert.
+1. **Create a SUT-construction factory** that instantiates the test doubles, assembles the
+   component, and returns the component **with** its test doubles. Each test extracts only
+   what it uses.
+2. **Keep parity with the real constructor**: the order and set of test doubles
+   must reflect the real dependencies. When adding a dependency,
+   update **only** the factory.
+3. **Extract repeated data** into named, importable data factories.
+   Replace the duplicated literals with the calls.
+4. **Expose variation via override**, not via duplication: the data factory
+   must accept parameters/overrides (e.g., a partial object merged over the
+   default) so that a boundary test changes only the relevant field without recreating
+   the whole object.
+5. **Promote recurring test doubles to a shared module** only when they are
+   really reused by more than one consumer. Replace the local copies
+   with imports — and **sweep all the specs** that imported the local
+   version so as not to leave a migration half-done.
+6. **Make the factories evolve with the models**: when the domain changes,
+   adjust the factory, not every assert.
 
 ## Test Checklist
 
-O checklist verifica o **princípio**, não nomes específicos. Não reprove uma
-suíte por usar outra nomenclatura.
+The checklist verifies the **principle**, not specific names. Do not fail a
+suite for using a different nomenclature.
 
-- [ ] Todo teste com dependências obtém o componente via a factory de
-      construção.
-- [ ] A factory devolve o componente e cada dublê que algum teste precise
-      configurar/inspecionar.
-- [ ] Nenhum literal de dado duplicado entre specs — virou factory de dados.
-- [ ] Adicionar uma dependência ao construtor exigiu mudança só na factory de
-      construção.
-- [ ] Casos de borda usam override/parâmetro da factory, sem reconstruir o
-      objeto inteiro.
-- [ ] Dublê compartilhado só foi promovido a módulo comum quando há reuso
-      real, sem cópias locais remanescentes.
-- [ ] Cada teste ainda deixa visível o arranjo específico de que depende.
+- [ ] Every test with dependencies obtains the component via the construction
+      factory.
+- [ ] The factory returns the component and each test double that some test needs to
+      configure/inspect.
+- [ ] No duplicated data literal between specs — it became a data factory.
+- [ ] Adding a dependency to the constructor required a change only in the construction
+      factory.
+- [ ] Boundary cases use a factory override/parameter, without rebuilding the
+      whole object.
+- [ ] A shared test double was only promoted to a common module when there is real
+      reuse, with no remaining local copies.
+- [ ] Each test still keeps visible the specific arrangement it depends on.
 
 ## Anti-Patterns
 
-- **Setup genérico demais**: factory tão rica que esconde o arranjo específico
-  de um teste — o leitor não vê por que ele passa.
-- **Mock central inchado**: dado falso com muitos campos acopla testes a
-  atributos que nem usam.
-- **Borda mascarada**: factory que devolve sempre o caso feliz; quando o borda
-  importa, varie-o **explicitamente** via override no teste.
-- **Factory desalinhada do construtor**: não reflete as dependências reais,
-  dando falsa confiança.
-- **Promoção prematura a módulo compartilhado**: extrair um dublê para um
-  arquivo comum entre camadas cria acoplamento entre elas; só compartilhe sob
-  reuso real.
-- **Migração parcial**: extrair para módulo compartilhado sem remover as
-  cópias locais.
+- **Too-generic setup**: a factory so rich that it hides a test's specific
+  arrangement — the reader does not see why it passes.
+- **Bloated central mock**: fake data with many fields couples tests to
+  attributes they do not even use.
+- **Masked boundary**: a factory that always returns the happy case; when the boundary
+  matters, vary it **explicitly** via an override in the test.
+- **Factory misaligned with the constructor**: it does not reflect the real
+  dependencies, giving false confidence.
+- **Premature promotion to a shared module**: extracting a test double to a file
+  common across layers creates coupling between them; only share under
+  real reuse.
+- **Partial migration**: extracting to a shared module without removing the local
+  copies.
 
-## Convenções sugeridas (opcionais)
+## Suggested Conventions (Optional)
 
-Úteis para legibilidade, não obrigatórias:
+Useful for readability, not mandatory:
 
-- O componente sob teste se chama `sut`; a factory, `makeSut()`, devolve
-  `{ sut, ...dublês }`.
-- Prefixos consistentes: `mock*`/`fake*` para dados e dublês; `make*` para
-  construção. O valor está na **consistência**, não na escolha do prefixo.
-- Dublês compartilhados vivem na árvore de testes, espelhando a estrutura de
-  produção (ver `project-structure`).
+- The component under test is called `sut`; the factory, `makeSut()`, returns
+  `{ sut, ...test doubles }`.
+- Consistent prefixes: `mock*`/`fake*` for data and test doubles; `make*` for
+  construction. The value is in **consistency**, not in the choice of prefix.
+- Shared test doubles live in the test tree, mirroring the production structure
+  (see `project-structure`).

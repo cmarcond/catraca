@@ -1,70 +1,86 @@
-# /catraca.init — Elicitar ou Assumir; Gerar Product, Architecture e Method
+# /catraca.init — Elicit or Assume; Generate Product, Architecture, and Method
 
-Roteiro do agente para a fase de inicialização. Pré-condição: `.catraca/`
-instalado. Saídas: `questions.md`, `product.md`, `architecture.md`, `method.md`
-preenchidos.
+The agent's playbook for the initialization phase. Precondition: `.catraca/`
+installed. Outputs: `questions.md`, `product.md`, `architecture.md`, `method.md`
+filled in.
 
-## Passo 0 — Detectar o modo
+## Gates A–E and what each writes
 
-- Se o usuário pediu "modo automático" (ou equivalente) no prompt: **modo
-  automático**. Caso contrário: **modo guiado**.
-- Releia `.catraca/CLAUDE.md`, `manifesto.md` (princípios constitucionais —
-  já valem; não pergunte ao usuário se ele "quer TDD") e `method.md`.
+The phases are named **Gate A–E**; their individual sub-questions are numbered
+**G1–G12**. This is the canonical mapping (referenced by `/catraca.status` when
+reconciling reviews):
 
-## Passo 1 — Gates A–D
+| Gate | Sub-questions | Writes |
+|---|---|---|
+| A — Product | G1 | `product.md` |
+| B — Platform & architecture | G2, G2b, G3, G4 | `architecture.md` |
+| C — Method rigor | G5–G8 | `method.md` |
+| D — Evaluation | G9, G10 | `method.md` (eval mode), `ratchet.json` (`mode`) |
+| E — Per feature | G11 (roadmap), G12 (specs) | `roadmap.md`, `specs/` (in `/catraca.plan`) |
 
-**Modo guiado.** Percorra os gates de `questions.md` na ordem A → B → C → D,
-**um gate por vez** (nunca todas as perguntas de uma vez). Para cada gate:
+## Step 0 — Detect the mode
 
-1. Apresente as perguntas do gate com sugestões derivadas do prompt inicial
-   (o que o usuário já fixou no prompt vira proposta a confirmar, não
-   pergunta aberta), justificadas pelo que o projeto precisa.
-2. Grave cada resposta na tabela de `questions.md`.
-3. Só avance ao gate seguinte com o atual completo.
+- If the user asked for "auto mode" (or equivalent) in the prompt: **auto
+  mode**. Otherwise: **guided mode**.
+- Re-read `.catraca/CLAUDE.md`, `manifesto.md` (constitutional principles —
+  they already hold; do not ask the user whether they "want TDD") and
+  `method.md`.
 
-**Modo automático.** Preencha todas as respostas com os defaults do perfil
-canônico (rodapé de `questions.md`), marcando cada uma com
-`[assumed AAAA-MM-DD]`. O que o prompt inicial fixar explicitamente (ex.:
-stack) não é suposição — registre como vindo do prompt.
+## Step 1 — Gates A–D
 
-## Passo 2 — Product spec
+**Guided mode.** Walk the gates in `questions.md` in order A → B → C → D, **one
+gate at a time** (never all questions at once). For each gate:
 
-Preencha `product.md` a partir do prompt + G1. Regras:
+1. Present the gate's questions with suggestions derived from the initial prompt
+   (whatever the user already set in the prompt becomes a proposal to confirm,
+   not an open question), justified by what the project needs.
+2. Record each answer in the table in `questions.md`.
+3. Only advance to the next gate once the current one is complete.
 
-- linguagem de produto, zero decisões técnicas; sucesso é o que o usuário
-  passa a conseguir fazer;
-- features candidatas numeradas, nomeadas como capacidade ("login"), não como
+**Auto mode.** Fill all answers with the canonical-profile defaults (footer of
+`questions.md`), marking each one `[assumed YYYY-MM-DD]`. Whatever the initial
+prompt set explicitly (e.g. the stack) is not an assumption — record it as
+coming from the prompt.
+
+## Step 2 — Product spec
+
+Fill `product.md` from the prompt + G1. Rules:
+
+- product language, zero technical decisions; success is what the user becomes
+  able to do;
+- numbered candidate features, named as a capability ("login"), not as an
   endpoint;
-- "fora de escopo" nunca vazio — explicite ao menos o óbvio que não entra.
+- "out of scope" is never empty — state at least the obvious things left out.
 
-**Pausa (guiado):** mostre o `product.md` e peça confirmação antes de seguir.
+**Pause (guided):** show `product.md` and ask for confirmation before
+continuing.
 
-## Passo 3 — Architecture spec
+## Step 3 — Architecture spec
 
-Preencha `architecture.md` a partir do Gate B (G2, G2b, G3, G4):
+Fill `architecture.md` from Gate B (G2, G2b, G3, G4):
 
-- perfil de camadas (estrita = tabela completa do template; leve = 3 camadas,
-  documente a fusão);
-- tabela de fronteiras/adapters: uma linha por dependência externa de G4 —
-  protocolo (e em que camada vive) + adapter;
-- convenções de teste por camada.
+- layer profile (strict = the full table from the template; light = 3 layers,
+  document the merge);
+- boundaries/adapters table: one row per external dependency from G4 — the
+  protocol (and which layer it lives in) + the adapter;
+- per-layer test conventions.
 
-**Pausa (guiado):** confirmar antes de seguir.
+**Pause (guided):** confirm before continuing.
 
-## Passo 4 — Method
+## Step 4 — Method
 
-Preencha `method.md` a partir de G5–G10:
+Fill `method.md` from G5–G10:
 
-- tabela de perfil de rigor com a coluna "Origem" (resposta do usuário /
-  `[assumed]` / prompt);
-- tabela de skills: toda exclusão ou rebaixamento para "opcional" exige
-  justificativa;
-- os gates operacionalizados não são editáveis — apenas o alvo de cobertura e
-  a exigência de commits variam com o perfil.
+- the rigor-profile table with an "Origin" column (user answer / `[assumed]` /
+  prompt);
+- the skills table: every exclusion or downgrade to "optional" requires a
+  justification;
+- the operationalized gates are not editable — only the coverage target and the
+  commit requirement vary with the profile.
 
-## Passo 5 — Encerramento
+## Step 5 — Closure
 
-- Confirme que os 4 arquivos estão consistentes entre si (stack citada no
-  method? camadas do architecture batem com G3?).
-- Anuncie a próxima fase: `/catraca.plan`.
-- Em modo automático: siga direto para o plan sem parar.
+- Confirm the 4 files are consistent with each other (is the stack cited in the
+  method? do the architecture's layers match G3?).
+- Announce the next phase: `/catraca.plan`.
+- In auto mode: proceed straight to plan without stopping.

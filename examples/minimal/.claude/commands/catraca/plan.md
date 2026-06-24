@@ -1,61 +1,61 @@
-# /catraca.plan — Roadmap e Specs por Feature
+# /catraca.plan — Roadmap and Per-Feature Specs
 
-Pré-condições: `product.md`, `architecture.md`, `method.md` preenchidos (senão,
-rode `/catraca.init`). Saídas: `roadmap.md` + uma spec `specs/NNN-slug.md`
-por feature.
+Preconditions: `product.md`, `architecture.md`, `method.md` filled in
+(otherwise, run `/catraca.init`). Outputs: `roadmap.md` + one spec
+`specs/NNN-slug.md` per feature.
 
-## Passo 1 — Roadmap
+## Step 1 — Roadmap
 
-1. **Toda roadmap começa pela feature 000 — esteira de qualidade.** Ela não
-   vem de `product.md`; vem do método (skill `workflows/quality-pipeline`):
-   gates mecânicos de type-check, lint, commit-msg, pre-commit staged-only e
-   cobertura, instalados e provados antes de qualquer feature de produto. Ela
-   não tem spec WHEN/THEN; suas tasks vêm de `tasks/TASKS-000-TEMPLATE.md`,
-   adaptadas à stack de `architecture.md`.
-2. Parta das features candidatas de `product.md`. Se houver feature de
-   **deploy**, é nela que nascem Dockerfile/compose/imagem (com tasks e
-   rubrica próprias) — a containerização do ambiente de dev só entra na
-   esteira se G2b = containerizado.
-3. Ordene por dependência de domínio (o que precisa existir antes — ex.:
-   responder enquete pressupõe enquete criada, que pressupõe usuário logado).
-4. Numere `001, 002, …` e preencha a tabela de `roadmap.md` com a coluna
-   "Depende de" e as notas de ordenação (001 depende de 000).
+1. **Every roadmap starts with feature 000 — the quality pipeline.** It does
+   not come from `product.md`; it comes from the method (skill
+   `workflows/quality-pipeline`): mechanical gates for type-check, lint,
+   commit-msg, pre-commit staged-only, and coverage, installed and proven
+   before any product feature. It has no WHEN/THEN spec; its tasks come from
+   `tasks/TASKS-000-TEMPLATE.md`, adapted to the stack in `architecture.md`.
+2. Start from the candidate features in `product.md`. If there is a **deploy**
+   feature, that is where the Dockerfile/compose/image are born (with their own
+   tasks and rubric) — containerizing the *dev* environment only enters the
+   pipeline if G2b = containerized.
+3. Order by domain dependency (what must exist first — e.g. answering a poll
+   presupposes a created poll, which presupposes a logged-in user).
+4. Number them `001, 002, …` and fill the table in `roadmap.md` with a "Depends
+   on" column and the ordering notes (001 depends on 000).
 
-**Gate E/G11 (guiado):** apresente o roadmap e peça confirmação da lista e da
-ordem. Registre em `questions.md`. **Automático:** registre o roadmap como
-`[assumed]` e siga.
+**Gate E/G11 (guided):** present the roadmap and ask for confirmation of the
+list and the order. Record it in `questions.md`. **Auto:** record the roadmap as
+`[assumed]` and continue.
 
-## Passo 2 — Uma spec por feature
+## Step 2 — One spec per feature
 
-Para cada feature de produto do roadmap (001+; a 000 não tem spec), crie
-`specs/NNN-slug.md` a partir de `specs/FEATURE-TEMPLATE.md`:
+For each product feature in the roadmap (001+; feature 000 has no spec), create
+`specs/NNN-slug.md` from `specs/FEATURE-TEMPLATE.md`:
 
-1. **Intenção** em voz de desenvolvedor, 2–5 frases.
-2. **Acceptance criteria** WHEN/THEN — comportamento observável, incluindo
-   casos de erro (entrada inválida, duplicidade, não autorizado…).
-3. **Fora de escopo** explícito.
-4. **Skills aplicáveis**: consulte `skills/index.yaml`; selecione por gatilho
-   (seção "When To Use" de cada SKILL.md). Toda feature normalmente leva as de
-   testing + as da(s) camada(s) tocada(s). Exclusão de skill obrigatória do
-   `method.md` exige justificativa na spec.
-5. **Dependências**: números das features anteriores necessárias.
-6. **Rode o checklist de leakage** do template — se a spec menciona classe,
-   path ou lib, reescreva antes de fechar.
-7. **Revisão adversarial (antes do G12).** Delegue a revisão da spec a um
-   **subagente de contexto limpo** (no Claude Code, a ferramenta Task),
-   entregando apenas: `product.md`, `architecture.md`, a spec e o checklist
-   adversarial de `specs/README.md`. A instrução dele é **refutar**, não
-   melhorar — ele não herda esta conversa e não sabe a intenção do autor, só
-   o que está escrito. Resolva cada achado (acate, ou refute com justificativa
-   registrada na spec) antes de apresentar o G12. *Sem suporte a subagentes:
-   faça você mesmo a revisão numa passada separada, aplicando o checklist
-   item a item.*
+1. **Intent** in a developer's voice, 2–5 sentences.
+2. **Acceptance criteria** in WHEN/THEN — observable behavior, including error
+   cases (invalid input, duplicates, unauthorized…).
+3. **Out of scope**, explicit.
+4. **Applicable skills**: consult `skills/index.yaml`; select by trigger (the
+   "When To Use" section of each SKILL.md). A feature normally pulls in the
+   testing skills + the ones for the layer(s) it touches. Excluding a skill that
+   `method.md` marks as mandatory requires a justification in the spec.
+5. **Dependencies**: the numbers of the prior features required.
+6. **Run the leakage checklist** from the template — if the spec mentions a
+   class, path, or library, rewrite it before closing.
+7. **Adversarial review (before G12).** Delegate the spec's review to a
+   **clean-context subagent** (in Claude Code, the Task tool), handing it only:
+   `product.md`, `architecture.md`, the spec, and the adversarial checklist from
+   `specs/README.md`. Its instruction is to **refute**, not to improve — it does
+   not inherit this conversation and does not know the author's intent, only
+   what is written. Resolve each finding (accept it, or refute it with a
+   justification recorded in the spec) before presenting G12. *Claude-Code
+   specific; without subagent support: do the review yourself in a separate
+   pass, applying the checklist item by item.*
 
-**Gate E/G12 (guiado):** para cada spec, após a revisão adversarial, apresente
-os acceptance criteria (e os achados relevantes da revisão) e peça
-confirmação. **Automático:** marque `[assumed]` em `questions.md`.
+**Gate E/G12 (guided):** for each spec, after the adversarial review, present
+the acceptance criteria (and the relevant review findings) and ask for
+confirmation. **Auto:** mark `[assumed]` in `questions.md`.
 
-## Passo 3 — Encerramento
+## Step 3 — Closure
 
-- Atualize os checkboxes "spec" no `roadmap.md`.
-- Anuncie: próxima fase `/catraca.implement`, começando pela feature 001.
+- Update the "spec" checkboxes in `roadmap.md`.
+- Announce: next phase `/catraca.implement`, starting with feature 001.

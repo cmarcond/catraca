@@ -1,42 +1,42 @@
-# NNN — Nome da Feature
+# NNN — Feature Name
 
-> Spec de intenção. Sem classes, paths, libs ou assinaturas (ver `README.md`).
+> Intent spec. No classes, paths, libraries, or signatures (see `README.md`).
 
-## Intenção
+## Intent
 
-<!-- Voz de desenvolvedor/produto, 2-5 frases: o que esta feature permite e por
-     quê. Ex.: "Preciso que visitantes criem uma conta com nome, email e senha,
-     e que contas duplicadas sejam rejeitadas." -->
+<!-- Developer/product voice, 2-5 sentences: what this feature enables and why.
+     E.g.: "I need visitors to create an account with a name, email, and
+     password, and duplicate accounts to be rejected." -->
 
 ## Acceptance criteria
 
-<!-- Comportamento observável, um criterio por linha, formato WHEN/THEN. -->
+<!-- Observable behavior, one criterion per line, WHEN/THEN format. -->
 
 - **WHEN** … **THEN** …
 - **WHEN** … **THEN** …
 
-## Fora de escopo
+## Out of scope
 
-<!-- O que esta feature NÃO cobre (vai para outra feature ou nunca). -->
+<!-- What this feature does NOT cover (goes to another feature or never). -->
 
 -
 
-## Skills aplicáveis
+## Applicable skills
 
-<!-- Ids de .catraca/skills/index.yaml. Só referência — sem copiar conteúdo.
-     Justifique inclusões não óbvias e exclusões de skills obrigatórias. -->
+<!-- Ids from .catraca/skills/index.yaml. Reference only — don't copy content.
+     Justify non-obvious inclusions and exclusions of mandatory skills. -->
 
 - `testing/tdd-minimal-step`
 - …
 
-## Dependências
+## Dependencies
 
-<!-- Features que precisam existir antes (números do roadmap). -->
+<!-- Features that must exist first (roadmap numbers). -->
 
 -
 
-## Checklist de leakage
+## Leakage checklist
 
-- [ ] Sem classes/arquivos/libs/assinaturas no texto acima.
-- [ ] Todos os criterios são testáveis como comportamento.
-- [ ] Skills referenciadas existem no índice.
+- [ ] No classes/files/libraries/signatures in the text above.
+- [ ] All criteria are testable as behavior.
+- [ ] Referenced skills exist in the index.

@@ -1,87 +1,93 @@
-# /catraca.implement — Ciclo TDD Guiado por Skills
+# /catraca.implement — Skill-Guided TDD Cycle
 
-Implementa **uma feature por vez**, na ordem do roadmap. Pré-condições: spec da
-feature existe e confirmada (exceto a 000, que não tem spec). Saídas:
-`tasks/NNN-slug.md` + código + testes + commits.
+Implements **one feature at a time**, in roadmap order. Preconditions: the
+feature's spec exists and is confirmed (except feature 000, which has no spec).
+Outputs: `tasks/NNN-slug.md` + code + tests + commits.
 
-## Passo 0 — Feature 000: esteira de qualidade (primeira execução)
+> **Task numbering.** Feature 000 uses `T0.x` chore tasks (no red/green/refactor
+> — see Step 0). Product features use `T1, T2, … T-final` red/green/refactor
+> tasks. Details in `tasks/README.md`.
 
-Se a feature 000 do roadmap ainda não está implementada, ela vem **antes de
-qualquer feature de produto** — o ambiente com gates ativos precede a primeira
+## Step 0 — Feature 000: the quality pipeline (first run)
+
+If the roadmap's feature 000 is not yet implemented, it comes **before any
+product feature** — the environment with active gates precedes the first
 feature:
 
-1. Crie `tasks/000-esteira-de-qualidade.md` a partir de
-   `tasks/TASKS-000-TEMPLATE.md`. Comece pela T0.0: as **necessidades** são
-   fixas (skill `quality-pipeline`); proponha as **ferramentas** adequadas à
-   plataforma de `architecture.md` e confirme com o usuário (modo guiado) ou
-   registre `[assumed]` (automático).
-2. Execute as tasks na ordem: **um chore commit por ferramenta** (skill
-   `quality-pipeline`, Order of Operations). Aqui não há ciclo
-   red/green/refactor — o equivalente do "red" é **provocar uma violação e
-   ver o gate reprovar** (mensagem de commit inválida rejeitada, lint quebrado
-   bloqueando o pre-commit, teste vermelho reprovando a suite). Gate sem prova
-   de reprovação não conta como instalado.
-3. Capture as saídas das provas — são as evidências da rubrica da 000.
-4. Avalie a 000 (`/catraca.evaluate`) antes de abrir a feature 001. A partir
-   daqui, toda modificação de código passa pelos gates automaticamente.
+1. Create `tasks/000-quality-pipeline.md` from `tasks/TASKS-000-TEMPLATE.md`.
+   Start with T0.0: the **requirements** are fixed (skill `quality-pipeline`);
+   propose the **tools** appropriate to the platform in `architecture.md` and
+   confirm with the user (guided mode) or record `[assumed]` (auto).
+2. Execute the tasks in order: **one chore commit per tool** (skill
+   `quality-pipeline`, Order of Operations). There is no red/green/refactor
+   cycle here — the equivalent of "red" is to **deliberately trigger a violation
+   and watch the gate reject it** (an invalid commit message rejected, broken
+   lint blocking the pre-commit, a red test failing the suite). A gate without a
+   rejection proof does not count as installed.
+3. Capture the output of the proofs — these are the evidence for feature 000's
+   rubric.
+4. Evaluate feature 000 (`/catraca.evaluate`) before opening feature 001. From
+   here on, every code change passes through the gates automatically.
 
-## Passo 1 — Carregar contexto
+## Step 1 — Load context
 
-1. Releia: `method.md` (perfil + gates), `architecture.md` (camadas,
-   fronteiras), a spec da feature e **cada SKILL.md** referenciado nela.
-   Leia também as **notas pedagógicas e violações das rubricas anteriores**
-   (`evaluation/*.md`): lição registrada lá não pode se repetir aqui — se a
-   mesma violação reaparecer, a rubrica desta feature a tratará como
-   reincidência, com desconto maior.
-2. Derive os critérios técnicos dos **Test Checklists** das skills — eles são
-   o seu "definition of done" técnico, somado aos acceptance criteria da spec.
+1. Re-read: `method.md` (profile + gates), `architecture.md` (layers,
+   boundaries), the feature's spec, and **each SKILL.md** it references. Also
+   read the **pedagogical notes and violations from prior rubrics**
+   (`evaluation/*.md`): a lesson recorded there must not recur here — if the
+   same violation reappears, this feature's rubric will treat it as a
+   **recurrence**, with a larger penalty.
+2. Derive the technical criteria from the skills' **Test Checklists** — they are
+   your technical "definition of done", on top of the spec's acceptance
+   criteria.
 
-## Passo 2 — Gerar tasks
+## Step 2 — Generate tasks
 
-Crie `tasks/NNN-slug.md` a partir de `tasks/TASKS-TEMPLATE.md`:
+Create `tasks/NNN-slug.md` from `tasks/TASKS-TEMPLATE.md`:
 
-- uma task por comportamento (menor regra observável), mapeada ao WHEN/THEN
-  que cobre;
-- ordem por camada: domain/data → presentation/validation → infra → main;
-- cada task já nasce com os sub-itens red/green/refactor;
-- última task: avaliação da feature.
+- one task per behavior (the smallest observable rule), mapped to the WHEN/THEN
+  it covers;
+- order by layer: domain/data → presentation/validation → infra → main;
+- each task is born with its red/green/refactor sub-items;
+- last task: the feature's evaluation.
 
-## Passo 3 — Executar cada task (o ciclo)
+## Step 3 — Execute each task (the cycle)
 
-Para cada task, nesta ordem, sem pular:
+For each task, in this order, without skipping:
 
-1. **RED** — escreva o teste do comportamento. Rode a suite. **Confirme que
-   falha pela asserção do comportamento** (não por import/setup). Registre no
-   sub-item red qual asserção falhou. *Hard gate: se você escreveu código de
-   produção antes deste passo, apague-o e recomece pelo teste.*
-2. **GREEN** — implemente o mínimo que faz passar. Valor fixo é ponte: só é
-   aceitável se a própria task (ou a próxima) tem o teste que o generaliza.
-   Rode a suite até verde.
-3. **REFACTOR** — melhore produção e teste sob verde. Não introduza
-   comportamento novo aqui. Se nada a refatorar, marque "n/a".
-4. **Gates** — verifique os gates de `method.md` (camadas, adapter, cobertura).
-5. **Commit** — se commits exigidos: um commit, `type(scope): descrição
-   imperativa`, só com os arquivos desta task. Registre o hash na task.
-6. Marque os checkboxes e siga para a próxima task.
+1. **RED** — write the behavior's test. Run the suite. **Confirm it fails on the
+   behavior's assertion** (not on an import/setup). Record in the red sub-item
+   which assertion failed. *Hard gate: if you wrote production code before this
+   step, delete it and start over from the test.*
+2. **GREEN** — implement the minimum that makes it pass. A hardcoded value is a
+   bridge: only acceptable if the task itself (or the next one) has the test
+   that generalizes it. Run the suite until green.
+3. **REFACTOR** — improve production and test under green. Do not introduce new
+   behavior here. If there is nothing to refactor, mark "n/a".
+4. **Gates** — verify the gates in `method.md` (layers, adapter, coverage).
+5. **Commit** — if commits are required: one commit, `type(scope): imperative
+   description`, with only this task's files. Record the hash in the task.
+6. Check the boxes and move to the next task.
 
-Padrões por camada (consulte as skills, não invente):
+Per-layer patterns (consult the skills, do not invent):
 
-- unitários com `makeSut()` e doubles (`test-setup-factories`, `test-doubles`);
-- controllers com mapeamento de erro na borda (`controller-error-boundary`);
-- validação composta montada por factory (`input-validation`);
-- repositórios contra banco em memória (`integration-tests`);
-- tipos `Params`/`Result` por use case (`layered-typing`).
+- unit tests with `makeSut()` and doubles (`test-setup-factories`,
+  `test-doubles`);
+- controllers with error mapping at the boundary (`controller-error-boundary`);
+- composite validation assembled by a factory (`input-validation`);
+- repositories against an in-memory database (`integration-tests`);
+- `Params`/`Result` types per use case (`layered-typing`).
 
 ## HALT
 
-Pare e pergunte ao usuário se: ambiguidade irresolúvel pela spec/skills; mesmo
-teste falhou 3+ vezes sem causa nova; precisa de dependência fora de
-`architecture.md`. Fora isso, **não pare no meio da feature** — nem em modo
-guiado o meio da feature é ponto de pausa.
+Stop and ask the user if: an ambiguity is unresolvable by the spec/skills; the
+same test failed 3+ times with no new cause; you need a dependency outside
+`architecture.md`. Otherwise, **do not stop in the middle of the feature** — not
+even in guided mode is the middle of a feature a pause point.
 
-## Encerramento da feature
+## Closing the feature
 
-- Todos os checkboxes da feature marcados, suite verde, cobertura no alvo.
-- Atualize `roadmap.md` (checkbox "implementada").
-- Siga para `/catraca.evaluate` da feature — a feature não está "pronta" sem
-  avaliação.
+- All of the feature's checkboxes checked, suite green, coverage at target.
+- Update `roadmap.md` (the "implemented" checkbox).
+- Proceed to `/catraca.evaluate` for the feature — the feature is not "done"
+  without an evaluation.

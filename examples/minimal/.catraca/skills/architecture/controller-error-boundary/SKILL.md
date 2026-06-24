@@ -1,104 +1,108 @@
 ---
 name: controller-error-boundary
-description: Concentrar tratamento de exceção na borda de entrada — domínio e repositórios propagam, a borda traduz a exceção inesperada em erro genérico (500), e ausência com semântica de negócio vira fallback/vazio na camada de dados.
+title: Controller Error Boundary
+description: Lets an unexpected exception propagate to the boundary and become a generic error, while a business absence becomes a result in the data layer. Use when building a controller or a use case that can fail.
 category: architecture
 dependencies:
   - architecture/dependency-inversion-adapters
   - testing/test-doubles
 ---
 
-# Boundary de erros: propagar no domínio, traduzir na borda
+# Error Boundary: Propagate in the Domain, Translate at the Boundary
 
-Há um único papel onde uma exceção inesperada vira resposta ao cliente: a
-**borda de entrada** — o lugar que traduz exceção em resposta. No estilo
-controller-explícito isso é um try/catch externo no controller; em frameworks
-com middleware de erro, exception filter ou handler central, esse mesmo papel
-é cumprido pela borda do framework. O princípio não exige um local físico,
-exige que exista **uma** borda responsável e que nada abaixo dela suprima o
-erro. Tudo abaixo propaga; a camada de dados converte em resultado apenas
-quando a falha tem significado de negócio.
+There is a single role where an unexpected exception becomes a response to the
+client: the **entry boundary** — the place that translates an exception into a
+response. In the explicit-controller style this is an outer try/catch in the
+controller; in frameworks with error middleware, an exception filter, or a
+central handler, that same role is fulfilled by the framework's boundary. The
+principle does not require a physical location; it requires that **one**
+boundary be responsible and that nothing below it suppress the error.
+Everything below propagates; the data layer converts to a result only when the
+failure has business meaning.
 
 ## When To Use
 
-- Definir como a borda responde a uma **exceção inesperada de dependência**
-  (caso de uso, repositório, adapter externo) — não validação de entrada, não
-  erro de domínio com status próprio.
-- Distinguir **falha técnica** (exceção inesperada → 500) de **ausência
-  esperada** (registro inexistente, credencial cuja invalidez é um caso de
-  negócio → vazio/fallback).
-- Garantir contrato estável quando qualquer dependência interna lança.
-- Decidir onde NÃO suprimir uma exceção ao revisar uma camada interna.
+- Defining how the boundary responds to an **unexpected dependency exception**
+  (use case, repository, external adapter) — not input validation, not a domain
+  error with its own status.
+- Distinguishing a **technical failure** (unexpected exception → 500) from an
+  **expected absence** (nonexistent record, a credential whose invalidity is a
+  business case → empty/fallback).
+- Ensuring a stable contract when any internal dependency throws.
+- Deciding where NOT to suppress an exception when reviewing an internal layer.
 
 ## When Not To Use
 
-- Validação de entrada do request: é regra explícita, retorna 400 — use
-  `input-validation`, não a borda de erro técnico.
-- Erro de domínio que merece status próprio (403, 404, 409): deve ser
-  **retorno tipado** decidido na camada de aplicação/borda antes de virar
-  exceção, não capturado no catch genérico de 500. A decisão de status
-  acontece no mapeamento explícito do resultado tipado, não no catch.
-- Logging do erro: mantenha-o fora do catch de negócio
-  (decorator/middleware de observabilidade) — o ponto é não acoplar logging à
-  tradução de resposta.
+- Request input validation: it is an explicit rule, returns 400 — use
+  `input-validation`, not the technical-error boundary.
+- A domain error that deserves its own status (403, 404, 409): it should be a
+  **typed return** decided in the application/boundary layer before becoming an
+  exception, not caught in the generic 500 catch. The status decision happens
+  in the explicit mapping of the typed result, not in the catch.
+- Logging the error: keep it out of the business catch (observability
+  decorator/middleware) — the point is not to couple logging to response
+  translation.
 
 ## Order Of Operations
 
-1. Nas camadas internas (caso de uso, repositório), não **suprima** nem
-   converta erro técnico em sucesso silencioso. Deixe a exceção da dependência
-   atravessar até a borda.
-2. Identifique se a falha tem semântica de negócio. Se sim, é responsabilidade
-   da camada de dados (passo 3); se não, propaga até a borda (passo 4).
-3. Na camada de dados, converta a **ausência semântica** em resultado:
-   dependência retorna vazio → consulta alternativa ou vazio; decodificação
-   que falha por dado inválido esperado (não por bug) → capture localmente e
-   devolva vazio. Toda conversão precisa de um requisito de negócio nomeado e
-   coberto por teste.
-4. Na borda, traduza qualquer exceção não mapeada em **erro genérico (500)**
-   ao cliente. O corpo da resposta não carrega detalhes internos: o erro
-   completo (stack, mensagem do driver) vai apenas para observabilidade, fora
-   do payload.
-5. A borda é o último anel. Nenhuma camada interna pode engolir a exceção que
-   deveria chegar até ela.
+1. In the internal layers (use case, repository), do not **suppress** or
+   convert a technical error into silent success. Let the dependency's
+   exception flow through to the boundary.
+2. Determine whether the failure has business semantics. If so, it is the data
+   layer's responsibility (step 3); if not, it propagates to the boundary
+   (step 4).
+3. In the data layer, convert the **semantic absence** into a result:
+   dependency returns empty → alternative query or empty; decoding that fails
+   on expected invalid data (not due to a bug) → catch it locally and return
+   empty. Every conversion needs a named business requirement covered by a
+   test.
+4. At the boundary, translate any unmapped exception into a **generic error
+   (500)** to the client. The response body carries no internal details: the
+   complete error (stack, driver message) goes only to observability, outside
+   the payload.
+5. The boundary is the last ring. No internal layer may swallow the exception
+   that should reach it.
 
-### try/catch interno é permitido quando NÃO suprime
+### Internal try/catch is allowed when it does NOT suppress
 
-A proibição vale para try/catch que **engole** a exceção ou a transforma em
-sucesso falso. São legítimos e não violam o boundary:
+The prohibition applies to try/catch that **swallows** the exception or turns
+it into a false success. The following are legitimate and do not violate the
+boundary:
 
-- `try/finally` para liberação de recurso e cleanup, sem capturar a exceção.
-- Capturar para **traduzir em erro tipado de domínio** e **re-lançar** (o erro
-  continua subindo, só muda de tipo).
-- Retry / circuit-breaker em torno de uma dependência instável, desde que o
-  erro final ainda propague quando a política esgota.
+- `try/finally` for resource release and cleanup, without catching the
+  exception.
+- Catching to **translate into a typed domain error** and **re-throw** (the
+  error keeps rising, it only changes type).
+- Retry / circuit-breaker around an unstable dependency, as long as the final
+  error still propagates when the policy is exhausted.
 
 ## Test Checklist
 
-- [ ] Camada interna: teste que, quando a dependência lança, a exceção propaga
-      sem virar sucesso.
-- [ ] Borda: teste que, quando uma dependência lança exceção inesperada, a
-      resposta é o erro genérico (500) e o corpo **não** expõe detalhes
-      internos.
-- [ ] Camada de dados com fallback: para cada fallback vazio/consulta-
-      alternativa, um teste que **nomeia o requisito de negócio** que o motiva
-      (ligando à intenção/critério de aceitação) — exercitando o caminho de
-      ausência.
-- [ ] Camada de dados com fallback: teste também o caminho feliz, provando que
-      o fallback só dispara na ausência.
-- [ ] Falha técnica dentro de um método com fallback: erro inesperado ainda
-      propaga e não é mascarado pelo retorno vazio. Distinga no teste a
-      ausência esperada (dado válido, sem registro) do erro técnico (dado
-      corrompido/bug).
+- [ ] Internal layer: a test that, when the dependency throws, the exception
+      propagates without becoming a success.
+- [ ] Boundary: a test that, when a dependency throws an unexpected exception,
+      the response is the generic error (500) and the body does **not** expose
+      internal details.
+- [ ] Data layer with fallback: for each empty/alternative-query fallback, a
+      test that **names the business requirement** that motivates it (linking
+      to the intent/acceptance criterion) — exercising the absence path.
+- [ ] Data layer with fallback: test the happy path too, proving the fallback
+      only triggers on absence.
+- [ ] Technical failure inside a method with fallback: an unexpected error
+      still propagates and is not masked by the empty return. Distinguish in
+      the test the expected absence (valid data, no record) from the technical
+      error (corrupted data/bug).
 
 ## Anti-Patterns
 
-- try/catch interno que **engole** o erro "por segurança": mascara a origem e
-  impede o 500 na borda. (Diferente de try/finally ou rethrow tipado, que são
-  válidos.)
-- Mais de uma borda traduzindo exceção técnica em resposta: fragmenta o
-  tratamento e produz contratos inconsistentes.
-- Fallback vazio sem requisito nomeado e testado: esconde bugs reais de
-  infraestrutura sob "ausência esperada".
-- Vazar exceção de infraestrutura crua na resposta: a borda retorna erro
-  genérico ao cliente; detalhes vão só para os logs.
-- Capturar erro de domínio com status próprio (403/404) no catch genérico de
-  500: ele deveria ser resultado tipado mapeado explicitamente.
+- An internal try/catch that **swallows** the error "to be safe": it masks the
+  origin and prevents the 500 at the boundary. (Different from try/finally or
+  typed rethrow, which are valid.)
+- More than one boundary translating a technical exception into a response:
+  fragments the handling and produces inconsistent contracts.
+- An empty fallback without a named and tested requirement: hides real
+  infrastructure bugs under "expected absence".
+- Leaking a raw infrastructure exception into the response: the boundary
+  returns a generic error to the client; details go only to the logs.
+- Catching a domain error with its own status (403/404) in the generic 500
+  catch: it should be a typed result mapped explicitly.

@@ -1,0 +1,13 @@
+#!/bin/sh
+# Reject commit messages that do not follow Conventional Commits.
+msg_file="$1"
+first_line=$(head -n1 "$msg_file")
+pattern='^(feat|fix|chore|refactor|test|docs)(\(.+\))?: .+'
+
+if ! printf '%s' "$first_line" | grep -Eq "$pattern"; then
+  echo "commit-msg hook: REJECTED" >&2
+  echo "  message: $first_line" >&2
+  echo "  expected: type(scope?): description" >&2
+  echo "  types: feat|fix|chore|refactor|test|docs" >&2
+  exit 1
+fi

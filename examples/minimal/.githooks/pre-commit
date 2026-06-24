@@ -1,0 +1,6 @@
+#!/bin/sh
+# Quality gate: type-check, lint (zero warnings), and tests must pass.
+set -e
+npm run typecheck
+npm run lint
+npm test

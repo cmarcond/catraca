@@ -1,85 +1,87 @@
 ---
 name: project-structure
-description: Agrupar arquivos pela unidade de domínio dentro de cada fronteira arquitetural, isolar todo o código de teste numa árvore espelhada e tratar reorganização como refactor de commit próprio com suíte verde antes e depois.
+title: Project Structure
+description: Groups files by domain unit within each architectural boundary, mirrors the tree in tests, and treats reorganization as a pure refactor. Use when placing or moving files.
 category: domain-conventions
 dependencies: []
 ---
 
-# Estrutura de pastas por camada e entidade
+# Folder Structure by Layer and Entity
 
-Organize artefatos primeiro pela fronteira arquitetural do projeto e depois
-pela unidade de domínio que cada arquivo serve. Mantenha código de teste,
-mocks e helpers fora do escopo de produção. Trate qualquer movimentação de
-arquivos como refactor puro, sem misturar mudança de comportamento.
+Organize artifacts first by the project's architectural boundary and then by
+the domain unit each file serves. Keep test code, mocks, and helpers out of the
+production scope. Treat any file movement as a pure refactor, without mixing in
+behavior changes.
 
 ## When To Use
 
-- Criar os arquivos de uma nova entidade e decidir onde cada artefato (caso de
-  uso, protocolo, repositório, controller) deve ficar.
-- A raiz de uma camada tem ~5+ arquivos heterogêneos num diretório plano, sem
-  subdivisão.
-- Arquivos de entidades distintas convivem no mesmo diretório plano.
-- Mocks, spies ou factories de teste estão dentro do diretório de produção.
+- Creating the files of a new entity and deciding where each artifact (use
+  case, protocol, repository, controller) should live.
+- The root of a layer has ~5+ heterogeneous files in a flat directory, with no
+  subdivision.
+- Files of distinct entities coexist in the same flat directory.
+- Test mocks, spies, or factories live inside the production directory.
 
 ## When Not To Use
 
-- A mudança real é de comportamento; nesse caso implemente a feature primeiro
-  e adie a reorganização para um commit separado.
-- O ganho é puramente estético e o churn de imports custa mais que a clareza
-  obtida.
-- A árvore já reflete a fronteira → unidade e está estável; mover de novo só
-  dificulta a arqueologia do git.
+- The actual change is a behavior change; in that case implement the feature
+  first and defer the reorganization to a separate commit.
+- The gain is purely aesthetic and the import churn costs more than the clarity
+  obtained.
+- The tree already reflects the boundary → unit mapping and is stable; moving
+  it again only hinders git archaeology.
 
-## Definições
+## Definitions
 
-- **Fronteira arquitetural**: a divisão de mais alto nível que o projeto já
-  adota (camadas, módulos, bounded contexts). É o eixo externo.
-- **Unidade de domínio** ("entidade"): o conceito de negócio que agrega os
-  artefatos relacionados. É o eixo interno.
-- **Outro eixo**: se o projeto organiza por feature/módulo vertical em vez de
-  camada, mantenha esse eixo como externo e a unidade de domínio como interno
-  — não force o arranjo camada→entidade onde ele não existe.
+- **Architectural boundary**: the highest-level division the project already
+  adopts (layers, modules, bounded contexts). It is the outer axis.
+- **Domain unit** ("entity"): the business concept that aggregates the related
+  artifacts. It is the inner axis.
+- **A different axis**: if the project organizes by vertical feature/module
+  instead of by layer, keep that axis as the outer one and the domain unit as
+  the inner one — do not force the layer→entity arrangement where it does not
+  exist.
 
 ## Order Of Operations
 
-1. Garanta a suíte 100% verde antes de tocar em qualquer caminho. Sem suíte de
-   partida verde (ou sem suíte), não há rede de segurança: adicione cobertura
-   mínima dos caminhos afetados antes de mover, ou faça a reorganização em
-   passos pequenos e revisáveis manualmente.
-2. Defina o eixo: nível externo = a fronteira arquitetural já adotada pelo
-   projeto; nível interno = a unidade de domínio.
-3. Crie a árvore de testes espelhando exatamente a estrutura de produção; mova
-   mocks, spies e helpers para lá.
-4. Mova os arquivos por unidade de domínio; agrupe protocolos correlatos em
-   subpastas por responsabilidade quando a pasta crescer.
-5. Se o stack tiver etapa de build/compilação ou runner com múltiplos roots,
-   ajuste a configuração: separe os roots de produção e teste, exclua a árvore
-   de teste do build e simplifique a coleta de cobertura. Em stacks sem essa
-   etapa, pule.
-6. Conserte os imports em massa; se a linguagem usa arquivos de agregação de
-   import (barris/`index`), crie-os só quando 3+ consumidores importam o mesmo
-   conjunto de símbolos.
-7. Rode a suíte de novo: tem de continuar verde sem alterar nenhuma asserção.
-8. Faça o commit contendo só movimentação e ajuste de import, com mensagem que
-   declara o racional.
+1. Ensure the suite is 100% green before touching any path. With no green
+   starting suite (or no suite), there is no safety net: add minimal coverage
+   of the affected paths before moving, or do the reorganization in small,
+   manually reviewable steps.
+2. Define the axis: outer level = the architectural boundary already adopted by
+   the project; inner level = the domain unit.
+3. Create the test tree mirroring the production structure exactly; move mocks,
+   spies, and helpers there.
+4. Move the files by domain unit; group related protocols into subfolders by
+   responsibility when the folder grows.
+5. If the stack has a build/compilation step or a runner with multiple roots,
+   adjust the configuration: separate the production and test roots, exclude the
+   test tree from the build, and simplify coverage collection. In stacks
+   without this step, skip it.
+6. Fix imports in bulk; if the language uses import aggregation files
+   (barrels/`index`), create them only when 3+ consumers import the same set of
+   symbols.
+7. Run the suite again: it must stay green without altering any assertion.
+8. Make the commit containing only movement and import adjustments, with a
+   message that states the rationale.
 
 ## Test Checklist
 
-- [ ] Suíte verde imediatamente antes da movimentação.
-- [ ] Suíte verde imediatamente depois, sem mudar asserções nem lógica — e o
-      diff contém apenas renames/moves + ajuste de import.
-- [ ] Nenhum mock, spy, helper ou arquivo de spec dentro da árvore de
-      produção.
-- [ ] (Se houver build separado) build exclui a árvore de teste e a cobertura
-      aponta só para produção.
+- [ ] Suite green immediately before the movement.
+- [ ] Suite green immediately after, without changing assertions or logic — and
+      the diff contains only renames/moves + import adjustments.
+- [ ] No mock, spy, helper, or spec file inside the production tree.
+- [ ] (If there is a separate build) the build excludes the test tree and
+      coverage points only at production.
 
 ## Anti-Patterns
 
-- Misturar reorganização com nova feature no mesmo commit, inviabilizando o
-  `git blame`.
-- Manter tudo na raiz da camada até virar uma lista impossível de navegar.
-- Deixar artefatos de teste no diretório de produção "porque é mais perto".
-- Criar barris e subpastas profundas antecipadamente, sem duplicação ou volume
-  que os justifique.
-- Alterar uma asserção para "fazer o teste passar" durante a migração — sinal
-  de que houve mudança de comportamento camuflada.
+- Mixing reorganization with a new feature in the same commit, making
+  `git blame` unusable.
+- Keeping everything at the root of the layer until it becomes an
+  impossible-to-navigate list.
+- Leaving test artifacts in the production directory "because it's closer".
+- Creating barrels and deep subfolders ahead of time, with no duplication or
+  volume to justify them.
+- Changing an assertion to "make the test pass" during the migration — a sign
+  that a disguised behavior change crept in.

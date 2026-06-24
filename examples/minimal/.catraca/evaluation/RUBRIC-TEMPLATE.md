@@ -1,55 +1,55 @@
-# Avaliação — NNN Nome da Feature
+# Evaluation — NNN Feature Name
 
-> Preenchido por `/catraca.evaluate`. Cada linha exige evidência verificável.
+> Filled in by `/catraca.evaluate`. Each line requires verifiable evidence.
 
-Spec: `../specs/NNN-slug.md` · Data: <!-- ISO --> · Modo de avaliação: <!-- rígida/pedagógica/pragmática -->
+Spec: `../specs/NNN-slug.md` · Date: <!-- ISO --> · Evaluation mode: <!-- strict/pedagogical/pragmatic -->
 
-## Por skill declarada
+## Per declared skill
 
-| Skill | Score (0–1) | Evidência (comando/saída/teste/commit) | Violação | Justificada? |
+| Skill | Score (0–1) | Evidence (command/output/test/commit) | Violation | Justified? |
 |---|---|---|---|---|
 | `testing/tdd-minimal-step` | | | | |
 | … | | | | |
 
-<!-- Score por skill = itens do Test Checklist atendidos / aplicáveis;
-     anti-pattern presente desconta. Em modo pedagógico, explique cada
-     violação: o que o método pedia e por quê. -->
+<!-- Score per skill = Test Checklist items met / applicable;
+     a present anti-pattern discounts. In pedagogical mode, explain each
+     violation: what the method asked for and why. -->
 
-## Dimensões transversais
+## Transversal dimensions
 
-| Dimensão | Score (0–1) | Evidência |
+| Dimension | Score (0–1) | Evidence |
 |---|---|---|
 | `test_first` | | |
 | `layer_discipline` | | |
 | `coverage` | | |
 | `commit_discipline` | | |
 
-## Evidências de execução
+## Execution evidence
 
 ```
-<!-- saída resumida de: suite de testes, relatório de cobertura -->
+<!-- summarized output of: test suite, coverage report -->
 ```
 
-Arquivos tocados: <!-- lista -->
-Commits: <!-- hashes + mensagens -->
+Files touched: <!-- list -->
+Commits: <!-- hashes + messages -->
 
-## Auditoria
+## Audit
 
-Contexto limpo (subagente): <!-- sim/self --> · Mutações dirigidas: <!-- N
-aplicadas, N sobreviventes --> · Achados: <!-- nenhum | lista achado →
-acatado (score ajustado) ou refutado (justificativa) -->
+Clean context (subagent): <!-- yes/self --> · Directed mutations: <!-- N
+applied, N survivors --> · Findings: <!-- none | list finding →
+accepted (score adjusted) or refuted (justification) -->
 
 ## Verdict
 
-**<aderente | parcial | não aderente>** — <!-- uma frase de síntese -->
+**<adherent | partial | non-adherent>** — <!-- a one-sentence synthesis -->
 
 ## Ratchet
 
-- [ ] `ratchet.json` atualizado (scores maiores registrados)
-- [ ] Regressões? <!-- nenhuma | listar dimensão: antes → agora; ação tomada
-      conforme mode warn/block -->
+- [ ] `ratchet.json` updated (higher scores recorded)
+- [ ] Regressions? <!-- none | list dimension: before → now; action taken
+      per the warn/block mode -->
 
-## Notas pedagógicas
+## Pedagogical notes
 
-<!-- Em modo pedagógico: o que aprender desta feature; o que fazer diferente
-     na próxima. -->
+<!-- In pedagogical mode: what to learn from this feature; what to do
+     differently next time. -->

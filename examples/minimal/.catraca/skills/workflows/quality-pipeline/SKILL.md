@@ -1,122 +1,128 @@
 ---
 name: quality-pipeline
-title: Esteira de qualidade e gates contínuos
-description: Transforme convenções de qualidade em gates automáticos que reprovam o commit/push (lint, type-check, cobertura), atualize dependências em lotes verificados pela suíte e investigue com breakpoints. Princípio independente de stack.
+title: Quality Pipeline
+description: Installs automatic gates that reject commit/push; the requirements are fixed and the tools are chosen per stack in feature 000. Use when setting up or extending the quality pipeline.
 category: workflows
 dependencies:
   - testing/tdd-minimal-step
 ---
 
-# Esteira de qualidade e gates contínuos
+# Quality Pipeline and Continuous Gates
 
-Convenção que depende de lembrar é frágil; o ganho vem de transformar a
-convenção em um gate que reprova automaticamente. Esta skill descreve o
-**princípio invariável** (independente de linguagem); a **materialização** —
-quais ferramentas implementam cada gate — é decidida na feature 000, para a
-stack escolhida em `architecture.md`.
+A convention that depends on remembering is fragile; the gain comes from
+turning the convention into a gate that rejects automatically. This skill
+describes the **invariant principle** (language-independent); the
+**materialization** — which tools implement each gate — is decided in feature
+000, for the stack chosen in `architecture.md`.
 
 ## When To Use
 
-- Iniciando um projeto **e ainda não existe** nenhum gate que reprove um
-  commit/push (lint, type-check, cobertura). Se já existe, ajuste o gate, não
-  reintroduza a esteira.
-- Fechando uma feature ou refactor: confirmar que a cobertura não regrediu
-  contra o baseline antes do push.
-- Atualizando dependências quando há **update major** ou mudança de toolchain
-  que pode quebrar comportamento.
+- Starting a project **and no gate yet exists** that rejects a commit/push
+  (lint, type-check, coverage). If one already exists, adjust the gate, do not
+  reintroduce the pipeline.
+- Closing a feature or refactor: confirm that coverage did not regress against
+  the baseline before the push.
+- Updating dependencies when there is a **major update** or toolchain change
+  that may break behavior.
 
 ## When Not To Use
 
-- Mudança de comportamento isolada que não toca toolchain, scripts, configs ou
-  versões — neste caso vale **apenas** o passo de cobertura no fechamento, não
-  o setup nem o fluxo de updates.
-- Spikes descartáveis fora do fluxo de entrega. Heurística: aplique os gates
-  quando o código será mantido por mais de uma sessão ou compartilhado; pule
-  quando o artefato será jogado fora após a investigação.
+- An isolated behavior change that does not touch the toolchain, scripts,
+  configs, or versions — in this case **only** the coverage step at closure
+  applies, not the setup nor the update flow.
+- Throwaway spikes outside the delivery flow. Heuristic: apply the gates when
+  the code will be maintained for more than one session or shared; skip them
+  when the artifact will be thrown away after the investigation.
 
-## Princípio invariável
+## Invariant Principle
 
-1. **Gates automáticos, não disciplina.** Cada convenção verificável (formato,
-   tipos, estilo, cobertura) deve ter um hook que **reprova** o commit/push,
-   não apenas avisa.
-2. **Pre-commit só sobre o que mudou.** O hook valida o conjunto staged, não o
-   repositório inteiro — caso contrário fica lento e o time recorre a
+1. **Automatic gates, not discipline.** Every verifiable convention (format,
+   types, style, coverage) must have a hook that **rejects** the commit/push,
+   not merely warns.
+2. **Pre-commit only over what changed.** The hook validates the staged set,
+   not the entire repository — otherwise it gets slow and the team resorts to
    `--no-verify`.
-3. **Cobertura como gate com baseline explícito.** Registre o percentual por
-   escopo (ex.: unitário, integração) do último commit verde como baseline. O
-   push reprova se algum escopo cair abaixo do baseline (ou do alvo do perfil
-   em `method.md`). Atualize o baseline só quando subir de própria iniciativa.
-4. **Updates em lotes verificados.** Atualize dependências em lotes pequenos e
-   reversíveis atomicamente (um lote = uma área funcional correlata), rodando
-   a suíte antes e depois de cada lote, para que a quebra seja bissecionável.
-5. **Investigação por breakpoint** quando precisar inspecionar estado em
-   runtime, com mapeamento de fonte correto — em vez de instrumentar com
-   prints.
+3. **Coverage as a gate with an explicit baseline.** Record the percentage per
+   scope (e.g., unit, integration) of the last green commit as the baseline.
+   The push is rejected if any scope falls below the baseline (or the profile's
+   target in `method.md`). Update the baseline only when it goes up on its own
+   initiative.
+4. **Updates in verified batches.** Update dependencies in small,
+   atomically-reversible batches (one batch = one related functional area),
+   running the suite before and after each batch, so that a break is
+   bisectable.
+5. **Breakpoint investigation** when you need to inspect runtime state, with
+   correct source mapping — instead of instrumenting with prints.
 
-## Necessidades (o que a esteira deve cobrir)
+## Requirements (What the Pipeline Must Cover)
 
-Traduza cada necessidade numa ferramenta **da stack escolhida** (a feature 000
-propõe as ferramentas e o usuário confirma):
+Translate each requirement into a tool **of the chosen stack** (feature 000
+proposes the tools and the user confirms):
 
-| Necessidade | Gate |
+| Requirement | Gate |
 |---|---|
-| Verificação de tipos (se a linguagem tiver) | reprova no commit |
-| Estilo/lint com zero warnings | reprova no commit |
-| Formato de mensagem de commit | hook `commit-msg` rejeita |
-| Lint + testes relacionados do staged | hook `pre-commit` |
-| Testes por escopo (unitário, integração, ci) | scripts separados |
-| Cobertura vs baseline/alvo | reprova no push/fechamento |
+| Type checking (if the language has it) | rejects at commit |
+| Style/lint with zero warnings | rejects at commit |
+| Commit message format | `commit-msg` hook rejects |
+| Lint + related tests for the staged set | `pre-commit` hook |
+| Tests per scope (unit, integration, ci) | separate scripts |
+| Coverage vs baseline/target | rejects at push/closure |
 
 ## Order Of Operations
 
-Setup inicial (um chore por ferramenta, commits separados — ver a feature
-000):
+### Setup
 
-1. Verificador de tipos no modo mais estrito disponível; é o primeiro gate.
-2. Linter com zero warnings no commit.
-3. Hook de `commit-msg` validando a convenção de mensagem do projeto.
-4. Hook de `pre-commit` rodando lint e testes **apenas sobre os arquivos
-   staged**.
-5. Test runner com scripts separados por escopo (unitário, integração, ci) e
-   cobertura medida.
+Initial setup (one chore per tool, separate commits — see feature 000):
 
-Fechamento de feature/refactor:
+1. Type checker in the strictest mode available; it is the first gate.
+2. Linter with zero warnings at commit.
+3. `commit-msg` hook validating the project's message convention.
+4. `pre-commit` hook running lint and tests **only over the staged files**.
+5. Test runner with separate scripts per scope (unit, integration, ci) and
+   coverage measured.
 
-1. Suíte verde localmente antes de qualquer push.
-2. Compare a cobertura por escopo contra o baseline/alvo; queda reprova.
-3. Cubra comportamento real; teste trivial só para subir o número não conta
-   como proteção.
+### Closure
 
-Atualização de dependências:
+Feature/refactor closure:
 
-1. Branch própria; suíte verde antes, para fixar baseline.
-2. Atualize em lotes por área; rode a suíte após cada lote; corrija ou reverta
-   o lote antes do próximo.
-3. Major version: leia o changelog e migre em refactor progressivo.
-4. Congele uma versão só com justificativa registrada onde o time a vê (ex.:
-   comentário no manifesto de dependências ou ADR).
+1. Suite green locally before any push.
+2. Compare coverage per scope against the baseline/target; a drop rejects.
+3. Cover real behavior; a trivial test just to bump the number does not count
+   as protection.
+
+### Update
+
+Dependency updates:
+
+1. Own branch; suite green beforehand, to fix the baseline.
+2. Update in batches by area; run the suite after each batch; fix or revert the
+   batch before the next one.
+3. Major version: read the changelog and migrate in a progressive refactor.
+4. Freeze a version only with a recorded justification where the team sees it
+   (e.g., a comment in the dependency manifest or an ADR).
 
 ## Test Checklist
 
-- [ ] Existe um gate que reprova o commit/push para cada convenção verificável
-      do projeto.
-- [ ] `--no-verify` não é necessário no fluxo normal — se a tentação aparece,
-      o hook está lento ou validando arquivos demais.
-- [ ] Pre-commit roda contra a stage area, não contra todo o repositório.
-- [ ] Cobertura comparada contra o baseline/alvo, por escopo; queda reprova.
-- [ ] Cada lote de update validado pela suíte isoladamente e reversível
-      sozinho.
-- [ ] (Se aplicável) breakpoint para na linha correta, sem prints deixados no
-      código.
+- [ ] There is a gate that rejects the commit/push for every verifiable
+      convention of the project.
+- [ ] `--no-verify` is not needed in the normal flow — if the temptation
+      appears, the hook is slow or validating too many files.
+- [ ] Pre-commit runs against the stage area, not against the whole repository.
+- [ ] Coverage compared against the baseline/target, per scope; a drop rejects.
+- [ ] Each update batch validated by the suite on its own and reversible by
+      itself.
+- [ ] (If applicable) breakpoint stops at the correct line, with no prints left
+      in the code.
 
 ## Anti-Patterns
 
-- Convenção verificável deixada como acordo verbal ou aviso em vez de gate.
-- Hook de pre-commit lento que processa a base inteira, empurrando o time para
-  `--no-verify`.
-- Perseguir o número de cobertura com testes triviais; cobertura é gate contra
-  regressão, não meta numérica.
-- Atualizar muitas dependências num único lote: mistura causas de quebra e
-  impede bissecção.
-- Atualizar dependências sem suíte confiável como rede de proteção.
-- Mapeamento de fonte desatualizado deixando o breakpoint na linha errada.
+- A verifiable convention left as a verbal agreement or warning instead of a
+  gate.
+- A slow pre-commit hook that processes the entire codebase, pushing the team
+  toward `--no-verify`.
+- Chasing the coverage number with trivial tests; coverage is a gate against
+  regression, not a numeric goal.
+- Updating many dependencies in a single batch: it mixes causes of breakage and
+  prevents bisection.
+- Updating dependencies without a reliable suite as a safety net.
+- Outdated source mapping leaving the breakpoint on the wrong line.

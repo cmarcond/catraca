@@ -1,82 +1,90 @@
-# /catraca.evaluate — Rubrica de Aderência + Ratchet
+# /catraca.evaluate — Adherence Rubric + Ratchet
 
-Avalia **uma feature** implementada. Pré-condições: tasks da feature completas,
-suite verde. Saídas: `evaluation/NNN-slug.md` + `ratchet.json` atualizado.
+Evaluates **one implemented feature**. Preconditions: the feature's tasks are
+complete, suite green. Outputs: `evaluation/NNN-slug.md` + updated
+`ratchet.json`.
 
-## Passo 1 — Coletar evidências (antes de pontuar)
+> **The ratchet has three modes** (set at Gate D, stored in `ratchet.json`):
+> `warn` records the regression and continues; `block` halts and reports;
+> `repair` attaches repair tasks and re-evaluates once. The `buffer` (default
+> 0.05) is a tolerance band: a score between `best − buffer` and `best` is not a
+> regression. See Step 3.
 
-Execute e capture saída resumida:
+## Step 1 — Collect evidence (before scoring)
 
-1. suite de testes completa;
-2. relatório de cobertura;
-3. `git log --oneline` dos commits da feature;
-4. inspeção de imports das novas unidades por camada (contra a tabela de
+Run and capture a summarized output:
+
+1. the full test suite;
+2. the coverage report;
+3. `git log --oneline` of the feature's commits;
+4. an import inspection of the new units, per layer (against the table in
    `architecture.md`).
 
-## Passo 2 — Preencher a rubrica
+## Step 2 — Fill the rubric
 
-Crie `evaluation/NNN-slug.md` a partir de `evaluation/RUBRIC-TEMPLATE.md`:
+Create `evaluation/NNN-slug.md` from `evaluation/RUBRIC-TEMPLATE.md`:
 
-1. **Por skill declarada na spec**: abra o SKILL.md, percorra o **Test
-   Checklist** (score = atendidos/aplicáveis) e os **Anti-Patterns** (presente
-   ⇒ desconta e vira "violação"). Evidência concreta em cada linha — sem
-   evidência, 0.
-2. **Dimensões transversais**: `test_first` (ordem red nas tasks + histórico),
-   `layer_discipline` (imports), `coverage` (relatório vs alvo do perfil),
-   `commit_discipline` (formato + um-por-task).
-3. Aplique o **modo de avaliação** do `method.md` (G9): rígida zera dimensão
-   com violação não justificada; pedagógica desconta e explica; pragmática não
-   penaliza violação justificada. Em modo pedagógico, compare com as rubricas
-   anteriores: violação já anotada como lição em feature anterior é
-   **reincidência** e desconta mais.
-4. Dê o **verdict**: `aderente` / `parcial` / `não aderente`.
+1. **Per skill declared in the spec**: open the SKILL.md, walk the **Test
+   Checklist** (score = met/applicable) and the **Anti-Patterns** (present ⇒
+   penalize and record a "violation"). Concrete evidence on every line — no
+   evidence, 0.
+2. **Transversal dimensions**: `test_first` (red order in the tasks + history),
+   `layer_discipline` (imports), `coverage` (report vs the profile's target),
+   `commit_discipline` (format + one-per-task).
+3. Apply the **evaluation mode** from `method.md` (G9): strict zeros a dimension
+   with an unjustified violation; pedagogical penalizes and explains; pragmatic
+   does not penalize a justified violation. In pedagogical mode, compare with
+   the prior rubrics: a violation already noted as a lesson in an earlier
+   feature is a **recurrence** and is penalized more.
+4. Give the **verdict**: `adherent` / `partial` / `non-adherent`.
 
-## Passo 2b — Auditoria independente da rubrica
+## Step 2b — Independent audit of the rubric
 
-Antes do ratchet, delegue a auditoria a um **subagente de contexto limpo**
-(no Claude Code, a ferramenta Task), entregando: a spec, as skills declaradas,
-a rubrica preenchida com evidências e os comandos de verificação (suíte,
-cobertura, `git log`, inspeção de imports). A instrução dele é **derrubar
-scores**, em duas frentes:
+Before the ratchet, delegate the audit to a **clean-context subagent** (in
+Claude Code, the Task tool), handing it: the spec, the declared skills, the
+filled rubric with its evidence, and the verification commands (suite, coverage,
+`git log`, import inspection). Its instruction is to **knock scores down**, on
+two fronts:
 
-1. **Re-execução**: rodar de novo cada evidência e procurar pontuação sem
-   prova, violação não detectada ou anti-pattern ignorado.
-2. **Mutação dirigida** — cobertura de linha não prova asserção; mutação é o
-   teste do teste. Para cada criterio crítico da spec, mutar o elo
-   correspondente na produção e rodar a suíte: se nenhum teste quebra (mesmo
-   com cobertura 100%), o criterio está coberto sem estar assertado — achado.
-   Reverter a mutação após cada prova. Exemplos de mutação por criterio:
-   remover o registro de erro mantendo o 500; inverter uma regra de
-   autorização; trocar a comparação de fronteira de um intervalo; devolver
-   sucesso sem persistir.
+1. **Re-execution**: re-run each piece of evidence and look for a score without
+   proof, an undetected violation, or an ignored anti-pattern.
+2. **Directed mutation testing** — line coverage does not prove assertion;
+   mutation is the test of the test. For each critical criterion in the spec,
+   mutate the corresponding link in production and run the suite: if no test
+   breaks (even at 100% coverage), the criterion is covered without being
+   asserted — a finding. Revert the mutation after each proof. Examples of a
+   mutation per criterion: remove the error log while keeping the 500; invert an
+   authorization rule; flip the boundary comparison of a range; return success
+   without persisting.
 
-Ele **não reescreve a rubrica** — só reporta achados; você acata (ajusta o
-score) ou refuta com justificativa, e registra o resultado na linha
-"Auditoria" da rubrica (incluindo mutações aplicadas × sobreviventes). *Sem
-suporte a subagentes: execute você mesmo as duas frentes numa passada separada
-antes do ratchet, e registre a auditoria como "self".* 
+It **does not rewrite the rubric** — it only reports findings; you accept it
+(adjust the score) or refute it with a justification, and record the result on
+the rubric's "Audit" line (including mutations applied × survivors).
+*Claude-Code specific; without subagent support: run both fronts yourself in a
+separate pass before the ratchet, and record the audit as "self".*
 
-## Passo 3 — Ratchet
+## Step 3 — Ratchet
 
-Siga `evaluation/README.md`:
+Follow `evaluation/README.md`:
 
-1. compare cada score com `ratchet.json`;
-2. maior → atualize (a catraca sobe); menor que `melhor - buffer` → regressão:
-   - `mode: warn` ⇒ alerta registrado na rubrica;
-   - `mode: block` ⇒ HALT, reporte ao usuário antes de qualquer outra feature;
-   - `mode: repair` ⇒ anexe tasks de reparo (R1, R2…) ao `tasks/NNN-*.md`,
-     uma por dimensão degradada (red = evidência da regressão; green =
-     correção; refactor sob verde), execute-as pelo ciclo normal do
-     `implement.md` e **reavalie uma vez**. Recuperou ⇒ segue; ainda abaixo ⇒
-     HALT (o usuário decide: rebaixar o piso conscientemente ou orientar novo
-     reparo). Repare aderência, nunca reverta comportamento; dimensões
-     históricas (`test_first`, `commit_discipline` de código já escrito) não
-     se reparam — registre a dívida.
-3. atualize `last_check_at` e o verdict da feature.
+1. compare each score with `ratchet.json`;
+2. higher → update it (the ratchet moves up); lower than `best − buffer` →
+   regression:
+   - `mode: warn` ⇒ an alert recorded in the rubric;
+   - `mode: block` ⇒ HALT, report to the user before any other feature;
+   - `mode: repair` ⇒ append repair tasks (R1, R2…) to `tasks/NNN-*.md`, one per
+     degraded dimension (red = evidence of the regression; green = the fix;
+     refactor under green), run them through the normal cycle in `implement.md`,
+     and **re-evaluate once**. Recovered ⇒ continue; still below ⇒ HALT (the
+     user decides: consciously lower the floor or direct a new repair). Repair
+     adherence, never revert behavior; historical dimensions (`test_first`,
+     `commit_discipline` of already-written code) cannot be repaired — because
+     git history is immutable — so record the debt instead.
+3. update `last_check_at` and the feature's verdict.
 
-## Passo 4 — Encerramento
+## Step 4 — Closure
 
-- Atualize `roadmap.md` (checkbox "avaliada").
-- Resuma para o usuário: verdict, scores, violações e (modo pedagógico) as
-  notas de aprendizado.
-- Próxima ação: feature seguinte do roadmap, ou fim do roadmap.
+- Update `roadmap.md` (the "evaluated" checkbox).
+- Summarize for the user: verdict, scores, violations, and (pedagogical mode)
+  the learning notes.
+- Next action: the next feature in the roadmap, or the end of the roadmap.
