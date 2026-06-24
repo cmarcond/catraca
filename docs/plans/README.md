@@ -14,13 +14,13 @@ example from the final framework).
 ## Active backlog (in execution order)
 
 A completed plan moves to `done/` keeping its number, so a gap in the active
-numbering just means that plan is done (e.g. 01 — EARS — is done).
+numbering just means that plan is done (e.g. 01 — EARS — and 02 — scoring model —
+are done).
 
 **Framework & method**
 | # | Plan | Effort | Depends on |
 |---|---|---|---|
-| 02 | [Formalize the scoring model](02-formalize-scoring-model.md) | medium | — |
-| 03 | [Independent evaluator](03-independent-evaluator.md) | medium | 02 (uses the scoring model) |
+| 03 | [Independent evaluator](03-independent-evaluator.md) | medium | 02 — scoring model (done) |
 
 **Tooling & packaging**
 | # | Plan | Effort | Depends on |
@@ -42,6 +42,7 @@ numbering just means that plan is done (e.g. 01 — EARS — is done).
   setup, so no commit bypasses the pipeline (`fix(pipeline): close the bootstrap
   seam without --no-verify`).
 - [`done/01-ears-acceptance-criteria.md`](done/01-ears-acceptance-criteria.md) — EARS shipped as the **single default** dialect (not opt-in)
+- [`done/02-formalize-scoring-model.md`](done/02-formalize-scoring-model.md) — scoring is now countable formulas (reproducible)
 - [`done/01-type-only-coverage-note.md`](done/01-type-only-coverage-note.md)
 - [`done/02-installer-self-test.md`](done/02-installer-self-test.md)
 - [`done/11-strengthen-skills-content.md`](done/11-strengthen-skills-content.md)
