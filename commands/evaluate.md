@@ -8,7 +8,7 @@ complete, suite green. Outputs: `evaluation/NNN-slug.md` + updated
 > `warn` records the regression and continues; `block` halts and reports;
 > `repair` attaches repair tasks and re-evaluates once. The `buffer` (default
 > 0.05) is a tolerance band: a score between `best − buffer` and `best` is not a
-> regression. See Step 3.
+> regression. See Step 3. (Ratchet, gate proof, and other terms: `../glossary.md`.)
 
 ## Step 1 — Collect evidence (before scoring)
 

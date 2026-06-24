@@ -41,7 +41,8 @@ For each product feature in the roadmap (001+; feature 000 has no spec), create
    `method.md` marks as mandatory requires a justification in the spec.
 5. **Dependencies**: the numbers of the prior features required.
 6. **Run the leakage checklist** from the template — if the spec mentions a
-   class, path, or library, rewrite it before closing.
+   class, path, or library, rewrite it before closing. (Leakage and other terms:
+   `../glossary.md`.)
 7. **Adversarial review (before G12).** Delegate the spec's review to a
    **clean-context subagent** (in Claude Code, the Task tool), handing it only:
    `product.md`, `architecture.md`, the spec, and the adversarial checklist from

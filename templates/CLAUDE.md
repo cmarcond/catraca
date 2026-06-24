@@ -19,6 +19,8 @@ design come exclusively from the user and the artifacts in this directory.
    technical criteria from the **Test Checklists** of the skills declared in the
    spec.
 
+Unfamiliar term? See `glossary.md`.
+
 ## Operating rules
 
 - **User decisions happen at the gates.** In guided mode, ask at the points
@@ -57,6 +59,7 @@ progress".
 | File/folder | Role |
 |---|---|
 | `manifesto.md` | Constitutional principles (invariable) |
+| `glossary.md` | Definitions of recurring terms (gate proof, ratchet, leakage, EARS…) |
 | `method.md` | Rigor profile + this project's gates |
 | `questions.md` | Questions, answers, and `[assumed]` assumptions |
 | `product.md` | What the product is (intent, no technique) |
