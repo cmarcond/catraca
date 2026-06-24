@@ -100,8 +100,15 @@ Initial setup (one chore per tool, separate commits — see feature 000):
 any test exists, yet the `pre-commit` hook runs the test suite — and most
 runners exit non-zero when they find zero tests. Do **not** reach for
 `--no-verify` (it bypasses type-check and lint too). Instead, configure the test
-script to **pass when there are no tests yet** (e.g. Vitest `--passWithNoTests`,
-pytest's "no tests" tolerated via config, Go's `./...` which is already empty-safe).
+script to **pass when there are no tests yet**:
+
+- **Vitest** — `vitest run --passWithNoTests`.
+- **pytest** — probe with `pytest --no-cov` (exit 5 = "no tests collected",
+  treat as success), *then* run the coverage-enforcing pass. A coverage gate in
+  `addopts` (`--cov-fail-under`) turns an empty `pytest` into **exit 1**, not 5 —
+  so a naive "treat exit 5 as success" check would still block the bootstrap.
+- **Go** — `go test ./...` is already empty-safe.
+
 Then the setup commits pass the real hook — type-check and lint still gate them —
 and tests begin gating the moment the first test appears. No commit ever bypasses
 the pipeline.
