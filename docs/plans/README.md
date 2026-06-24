@@ -7,10 +7,12 @@ instructions. They are independent — do them in any order — **except plan 12
 which must run last** (it regenerates the worked example from the final
 framework).
 
-> Already done (not a plan here): the **bootstrap-seam fix** — the test runner
-> now passes with no tests during feature-000 setup, so no commit bypasses the
-> pipeline. See commit `fix(pipeline): close the bootstrap seam without
-> --no-verify`.
+> **Done so far:** the **bootstrap-seam fix** (`fix(pipeline): close the
+> bootstrap seam without --no-verify`), plus plans **01** (coverage note),
+> **02** (installer self-test), **11** (strengthen the 13 skills + a clarity
+> pass), and **12** (regenerated the worked example). Note: plan **12** is
+> re-runnable — if any of plans 03–10 land, regenerate the example again so it
+> keeps reflecting the final framework.
 
 | # | Plan | Effort | Solves |
 |---|---|---|---|
