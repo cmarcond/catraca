@@ -13,6 +13,16 @@ Replace each external collaborator of the unit with a controlled test double so 
 the test asserts the unit's behavior, not the real dependency's. The technique is
 language-independent.
 
+Pick the lightest double that proves the case. The names are not decoration —
+they map to what you verify: a **stub** returns a canned answer (state
+verification: assert on the unit's output); a **spy** is a stub that also records
+how it was called (assert the interaction afterward); a **fake** is a working,
+shortcut implementation that keeps coherent state across calls; a **mock** is
+pre-programmed with expectations about the calls. Prefer state verification
+(stub/fake) over interaction verification (spy/mock), and double **only at the
+unit's real boundaries** — never its internal helpers — so the test does not
+calcify around how the unit happens to be wired today.
+
 ## When To Use
 
 - The unit depends on an external collaborator (repository, cryptography
@@ -55,7 +65,11 @@ language-independent.
 6. Cover the **absence** paths (the dependency returns "empty") where the
    contract distinguishes absence from error.
 7. If the flow involves dates, fix the clock before the block and restore it after,
-   covering every point that generates a date.
+   covering every point that generates a date. Inject the clock (or pass time in)
+   rather than freezing global system time where the platform allows it — an
+   injected clock is local to the unit and cannot leak into sibling tests. The
+   same determinism rule applies to any ambient nondeterministic source the unit
+   reads (random, uuid, environment): pin it, do not let it vary per run.
 
 ## Test Checklist
 
@@ -73,6 +87,13 @@ language-independent.
       return (a spy does not cover the result).
 - [ ] Captured state and overridden test doubles are **reset between cases**
       (not just dates) — no leakage between tests.
+- [ ] Doubles stand in for real boundary collaborators only; no internal
+      helper/private of the unit was mocked.
+- [ ] Each assertion verifies the unit's own observable output or its
+      interaction contract, not a re-statement of the stub's canned value.
+- [ ] The double's failure/return matches the real contract's shape (a value the
+      real dependency could actually produce), so a passing test could not pass
+      against the real collaborator for the wrong reason.
 - [ ] If the unit needed many test doubles to be tested, reassess the
       decomposition: an excess of collaborators to isolate signals coupling or too much
       responsibility in the unit.
@@ -89,3 +110,11 @@ language-independent.
   passes by mistake.
 - Forgetting to restore the clock/test double between tests, generating intermittent
   failures or state leakage.
+- **Over-mocking**: replacing collaborators the real thing could have provided
+  cheaply (a pure helper, a value object) — every mock is a coupling to internal
+  structure that turns a harmless refactor into a red suite.
+- Asserting only on the spy/mock interaction and never on the unit's actual
+  result, so the test passes while the unit returns the wrong thing.
+- Using a stub when the case needs coherent multi-call state (write-then-read):
+  the stub's per-call canned answer silently diverges from real behavior — use a
+  fake.
