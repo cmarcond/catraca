@@ -130,3 +130,7 @@ according to the chosen platform.
   output; `ratchet.json` records the best scores and flags regressions.
 - **No course code**: the framework carries distilled rules (skills), never any
   code from the original teaching project.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
