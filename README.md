@@ -8,9 +8,13 @@ guiding a coding agent from the initial prompt to an adherence evaluation.
 > metaphor: a **ratchet** — a one-way mechanism that only lets quality move
 > forward, never backward.
 
-It is not an engine: it is a layer of Markdown/YAML files installed into
-`.catraca/` in the target project. The host agent (Claude Code first) executes;
-the framework guides — specs, questions, skills, TDD tasks, and evaluation.
+Catraca is a test-and-gate harness for coding agents. It does not run the model
+itself: it is a layer of Markdown/YAML files installed into `.catraca/` in the
+target project, and the host agent (Claude Code first) executes. What makes the
+gates binding is mechanical: the first feature of every project (feature 000,
+the quality pipeline) installs git hooks that reject a commit when the
+linter, the type check or the tests fail. The framework supplies the rest —
+specs, questions, skills, TDD tasks, and an evaluation backed by command output.
 
 ## Installation
 
